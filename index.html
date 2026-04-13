@@ -517,6 +517,45 @@ mark {
 }
 .btn-export:hover { border-color: var(--primary); color: var(--primary); }
 
+/* PDF Button */
+.pdf-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+.btn-pdf {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.55rem 1.1rem;
+  border-radius: var(--radius-sm);
+  font-size: 0.82rem;
+  font-family: inherit;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s;
+  border: none;
+}
+.btn-pdf-primary {
+  background: #dc2626;
+  color: white;
+}
+.btn-pdf-primary:hover { background: #b91c1c; transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.btn-pdf-secondary {
+  background: var(--bg-card);
+  color: var(--primary);
+  border: 1px solid var(--border);
+}
+.btn-pdf-secondary:hover { border-color: var(--primary); background: #eff6ff; }
+[data-theme="dark"] .btn-pdf-secondary:hover { background: #1e3a5f; }
+.btn-pdf-icon {
+  font-size: 1.05rem;
+}
+
 /* Loading */
 .loading {
   text-align: center;
@@ -895,8 +934,15 @@ mark {
   "sections": ["Section XX"],
   "keywords": ["keyword1", "keyword2"],
   "summary": "Brief summary...",
-  "fullText": "Full text of the notification..."
+  "fullText": "Full text of the notification...",
+  "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/XXXXXX/ENG/Notifications"
 }</pre>
+    <p style="margin-top:0.75rem"><strong>Finding the PDF URL:</strong><br>
+      1. Go to <a href="https://taxinformation.cbic.gov.in" target="_blank">taxinformation.cbic.gov.in</a><br>
+      2. Find the notification/circular<br>
+      3. Right-click the PDF link &rarr; Copy link address<br>
+      4. Paste it in the <code>pdfUrl</code> field
+    </p>
     <p style="margin-top:1rem">
       <strong>Steps to contribute on GitHub:</strong><br>
       1. Fork the repository<br>
@@ -1175,6 +1221,7 @@ function renderResults() {
           <span>&#128197; ${dateStr}</span>
           ${effDate ? `<span>&#9989; Effective: ${effDate}</span>` : ''}
           ${item.sections && item.sections.length ? `<span>&#167; ${item.sections.join(', ')}</span>` : ''}
+          ${item.pdfUrl ? `<span style="color:#dc2626;font-weight:600;">&#128196; PDF Available</span>` : ''}
         </div>
       </div>
       <div class="result-details">
@@ -1196,6 +1243,19 @@ function renderResults() {
         <div class="detail-section">
           <div class="detail-label">Sections / Rules Referenced</div>
           <div class="detail-text">${item.sections ? item.sections.join(', ') : 'N/A'}</div>
+        </div>
+        <div class="pdf-actions">
+          ${item.pdfUrl ?
+            `<a href="${item.pdfUrl}" target="_blank" rel="noopener" class="btn-pdf btn-pdf-primary" title="View original PDF on CBIC portal">
+              <span class="btn-pdf-icon">&#128196;</span> View Official PDF
+            </a>` :
+            ''}
+          <a href="${buildCbicSearchUrl(item)}" target="_blank" rel="noopener" class="btn-pdf btn-pdf-secondary" title="Search on CBIC GST portal">
+            <span class="btn-pdf-icon">&#128269;</span> Search on CBIC Portal
+          </a>
+          <a href="${buildGazetteUrl(item)}" target="_blank" rel="noopener" class="btn-pdf btn-pdf-secondary" title="Search on e-Gazette">
+            <span class="btn-pdf-icon">&#127963;</span> e-Gazette
+          </a>
         </div>
       </div>
     </div>`;
@@ -1296,6 +1356,22 @@ function exportResults() {
   link.href = URL.createObjectURL(blob);
   link.download = 'gst_search_results_' + new Date().toISOString().slice(0,10) + '.csv';
   link.click();
+}
+
+// ===== PDF / CBIC URL BUILDERS =====
+function buildCbicSearchUrl(item) {
+  // Build search URL for CBIC GST portal
+  const base = 'https://taxinformation.cbic.gov.in/content-page/explore-notification';
+  // Fallback: use the general CBIC GST site
+  if (item.type === 'Circular') {
+    return 'https://taxinformation.cbic.gov.in/content-page/explore-circular';
+  }
+  return base;
+}
+
+function buildGazetteUrl(item) {
+  // Build search URL for e-Gazette of India
+  return 'https://egazette.gov.in/';
 }
 
 // ===== EVENT LISTENERS =====
