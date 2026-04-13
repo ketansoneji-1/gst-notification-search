@@ -8,10 +8,18 @@
     "effectiveDate": "2017-07-01",
     "subject": "Seeks to bring into force certain sections of the CGST Act, 2017 w.e.f. 22.06.2017",
     "category": "Commencement",
-    "sections": ["Section 1"],
-    "keywords": ["appointed day", "commencement", "CGST Act", "effective date"],
+    "sections": [
+      "Section 1"
+    ],
+    "keywords": [
+      "appointed day",
+      "commencement",
+      "CGST Act",
+      "effective date"
+    ],
     "summary": "Appoints 22nd June 2017 as the date on which provisions of sections 1, 2, 3, 4, 5, 10, 22, 23, 24, 25, 26, 27, 28 and 175 of the CGST Act, 2017 shall come into force.",
-    "fullText": "In exercise of the powers conferred by sub-section (3) of section 1 of the Central Goods and Services Tax Act, 2017 (12 of 2017), the Central Government hereby appoints the 22nd day of June, 2017, as the date on which the provisions of sections 1, 2, 3, 4, 5, 10, 22, 23, 24, 25, 26, 27, 28 and 175 of the said Act shall come into force."
+    "fullText": "In exercise of the powers conferred by sub-section (3) of section 1 of the Central Goods and Services Tax Act, 2017 (12 of 2017), the Central Government hereby appoints the 22nd day of June, 2017, as the date on which the provisions of sections 1, 2, 3, 4, 5, 10, 22, 23, 24, 25, 26, 27, 28 and 175 of the said Act shall come into force.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1000001/ENG/Notifications"
   },
   {
     "id": "NT-CGST-2017-002",
@@ -22,10 +30,17 @@
     "effectiveDate": "2017-06-22",
     "subject": "Seeks to bring into force certain sections of the CGST Act, 2017 w.e.f. 22.06.2017",
     "category": "Commencement",
-    "sections": ["Section 1"],
-    "keywords": ["appointed day", "commencement", "registration"],
+    "sections": [
+      "Section 1"
+    ],
+    "keywords": [
+      "appointed day",
+      "commencement",
+      "registration"
+    ],
     "summary": "Brings into force the registration related provisions of CGST Act from 22nd June 2017.",
-    "fullText": "In exercise of the powers conferred by sub-section (3) of section 1 of the Central Goods and Services Tax Act, 2017 (12 of 2017), the Central Government hereby appoints the 22nd day of June, 2017, as the date on which the provisions of the said sections shall come into force for the purpose of registration under the said Act."
+    "fullText": "In exercise of the powers conferred by sub-section (3) of section 1 of the Central Goods and Services Tax Act, 2017 (12 of 2017), the Central Government hereby appoints the 22nd day of June, 2017, as the date on which the provisions of the said sections shall come into force for the purpose of registration under the said Act.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1000002/ENG/Notifications"
   },
   {
     "id": "NT-CGST-2017-003",
@@ -36,10 +51,18 @@
     "effectiveDate": "2017-07-01",
     "subject": "CGST Rules, 2017",
     "category": "Rules",
-    "sections": ["Section 164"],
-    "keywords": ["CGST Rules", "rules", "procedures", "forms"],
+    "sections": [
+      "Section 164"
+    ],
+    "keywords": [
+      "CGST Rules",
+      "rules",
+      "procedures",
+      "forms"
+    ],
     "summary": "Central Government notifies the CGST Rules, 2017 containing detailed procedures for registration, invoicing, returns, payment, refund, assessment, audit, appeals etc.",
-    "fullText": "In exercise of the powers conferred by section 164 of the Central Goods and Services Tax Act, 2017 (12 of 2017), the Central Government hereby makes the following rules, namely: The Central Goods and Services Tax Rules, 2017. These rules cover registration, composition levy, time and value of supply, input tax credit, invoicing, accounts and records, returns, payment, refund, assessment, audit, advance ruling, appeals and revision, transitional provisions, and anti-profiteering."
+    "fullText": "In exercise of the powers conferred by section 164 of the Central Goods and Services Tax Act, 2017 (12 of 2017), the Central Government hereby makes the following rules, namely: The Central Goods and Services Tax Rules, 2017. These rules cover registration, composition levy, time and value of supply, input tax credit, invoicing, accounts and records, returns, payment, refund, assessment, audit, advance ruling, appeals and revision, transitional provisions, and anti-profiteering.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1000003/ENG/Notifications"
   },
   {
     "id": "NT-CGST-2017-009",
@@ -50,10 +73,18 @@
     "effectiveDate": "2017-07-01",
     "subject": "Seeks to bring into force the remaining provisions of CGST Act, 2017 w.e.f. 01.07.2017",
     "category": "Commencement",
-    "sections": ["Section 1"],
-    "keywords": ["appointed day", "1st July", "GST launch", "remaining sections"],
+    "sections": [
+      "Section 1"
+    ],
+    "keywords": [
+      "appointed day",
+      "1st July",
+      "GST launch",
+      "remaining sections"
+    ],
     "summary": "Appoints 1st July 2017 as the date for commencement of remaining provisions of the CGST Act, 2017 which have not been notified earlier.",
-    "fullText": "In exercise of the powers conferred by sub-section (3) of section 1 of the Central Goods and Services Tax Act, 2017, the Central Government hereby appoints the 1st day of July, 2017, as the date on which all the remaining provisions of the said Act shall come into force."
+    "fullText": "In exercise of the powers conferred by sub-section (3) of section 1 of the Central Goods and Services Tax Act, 2017, the Central Government hereby appoints the 1st day of July, 2017, as the date on which all the remaining provisions of the said Act shall come into force.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1000009/ENG/Notifications"
   },
   {
     "id": "NT-CGST-2017-011",
@@ -64,10 +95,22 @@
     "effectiveDate": "2017-07-01",
     "subject": "Notifies the categories of services on which tax is payable on reverse charge mechanism under section 9(3)",
     "category": "Reverse Charge",
-    "sections": ["Section 9(3)"],
-    "keywords": ["reverse charge", "RCM", "GTA", "legal services", "advocate", "director", "insurance agent", "recovery agent"],
+    "sections": [
+      "Section 9(3)"
+    ],
+    "keywords": [
+      "reverse charge",
+      "RCM",
+      "GTA",
+      "legal services",
+      "advocate",
+      "director",
+      "insurance agent",
+      "recovery agent"
+    ],
     "summary": "Specifies categories of supply of services on which tax shall be paid on reverse charge basis by the recipient. Includes services by GTA, advocate, arbitral tribunal, sponsorship, government, director, insurance agent, recovery agent etc.",
-    "fullText": "In exercise of the powers conferred by sub-section (3) of section 9 of the Central Goods and Services Tax Act, 2017, the Central Government on the recommendations of the Council, hereby notifies that on categories of supply of services mentioned in column (2) of the Table below, supplied by any person as specified in column (3), the tax on intra-State supplies shall be paid on reverse charge basis by the recipient of such services as specified in column (4). Categories include: Services by a goods transport agency (GTA), services by an individual advocate, services by an arbitral tribunal, sponsorship services, services supplied by the Central Government/State Government/local authority to a business entity, services by a director of a company, services by an insurance agent, services by a recovery agent."
+    "fullText": "In exercise of the powers conferred by sub-section (3) of section 9 of the Central Goods and Services Tax Act, 2017, the Central Government on the recommendations of the Council, hereby notifies that on categories of supply of services mentioned in column (2) of the Table below, supplied by any person as specified in column (3), the tax on intra-State supplies shall be paid on reverse charge basis by the recipient of such services as specified in column (4). Categories include: Services by a goods transport agency (GTA), services by an individual advocate, services by an arbitral tribunal, sponsorship services, services supplied by the Central Government/State Government/local authority to a business entity, services by a director of a company, services by an insurance agent, services by a recovery agent.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1000011/ENG/Notifications"
   },
   {
     "id": "NT-CGST-2017-012",
@@ -78,10 +121,22 @@
     "effectiveDate": "2017-07-01",
     "subject": "Seeks to exempt certain intra-State supplies of goods from CGST",
     "category": "Exemption",
-    "sections": ["Section 11(1)"],
-    "keywords": ["exemption", "nil rate", "exempt supply", "fresh fruits", "vegetables", "milk", "education", "health"],
+    "sections": [
+      "Section 11(1)"
+    ],
+    "keywords": [
+      "exemption",
+      "nil rate",
+      "exempt supply",
+      "fresh fruits",
+      "vegetables",
+      "milk",
+      "education",
+      "health"
+    ],
     "summary": "Grants exemption from CGST on intra-State supply of goods as specified in the annexed list. Covers essential commodities, agricultural produce, etc.",
-    "fullText": "In exercise of the powers conferred by sub-section (1) of section 11 of the Central Goods and Services Tax Act, 2017, the Central Government, on being satisfied that it is necessary in the public interest so to do, on the recommendations of the Council, hereby exempts the intra-State supply of goods as specified in the Schedule annexed hereto from the whole of the central tax leviable thereon under section 9 of the said Act."
+    "fullText": "In exercise of the powers conferred by sub-section (1) of section 11 of the Central Goods and Services Tax Act, 2017, the Central Government, on being satisfied that it is necessary in the public interest so to do, on the recommendations of the Council, hereby exempts the intra-State supply of goods as specified in the Schedule annexed hereto from the whole of the central tax leviable thereon under section 9 of the said Act.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1000012/ENG/Notifications"
   },
   {
     "id": "NT-CGST-2017-013",
@@ -92,10 +147,21 @@
     "effectiveDate": "2017-07-01",
     "subject": "Seeks to exempt certain intra-State supplies of services from CGST",
     "category": "Exemption",
-    "sections": ["Section 11(1)"],
-    "keywords": ["exemption", "services", "education", "health care", "charitable", "religious", "transportation"],
+    "sections": [
+      "Section 11(1)"
+    ],
+    "keywords": [
+      "exemption",
+      "services",
+      "education",
+      "health care",
+      "charitable",
+      "religious",
+      "transportation"
+    ],
     "summary": "Grants exemption from CGST on intra-State supply of specified services. Covers healthcare, education, transportation of passengers, religious/charitable activities, etc.",
-    "fullText": "In exercise of the powers conferred by sub-section (1) of section 11 of the Central Goods and Services Tax Act, 2017, the Central Government, on the recommendations of the Council, hereby exempts the intra-State supply of services of description specified in column (3) of the Table below from so much of the central tax leviable thereon under sub-section (1) of section 9 of the said Act. Covers services by educational institutions, health care services, services by charitable trusts, transportation of passengers, services by RBI, etc."
+    "fullText": "In exercise of the powers conferred by sub-section (1) of section 11 of the Central Goods and Services Tax Act, 2017, the Central Government, on the recommendations of the Council, hereby exempts the intra-State supply of services of description specified in column (3) of the Table below from so much of the central tax leviable thereon under sub-section (1) of section 9 of the said Act. Covers services by educational institutions, health care services, services by charitable trusts, transportation of passengers, services by RBI, etc.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1000013/ENG/Notifications"
   },
   {
     "id": "NT-CGST-2017-016",
@@ -106,10 +172,19 @@
     "effectiveDate": "2017-07-01",
     "subject": "Threshold limit for composition scheme",
     "category": "Composition",
-    "sections": ["Section 10"],
-    "keywords": ["composition scheme", "threshold", "turnover limit", "75 lakhs", "small taxpayer"],
+    "sections": [
+      "Section 10"
+    ],
+    "keywords": [
+      "composition scheme",
+      "threshold",
+      "turnover limit",
+      "75 lakhs",
+      "small taxpayer"
+    ],
     "summary": "Specifies the threshold limit of aggregate turnover for eligibility to opt for composition scheme under section 10 of the CGST Act, 2017.",
-    "fullText": "In exercise of the powers conferred by sub-section (1) of section 10 of the Central Goods and Services Tax Act, 2017, the Central Government, on the recommendations of the Council, hereby notifies the threshold of aggregate turnover for composition levy purposes."
+    "fullText": "In exercise of the powers conferred by sub-section (1) of section 10 of the Central Goods and Services Tax Act, 2017, the Central Government, on the recommendations of the Council, hereby notifies the threshold of aggregate turnover for composition levy purposes.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1000016/ENG/Notifications"
   },
   {
     "id": "NT-CGST-2017-020",
@@ -120,10 +195,19 @@
     "effectiveDate": "2017-08-08",
     "subject": "Seeks to amend notification No. 02/2017 - CT to extend time limit for filing of application for registration",
     "category": "Registration",
-    "sections": ["Section 25"],
-    "keywords": ["registration", "time limit", "migration", "existing taxpayers", "GSTIN"],
+    "sections": [
+      "Section 25"
+    ],
+    "keywords": [
+      "registration",
+      "time limit",
+      "migration",
+      "existing taxpayers",
+      "GSTIN"
+    ],
     "summary": "Extends the time limit for filing application for registration for persons who were registered under existing law (VAT, Service Tax, etc.) for migration to GST.",
-    "fullText": "In exercise of the powers conferred by section 25 of the Central Goods and Services Tax Act, 2017, the Central Government hereby extends the time limit for existing registered persons to complete the migration formalities and obtain final registration certificate under GST."
+    "fullText": "In exercise of the powers conferred by section 25 of the Central Goods and Services Tax Act, 2017, the Central Government hereby extends the time limit for existing registered persons to complete the migration formalities and obtain final registration certificate under GST.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1000020/ENG/Notifications"
   },
   {
     "id": "NT-CGST-2017-032",
@@ -134,10 +218,20 @@
     "effectiveDate": "2017-09-15",
     "subject": "Seeks to prescribe rate of interest under CGST Act, 2017",
     "category": "Interest",
-    "sections": ["Section 50"],
-    "keywords": ["interest", "18 percent", "24 percent", "late payment", "excess ITC", "undue claim"],
+    "sections": [
+      "Section 50"
+    ],
+    "keywords": [
+      "interest",
+      "18 percent",
+      "24 percent",
+      "late payment",
+      "excess ITC",
+      "undue claim"
+    ],
     "summary": "Prescribes rate of interest for delayed payment of tax at 18% p.a. and for undue or excess claim of ITC or reduction in output tax at 24% p.a. under section 50 of CGST Act.",
-    "fullText": "In exercise of the powers conferred by sub-section (1) of section 50 of the Central Goods and Services Tax Act, 2017, the Central Government, on the recommendations of the Council, hereby notifies the rate of interest per annum as 18% for every person who is liable to pay tax but fails to pay the tax or any part thereof to the Government within the period prescribed, and 24% for every person who makes an undue or excess claim of input tax credit or undue or excess reduction in output tax liability."
+    "fullText": "In exercise of the powers conferred by sub-section (1) of section 50 of the Central Goods and Services Tax Act, 2017, the Central Government, on the recommendations of the Council, hereby notifies the rate of interest per annum as 18% for every person who is liable to pay tax but fails to pay the tax or any part thereof to the Government within the period prescribed, and 24% for every person who makes an undue or excess claim of input tax credit or undue or excess reduction in output tax liability.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1000032/ENG/Notifications"
   },
   {
     "id": "NT-CGST-2017-046",
@@ -148,10 +242,20 @@
     "effectiveDate": "2017-11-13",
     "subject": "Seeks to extend the due date for filing of GSTR-1 for taxpayers with aggregate turnover upto Rs.1.5 crores",
     "category": "Return Filing",
-    "sections": ["Section 37"],
-    "keywords": ["GSTR-1", "return filing", "due date", "extension", "quarterly", "turnover"],
+    "sections": [
+      "Section 37"
+    ],
+    "keywords": [
+      "GSTR-1",
+      "return filing",
+      "due date",
+      "extension",
+      "quarterly",
+      "turnover"
+    ],
     "summary": "Extends due date for filing GSTR-1 for taxpayers with aggregate turnover up to Rs. 1.5 crores on a quarterly basis.",
-    "fullText": "In exercise of the powers conferred by proviso to sub-section (1) of section 37 of the CGST Act, the Central Government hereby extends the time limit for furnishing GSTR-1 for taxpayers having aggregate turnover up to Rs. 1.5 crores in the preceding financial year or the current financial year."
+    "fullText": "In exercise of the powers conferred by proviso to sub-section (1) of section 37 of the CGST Act, the Central Government hereby extends the time limit for furnishing GSTR-1 for taxpayers having aggregate turnover up to Rs. 1.5 crores in the preceding financial year or the current financial year.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1000046/ENG/Notifications"
   },
   {
     "id": "NT-CGST-2018-002",
@@ -162,10 +266,19 @@
     "effectiveDate": "2018-01-10",
     "subject": "Seeks to amend CGST Rules, 2017 (Seventh Amendment)",
     "category": "Rules Amendment",
-    "sections": ["Section 164"],
-    "keywords": ["e-way bill", "rules amendment", "FORM GST EWB-01", "transporter", "goods movement"],
+    "sections": [
+      "Section 164"
+    ],
+    "keywords": [
+      "e-way bill",
+      "rules amendment",
+      "FORM GST EWB-01",
+      "transporter",
+      "goods movement"
+    ],
     "summary": "Amends CGST Rules to introduce e-way bill provisions. Inserts Rule 138, 138A, 138B, 138C, 138D related to generation, validity, and verification of e-way bills for movement of goods.",
-    "fullText": "The Central Government makes amendments to the CGST Rules, 2017 to introduce the e-way bill system. Key provisions include: Rule 138 for information to be furnished prior to commencement of movement of goods and generation of e-way bill, Rule 138A for documents and devices to be carried by person-in-charge of conveyance, Rule 138B for verification of documents and conveyances, Rule 138C for inspection and verification of goods, and Rule 138D for facility for uploading information regarding detention of vehicle."
+    "fullText": "The Central Government makes amendments to the CGST Rules, 2017 to introduce the e-way bill system. Key provisions include: Rule 138 for information to be furnished prior to commencement of movement of goods and generation of e-way bill, Rule 138A for documents and devices to be carried by person-in-charge of conveyance, Rule 138B for verification of documents and conveyances, Rule 138C for inspection and verification of goods, and Rule 138D for facility for uploading information regarding detention of vehicle.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1000050/ENG/Notifications"
   },
   {
     "id": "NT-CGST-2018-008",
@@ -176,10 +289,20 @@
     "effectiveDate": "2018-02-01",
     "subject": "Seeks to notify the date from which e-way bill rules shall come into force for inter-state movement of goods",
     "category": "E-Way Bill",
-    "sections": ["Rule 138"],
-    "keywords": ["e-way bill", "inter-state", "February 2018", "mandatory", "goods movement", "transport"],
+    "sections": [
+      "Rule 138"
+    ],
+    "keywords": [
+      "e-way bill",
+      "inter-state",
+      "February 2018",
+      "mandatory",
+      "goods movement",
+      "transport"
+    ],
     "summary": "Notifies 1st February 2018 as the date from which e-way bill provisions shall come into force for inter-State movement of goods.",
-    "fullText": "In exercise of the powers conferred by the CGST Rules, the Central Government notifies that the provisions relating to e-way bill shall come into force for inter-State movement of goods from 1st February, 2018. Every registered person who causes movement of goods of consignment value exceeding Rs. 50,000 shall furnish information in Part A of FORM GST EWB-01 before commencement of such movement."
+    "fullText": "In exercise of the powers conferred by the CGST Rules, the Central Government notifies that the provisions relating to e-way bill shall come into force for inter-State movement of goods from 1st February, 2018. Every registered person who causes movement of goods of consignment value exceeding Rs. 50,000 shall furnish information in Part A of FORM GST EWB-01 before commencement of such movement.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1000056/ENG/Notifications"
   },
   {
     "id": "NT-CGST-2018-026",
@@ -190,10 +313,19 @@
     "effectiveDate": "2018-07-01",
     "subject": "Seeks to amend notification No. 8/2017 regarding TDS provisions",
     "category": "TDS",
-    "sections": ["Section 51"],
-    "keywords": ["TDS", "tax deducted at source", "government", "deduction", "1 October"],
+    "sections": [
+      "Section 51"
+    ],
+    "keywords": [
+      "TDS",
+      "tax deducted at source",
+      "government",
+      "deduction",
+      "1 October"
+    ],
     "summary": "Amends TDS provisions under section 51 to notify the date from which TDS under GST shall be applicable for specified categories of persons including government departments.",
-    "fullText": "In exercise of the powers conferred by section 51 of the CGST Act, the Central Government notifies the provisions related to tax deduction at source. Departments of the Central and State Government, Local authority, Governmental agencies, and persons or category of persons notified under section 51 shall deduct tax at the rate of one per cent from the payment made to the supplier of taxable goods or services, where the total value of such supply exceeds Rs. 2,50,000."
+    "fullText": "In exercise of the powers conferred by section 51 of the CGST Act, the Central Government notifies the provisions related to tax deduction at source. Departments of the Central and State Government, Local authority, Governmental agencies, and persons or category of persons notified under section 51 shall deduct tax at the rate of one per cent from the payment made to the supplier of taxable goods or services, where the total value of such supply exceeds Rs. 2,50,000.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1000074/ENG/Notifications"
   },
   {
     "id": "NT-CGST-2019-002",
@@ -204,10 +336,19 @@
     "effectiveDate": "2019-02-01",
     "subject": "Seeks to make amendments (Second Amendment, 2019) to the CGST Rules, 2017",
     "category": "Rules Amendment",
-    "sections": ["Section 164"],
-    "keywords": ["new return", "FORM GST ANX-1", "FORM GST ANX-2", "FORM GST RET-1", "simplified return"],
+    "sections": [
+      "Section 164"
+    ],
+    "keywords": [
+      "new return",
+      "FORM GST ANX-1",
+      "FORM GST ANX-2",
+      "FORM GST RET-1",
+      "simplified return"
+    ],
     "summary": "Introduces amendments to CGST Rules for the new return filing framework including invoice matching and simplified return forms.",
-    "fullText": "The Central Government amends the CGST Rules, 2017 to introduce the new return filing system. These amendments pertain to the simplified return framework which includes FORM GST ANX-1 (details of outward supplies), FORM GST ANX-2 (details of inward supplies for auto-population), and FORM GST RET-1 (the monthly/quarterly return)."
+    "fullText": "The Central Government amends the CGST Rules, 2017 to introduce the new return filing system. These amendments pertain to the simplified return framework which includes FORM GST ANX-1 (details of outward supplies), FORM GST ANX-2 (details of inward supplies for auto-population), and FORM GST RET-1 (the monthly/quarterly return).",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1000088/ENG/Notifications"
   },
   {
     "id": "NT-CGST-2019-010",
@@ -218,10 +359,19 @@
     "effectiveDate": "2019-04-01",
     "subject": "Seeks to increase the threshold limit for composition scheme from Rs. 1 crore to Rs. 1.5 crores",
     "category": "Composition",
-    "sections": ["Section 10"],
-    "keywords": ["composition scheme", "threshold", "1.5 crore", "small taxpayer", "turnover limit"],
+    "sections": [
+      "Section 10"
+    ],
+    "keywords": [
+      "composition scheme",
+      "threshold",
+      "1.5 crore",
+      "small taxpayer",
+      "turnover limit"
+    ],
     "summary": "Increases the aggregate turnover threshold for composition scheme from Rs. 1 crore to Rs. 1.5 crore with effect from 1st April 2019.",
-    "fullText": "In exercise of the powers conferred by section 10 of the CGST Act, the Central Government on the recommendations of the Council, hereby amends the threshold limit for composition levy. The aggregate turnover in the preceding financial year for eligibility to opt for composition scheme is increased to one crore and fifty lakh rupees, with effect from 1st April 2019."
+    "fullText": "In exercise of the powers conferred by section 10 of the CGST Act, the Central Government on the recommendations of the Council, hereby amends the threshold limit for composition levy. The aggregate turnover in the preceding financial year for eligibility to opt for composition scheme is increased to one crore and fifty lakh rupees, with effect from 1st April 2019.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1000096/ENG/Notifications"
   },
   {
     "id": "NT-CGST-2019-049",
@@ -232,10 +382,23 @@
     "effectiveDate": "2020-01-01",
     "subject": "Seeks to notify the provisions of Section 5 of CGST (Amendment) Act, 2018 relating to restriction of ITC claim in GSTR-3B",
     "category": "Input Tax Credit",
-    "sections": ["Section 16(4)", "Section 36", "Rule 36(4)"],
-    "keywords": ["ITC restriction", "GSTR-2A", "20 percent", "10 percent", "invoice matching", "ITC claim", "input tax credit"],
+    "sections": [
+      "Section 16(4)",
+      "Section 36",
+      "Rule 36(4)"
+    ],
+    "keywords": [
+      "ITC restriction",
+      "GSTR-2A",
+      "20 percent",
+      "10 percent",
+      "invoice matching",
+      "ITC claim",
+      "input tax credit"
+    ],
     "summary": "Notifies the restriction on availing ITC - taxpayer cannot claim ITC in excess of specified percentage of eligible credit available in GSTR-2A. Initially set at 20%, later reduced to 10% and then 5%.",
-    "fullText": "In exercise of the powers conferred by the CGST Act, the Central Government notifies that input tax credit to be availed by a registered person in respect of invoices or debit notes, the details of which have not been uploaded by the suppliers, shall not exceed a specified percentage of the eligible credit available in respect of invoices or debit notes the details of which have been uploaded by the suppliers. This is commonly referred to as the ITC matching rule or Rule 36(4) restriction."
+    "fullText": "In exercise of the powers conferred by the CGST Act, the Central Government notifies that input tax credit to be availed by a registered person in respect of invoices or debit notes, the details of which have not been uploaded by the suppliers, shall not exceed a specified percentage of the eligible credit available in respect of invoices or debit notes the details of which have been uploaded by the suppliers. This is commonly referred to as the ITC matching rule or Rule 36(4) restriction.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1000135/ENG/Notifications"
   },
   {
     "id": "NT-CGST-2020-012",
@@ -246,10 +409,18 @@
     "effectiveDate": "2020-02-21",
     "subject": "Seeks to prescribe the due date for filing GSTR-1 for registered persons having turnover of more than 1.5 crore rupees",
     "category": "Return Filing",
-    "sections": ["Section 37"],
-    "keywords": ["GSTR-1", "monthly", "due date", "11th of next month"],
+    "sections": [
+      "Section 37"
+    ],
+    "keywords": [
+      "GSTR-1",
+      "monthly",
+      "due date",
+      "11th of next month"
+    ],
     "summary": "Prescribes 11th of the month succeeding such month as the due date for filing GSTR-1 for taxpayers with turnover exceeding Rs. 1.5 crore.",
-    "fullText": "In exercise of the powers conferred by section 37 of the CGST Act, the Central Government notifies the time limit for furnishing details of outward supply in FORM GSTR-1. For registered persons having aggregate turnover of more than Rs. 1.5 crore in the preceding financial year or the current financial year, the GSTR-1 shall be furnished on or before the 11th day of the month succeeding such month."
+    "fullText": "In exercise of the powers conferred by section 37 of the CGST Act, the Central Government notifies the time limit for furnishing details of outward supply in FORM GSTR-1. For registered persons having aggregate turnover of more than Rs. 1.5 crore in the preceding financial year or the current financial year, the GSTR-1 shall be furnished on or before the 11th day of the month succeeding such month.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1000148/ENG/Notifications"
   },
   {
     "id": "NT-CGST-2020-076",
@@ -260,10 +431,22 @@
     "effectiveDate": "2020-10-15",
     "subject": "Seeks to bring section 112, 118, 128 and 140 of Finance Act, 2020 into force w.e.f. 01.01.2021",
     "category": "Amendment",
-    "sections": ["Section 16", "Section 30", "Section 122", "Section 132"],
-    "keywords": ["Finance Act 2020", "ITC", "penal provisions", "fraud", "fake invoice"],
+    "sections": [
+      "Section 16",
+      "Section 30",
+      "Section 122",
+      "Section 132"
+    ],
+    "keywords": [
+      "Finance Act 2020",
+      "ITC",
+      "penal provisions",
+      "fraud",
+      "fake invoice"
+    ],
     "summary": "Brings into force amendments introduced by Finance Act 2020 to CGST Act including enhanced penalties for fake invoicing and fraudulent ITC claims from 1st January 2021.",
-    "fullText": "The Central Government brings into force certain sections of the Finance Act, 2020, which amend the CGST Act, 2017. Key amendments include: enhanced penalties for issuance of invoices without actual supply, strengthened provisions for cancellation and revocation of registration, and tightened conditions for availing ITC."
+    "fullText": "The Central Government brings into force certain sections of the Finance Act, 2020, which amend the CGST Act, 2017. Key amendments include: enhanced penalties for issuance of invoices without actual supply, strengthened provisions for cancellation and revocation of registration, and tightened conditions for availing ITC.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1000212/ENG/Notifications"
   },
   {
     "id": "NT-CGST-2021-040",
@@ -274,10 +457,20 @@
     "effectiveDate": "2022-01-01",
     "subject": "Seeks to notify 01.01.2022 as the date on which provisions of sections 108, 109, 113 to 122 of Finance Act, 2021 shall come into force",
     "category": "Amendment",
-    "sections": ["Multiple"],
-    "keywords": ["Finance Act 2021", "section 16(2)(aa)", "e-invoice", "GSTR-2B", "auto-population", "self-assessed tax"],
+    "sections": [
+      "Multiple"
+    ],
+    "keywords": [
+      "Finance Act 2021",
+      "section 16(2)(aa)",
+      "e-invoice",
+      "GSTR-2B",
+      "auto-population",
+      "self-assessed tax"
+    ],
     "summary": "Notifies 1st January 2022 as the date for enforcement of amendments by Finance Act 2021 to CGST Act. Includes new condition under Section 16(2)(aa) requiring details of invoice to appear in GSTR-2B for ITC eligibility.",
-    "fullText": "The Central Government brings into force multiple amendments to the CGST Act introduced by the Finance Act, 2021, effective from 1st January 2022. Critical amendment: Section 16(2)(aa) is inserted which provides that ITC on invoice or debit note may be availed only when the details of such invoice or debit note have been furnished by the supplier in GSTR-1/IFF and have been communicated to the recipient in GSTR-2B. Other amendments include provisions for interest on net cash liability, provisions related to self-assessed tax recovery, and e-invoice related amendments."
+    "fullText": "The Central Government brings into force multiple amendments to the CGST Act introduced by the Finance Act, 2021, effective from 1st January 2022. Critical amendment: Section 16(2)(aa) is inserted which provides that ITC on invoice or debit note may be availed only when the details of such invoice or debit note have been furnished by the supplier in GSTR-1/IFF and have been communicated to the recipient in GSTR-2B. Other amendments include provisions for interest on net cash liability, provisions related to self-assessed tax recovery, and e-invoice related amendments.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1000266/ENG/Notifications"
   },
   {
     "id": "NT-CGST-2022-018",
@@ -288,10 +481,21 @@
     "effectiveDate": "2022-10-01",
     "subject": "Seeks to implement e-invoicing for the taxpayers having aggregate turnover exceeding Rs. 10 crores",
     "category": "E-Invoice",
-    "sections": ["Rule 48(4)"],
-    "keywords": ["e-invoice", "10 crore", "electronic invoice", "IRN", "IRP", "QR code", "B2B"],
+    "sections": [
+      "Rule 48(4)"
+    ],
+    "keywords": [
+      "e-invoice",
+      "10 crore",
+      "electronic invoice",
+      "IRN",
+      "IRP",
+      "QR code",
+      "B2B"
+    ],
     "summary": "Extends e-invoicing mandate to businesses with aggregate turnover exceeding Rs. 10 crores from 1st October 2022. Previously applicable to turnover exceeding Rs. 20 crores.",
-    "fullText": "In exercise of the powers conferred by sub-rule (4) of rule 48 of the CGST Rules, 2017, the Government on the recommendations of the Council, hereby makes the following amendments to extend e-invoicing to registered persons whose aggregate turnover in any preceding financial year from 2017-18 onwards exceeds ten crore rupees. Such persons shall prepare invoice and other prescribed documents by including a unique Invoice Reference Number (IRN) obtained from the Invoice Registration Portal (IRP)."
+    "fullText": "In exercise of the powers conferred by sub-rule (4) of rule 48 of the CGST Rules, 2017, the Government on the recommendations of the Council, hereby makes the following amendments to extend e-invoicing to registered persons whose aggregate turnover in any preceding financial year from 2017-18 onwards exceeds ten crore rupees. Such persons shall prepare invoice and other prescribed documents by including a unique Invoice Reference Number (IRN) obtained from the Invoice Registration Portal (IRP).",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1000302/ENG/Notifications"
   },
   {
     "id": "NT-CGST-2023-010",
@@ -302,10 +506,19 @@
     "effectiveDate": "2023-08-01",
     "subject": "Seeks to implement e-invoicing for taxpayers having AATO exceeding Rs.5 crores",
     "category": "E-Invoice",
-    "sections": ["Rule 48(4)"],
-    "keywords": ["e-invoice", "5 crore", "electronic invoice", "IRN", "August 2023"],
+    "sections": [
+      "Rule 48(4)"
+    ],
+    "keywords": [
+      "e-invoice",
+      "5 crore",
+      "electronic invoice",
+      "IRN",
+      "August 2023"
+    ],
     "summary": "Further extends e-invoicing mandate to businesses with aggregate turnover exceeding Rs. 5 crores from 1st August 2023.",
-    "fullText": "In exercise of the powers conferred by sub-rule (4) of rule 48 of the CGST Rules, 2017, the Government extends e-invoicing requirements to registered persons whose aggregate annual turnover in any preceding financial year from 2017-18 onwards exceeds five crore rupees, with effect from 1st August 2023."
+    "fullText": "In exercise of the powers conferred by sub-rule (4) of rule 48 of the CGST Rules, 2017, the Government extends e-invoicing requirements to registered persons whose aggregate annual turnover in any preceding financial year from 2017-18 onwards exceeds five crore rupees, with effect from 1st August 2023.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1000340/ENG/Notifications"
   },
   {
     "id": "NT-CGST-2023-016",
@@ -316,10 +529,22 @@
     "effectiveDate": "2023-08-01",
     "subject": "Seeks to prescribe amnesty for deemed withdrawal of assessment orders issued under Section 62",
     "category": "Amnesty",
-    "sections": ["Section 62", "Section 148"],
-    "keywords": ["amnesty", "best judgment assessment", "section 62", "non-filer", "GSTR-3B", "late filing", "withdrawal"],
+    "sections": [
+      "Section 62",
+      "Section 148"
+    ],
+    "keywords": [
+      "amnesty",
+      "best judgment assessment",
+      "section 62",
+      "non-filer",
+      "GSTR-3B",
+      "late filing",
+      "withdrawal"
+    ],
     "summary": "Provides amnesty scheme for deemed withdrawal of best judgment assessment orders passed under Section 62 where return is filed within specified period.",
-    "fullText": "The Central Government, on the recommendations of the Council, provides an amnesty for deemed withdrawal of assessment orders issued under Section 62 of the CGST Act. The assessment order shall be deemed to have been withdrawn where the registered person furnishes a valid return within a specified period and pays the tax along with interest and late fee."
+    "fullText": "The Central Government, on the recommendations of the Council, provides an amnesty for deemed withdrawal of assessment orders issued under Section 62 of the CGST Act. The assessment order shall be deemed to have been withdrawn where the registered person furnishes a valid return within a specified period and pays the tax along with interest and late fee.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1000346/ENG/Notifications"
   },
   {
     "id": "NT-CGST-2023-025",
@@ -330,10 +555,22 @@
     "effectiveDate": "2023-09-15",
     "subject": "Seeks to appoint a common adjudicating authority in respect of show cause notice issued under Section 73/74",
     "category": "Adjudication",
-    "sections": ["Section 73", "Section 74"],
-    "keywords": ["adjudication", "show cause notice", "SCN", "section 73", "section 74", "demand", "common authority"],
+    "sections": [
+      "Section 73",
+      "Section 74"
+    ],
+    "keywords": [
+      "adjudication",
+      "show cause notice",
+      "SCN",
+      "section 73",
+      "section 74",
+      "demand",
+      "common authority"
+    ],
     "summary": "Appoints common adjudicating authority for disposal of show cause notices issued under Section 73 (non-fraud) and Section 74 (fraud) of CGST Act.",
-    "fullText": "In exercise of the powers conferred by the CGST Act, the Central Government appoints a common adjudicating authority for the purpose of deciding cases arising from show cause notices issued under Section 73 (for non-fraud cases involving non-payment/short payment/erroneous refund/wrong utilization of ITC without fraud) and Section 74 (for fraud cases) of the CGST Act, 2017."
+    "fullText": "In exercise of the powers conferred by the CGST Act, the Central Government appoints a common adjudicating authority for the purpose of deciding cases arising from show cause notices issued under Section 73 (for non-fraud cases involving non-payment/short payment/erroneous refund/wrong utilization of ITC without fraud) and Section 74 (for fraud cases) of the CGST Act, 2017.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1000355/ENG/Notifications"
   },
   {
     "id": "NT-CGST-2023-056",
@@ -344,10 +581,21 @@
     "effectiveDate": "2024-01-01",
     "subject": "Seeks to implement GSTR-1A form for amendment of details furnished in GSTR-1",
     "category": "Return Filing",
-    "sections": ["Section 37", "Rule 59"],
-    "keywords": ["GSTR-1A", "amendment", "GSTR-1", "correction", "outward supply", "rectification"],
+    "sections": [
+      "Section 37",
+      "Rule 59"
+    ],
+    "keywords": [
+      "GSTR-1A",
+      "amendment",
+      "GSTR-1",
+      "correction",
+      "outward supply",
+      "rectification"
+    ],
     "summary": "Introduces GSTR-1A form to allow taxpayers to amend/add details in GSTR-1 before filing GSTR-3B for the same period.",
-    "fullText": "The Central Government introduces FORM GSTR-1A which allows registered persons to amend or add any particulars in FORM GSTR-1 for a tax period before filing of FORM GSTR-3B for the said tax period. This facility enables correction of errors in outward supply details already furnished in GSTR-1 without having to wait for the next tax period."
+    "fullText": "The Central Government introduces FORM GSTR-1A which allows registered persons to amend or add any particulars in FORM GSTR-1 for a tax period before filing of FORM GSTR-3B for the said tax period. This facility enables correction of errors in outward supply details already furnished in GSTR-1 without having to wait for the next tax period.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1000386/ENG/Notifications"
   },
   {
     "id": "NT-CGST-2024-016",
@@ -358,10 +606,25 @@
     "effectiveDate": "2024-07-26",
     "subject": "Seeks to provide waiver of interest and penalty for demand notices under Section 73 for FY 2017-18, 2018-19 and 2019-20",
     "category": "Amnesty",
-    "sections": ["Section 73", "Section 128A"],
-    "keywords": ["amnesty", "waiver", "interest", "penalty", "section 73", "section 128A", "demand notice", "FY 2017-18", "FY 2018-19", "FY 2019-20"],
+    "sections": [
+      "Section 73",
+      "Section 128A"
+    ],
+    "keywords": [
+      "amnesty",
+      "waiver",
+      "interest",
+      "penalty",
+      "section 73",
+      "section 128A",
+      "demand notice",
+      "FY 2017-18",
+      "FY 2018-19",
+      "FY 2019-20"
+    ],
     "summary": "Introduces Section 128A providing conditional waiver of interest and penalty for demand notices under Section 73 for FY 2017-18 to 2019-20 where full tax amount is paid by specified date.",
-    "fullText": "The Central Government on the recommendations of the Council introduces Section 128A which provides for waiver of interest and penalty in respect of notices or orders issued under Section 73 of the CGST Act for the financial years 2017-18, 2018-19 and 2019-20. The taxpayer must pay the full amount of tax demanded in the notice/order on or before the specified date to avail this waiver. This is a significant relief measure for early GST period demands where taxpayers faced genuine difficulties in compliance."
+    "fullText": "The Central Government on the recommendations of the Council introduces Section 128A which provides for waiver of interest and penalty in respect of notices or orders issued under Section 73 of the CGST Act for the financial years 2017-18, 2018-19 and 2019-20. The taxpayer must pay the full amount of tax demanded in the notice/order on or before the specified date to avail this waiver. This is a significant relief measure for early GST period demands where taxpayers faced genuine difficulties in compliance.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1000420/ENG/Notifications"
   },
   {
     "id": "NT-CGST-2024-020",
@@ -372,10 +635,21 @@
     "effectiveDate": "2024-11-01",
     "subject": "Seeks to notify provisions relating to Input Service Distributor (ISD) mechanism",
     "category": "Input Tax Credit",
-    "sections": ["Section 20", "Rule 39"],
-    "keywords": ["ISD", "Input Service Distributor", "ITC distribution", "common services", "head office", "branch"],
+    "sections": [
+      "Section 20",
+      "Rule 39"
+    ],
+    "keywords": [
+      "ISD",
+      "Input Service Distributor",
+      "ITC distribution",
+      "common services",
+      "head office",
+      "branch"
+    ],
     "summary": "Makes ISD mechanism mandatory for distribution of ITC in respect of common input services received by head office on behalf of branches from 1st April 2025.",
-    "fullText": "The Central Government notifies the amended provisions relating to Input Service Distributor (ISD) mechanism. Under the revised provisions, ISD registration becomes mandatory for entities receiving common input services at head office for distribution to branches. The ISD shall distribute the ITC available for distribution in the prescribed manner as per amended Rule 39 of CGST Rules. Cross-charge mechanism for distribution of common services ITC between distinct persons is replaced by mandatory ISD route."
+    "fullText": "The Central Government notifies the amended provisions relating to Input Service Distributor (ISD) mechanism. Under the revised provisions, ISD registration becomes mandatory for entities receiving common input services at head office for distribution to branches. The ISD shall distribute the ITC available for distribution in the prescribed manner as per amended Rule 39 of CGST Rules. Cross-charge mechanism for distribution of common services ITC between distinct persons is replaced by mandatory ISD route.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1000424/ENG/Notifications"
   },
   {
     "id": "CIR-CGST-2017-001",
@@ -386,10 +660,19 @@
     "effectiveDate": "2017-06-26",
     "subject": "Proper officer for provisions relating to Registration and Composition levy under the CGST Act, 2017 and the rules made thereunder",
     "category": "Administration",
-    "sections": ["Section 2(91)"],
-    "keywords": ["proper officer", "registration", "composition", "jurisdiction", "officer assignment"],
+    "sections": [
+      "Section 2(91)"
+    ],
+    "keywords": [
+      "proper officer",
+      "registration",
+      "composition",
+      "jurisdiction",
+      "officer assignment"
+    ],
     "summary": "Assigns proper officers for the purposes of registration and composition levy under the CGST Act. Specifies who shall be the proper officer for various functions.",
-    "fullText": "In exercise of the powers conferred by section 2(91) of the CGST Act, the Board hereby assigns the proper officers for the purposes of registration and composition levy. This includes designation of officers for processing registration applications, cancellation of registration, migration of existing taxpayers, and matters relating to composition scheme."
+    "fullText": "In exercise of the powers conferred by section 2(91) of the CGST Act, the Board hereby assigns the proper officers for the purposes of registration and composition levy. This includes designation of officers for processing registration applications, cancellation of registration, migration of existing taxpayers, and matters relating to composition scheme.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1001001/ENG/Circulars"
   },
   {
     "id": "CIR-CGST-2017-003",
@@ -400,10 +683,20 @@
     "effectiveDate": "2017-07-05",
     "subject": "Tax payment under reverse charge mechanism on procurements from unregistered persons",
     "category": "Reverse Charge",
-    "sections": ["Section 9(4)"],
-    "keywords": ["reverse charge", "section 9(4)", "unregistered person", "URD", "URD purchase", "reverse charge on unregistered"],
+    "sections": [
+      "Section 9(4)"
+    ],
+    "keywords": [
+      "reverse charge",
+      "section 9(4)",
+      "unregistered person",
+      "URD",
+      "URD purchase",
+      "reverse charge on unregistered"
+    ],
     "summary": "Clarifies the applicability of reverse charge mechanism under section 9(4) on procurements from unregistered persons and the manner of payment of tax.",
-    "fullText": "The Board clarifies the provisions relating to payment of tax under reverse charge mechanism on procurements from unregistered persons under section 9(4) of the CGST Act. Every registered person receiving supplies from unregistered suppliers is liable to pay tax on reverse charge basis. The circular also discusses the valuation, time of supply, and ITC implications of such reverse charge supplies."
+    "fullText": "The Board clarifies the provisions relating to payment of tax under reverse charge mechanism on procurements from unregistered persons under section 9(4) of the CGST Act. Every registered person receiving supplies from unregistered suppliers is liable to pay tax on reverse charge basis. The circular also discusses the valuation, time of supply, and ITC implications of such reverse charge supplies.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1001003/ENG/Circulars"
   },
   {
     "id": "CIR-CGST-2018-031",
@@ -414,10 +707,20 @@
     "effectiveDate": "2018-02-09",
     "subject": "Proper officer relating to provisions in the CGST Act - Regarding",
     "category": "Administration",
-    "sections": ["Section 2(91)"],
-    "keywords": ["proper officer", "jurisdiction", "assessment", "audit", "enforcement", "anti-evasion"],
+    "sections": [
+      "Section 2(91)"
+    ],
+    "keywords": [
+      "proper officer",
+      "jurisdiction",
+      "assessment",
+      "audit",
+      "enforcement",
+      "anti-evasion"
+    ],
     "summary": "Comprehensive circular on assignment of proper officers under CGST Act for assessment, audit, enforcement, and anti-evasion functions between Central and State authorities.",
-    "fullText": "In furtherance of the earlier circulars, the Board assigns proper officers for various provisions under the CGST Act. This circular comprehensively covers the assignment of officers for assessment, audit, enforcement, investigation, adjudication, review, and appeal functions. It also addresses the cross-empowerment between Central and State tax authorities."
+    "fullText": "In furtherance of the earlier circulars, the Board assigns proper officers for various provisions under the CGST Act. This circular comprehensively covers the assignment of officers for assessment, audit, enforcement, investigation, adjudication, review, and appeal functions. It also addresses the cross-empowerment between Central and State tax authorities.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1001031/ENG/Circulars"
   },
   {
     "id": "CIR-CGST-2018-056",
@@ -428,10 +731,23 @@
     "effectiveDate": "2018-08-24",
     "subject": "Clarifications on certain GST issues relating to E-way bill",
     "category": "E-Way Bill",
-    "sections": ["Rule 138"],
-    "keywords": ["e-way bill", "transporter", "EWB", "validity", "extension", "exempt goods", "job work", "movement", "conveyance"],
+    "sections": [
+      "Rule 138"
+    ],
+    "keywords": [
+      "e-way bill",
+      "transporter",
+      "EWB",
+      "validity",
+      "extension",
+      "exempt goods",
+      "job work",
+      "movement",
+      "conveyance"
+    ],
     "summary": "Clarifies various issues on e-way bill including validity, extension, movement of exempt goods, job work, and role of transporters.",
-    "fullText": "The Board clarifies various issues related to e-way bill as follows: (1) E-way bill is not required where goods are transported by non-motorised conveyance; (2) E-way bill validity and its extension; (3) Cases where e-way bill is not required including movement of goods within 20 km; (4) E-way bill for goods sent for job work; (5) Consolidated e-way bill by transporters; (6) Documents to be carried along with goods during movement."
+    "fullText": "The Board clarifies various issues related to e-way bill as follows: (1) E-way bill is not required where goods are transported by non-motorised conveyance; (2) E-way bill validity and its extension; (3) Cases where e-way bill is not required including movement of goods within 20 km; (4) E-way bill for goods sent for job work; (5) Consolidated e-way bill by transporters; (6) Documents to be carried along with goods during movement.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1001056/ENG/Circulars"
   },
   {
     "id": "CIR-CGST-2019-098",
@@ -442,10 +758,21 @@
     "effectiveDate": "2019-04-23",
     "subject": "Clarification on various doubts related to treatment of secondary or post-sales discounts under GST",
     "category": "Valuation",
-    "sections": ["Section 15"],
-    "keywords": ["discount", "post-sale discount", "secondary discount", "valuation", "credit note", "section 15(3)", "trade discount"],
+    "sections": [
+      "Section 15"
+    ],
+    "keywords": [
+      "discount",
+      "post-sale discount",
+      "secondary discount",
+      "valuation",
+      "credit note",
+      "section 15(3)",
+      "trade discount"
+    ],
     "summary": "Clarifies the GST treatment of secondary/post-sale discounts, credit notes, and their impact on transaction value under section 15 of CGST Act.",
-    "fullText": "The Board clarifies the treatment of various types of discounts under GST. Post-sale discounts which are known at the time of supply and can be linked to specific invoices may be excluded from transaction value under section 15(3)(b) if conditions are met. For discounts given after supply through credit notes, the conditions regarding proportionate reversal of ITC by the recipient must be satisfied. Volume discounts, staggered discounts, and similar commercial practices are also clarified."
+    "fullText": "The Board clarifies the treatment of various types of discounts under GST. Post-sale discounts which are known at the time of supply and can be linked to specific invoices may be excluded from transaction value under section 15(3)(b) if conditions are met. For discounts given after supply through credit notes, the conditions regarding proportionate reversal of ITC by the recipient must be satisfied. Volume discounts, staggered discounts, and similar commercial practices are also clarified.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1001098/ENG/Circulars"
   },
   {
     "id": "CIR-CGST-2019-125",
@@ -456,10 +783,22 @@
     "effectiveDate": "2019-11-18",
     "subject": "Seeks to clarify the scope of restriction on availing ITC in terms of Rule 36(4)",
     "category": "Input Tax Credit",
-    "sections": ["Section 16", "Rule 36(4)"],
-    "keywords": ["ITC restriction", "Rule 36(4)", "GSTR-2A", "10 percent", "20 percent", "eligible credit", "invoice matching"],
+    "sections": [
+      "Section 16",
+      "Rule 36(4)"
+    ],
+    "keywords": [
+      "ITC restriction",
+      "Rule 36(4)",
+      "GSTR-2A",
+      "10 percent",
+      "20 percent",
+      "eligible credit",
+      "invoice matching"
+    ],
     "summary": "Clarifies the restriction on availing ITC beyond the percentage specified under Rule 36(4), i.e., ITC on invoices not appearing in GSTR-2A shall not exceed specified % of eligible ITC.",
-    "fullText": "The Board clarifies the scope of restriction on availing ITC under Rule 36(4) of CGST Rules. Key clarifications: (1) The restriction applies only to those invoices/debit notes on which credit is available but details have not been uploaded by supplier in GSTR-1; (2) The restriction does not apply to IGST paid on import, ITC from ISD, RCM credits; (3) Manner of computation of eligible and restricted ITC; (4) Month-wise cumulative adjustment of ITC on a continuous basis."
+    "fullText": "The Board clarifies the scope of restriction on availing ITC under Rule 36(4) of CGST Rules. Key clarifications: (1) The restriction applies only to those invoices/debit notes on which credit is available but details have not been uploaded by supplier in GSTR-1; (2) The restriction does not apply to IGST paid on import, ITC from ISD, RCM credits; (3) Manner of computation of eligible and restricted ITC; (4) Month-wise cumulative adjustment of ITC on a continuous basis.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1001125/ENG/Circulars"
   },
   {
     "id": "CIR-CGST-2020-135",
@@ -470,10 +809,22 @@
     "effectiveDate": "2020-03-31",
     "subject": "Clarification on refund related issues",
     "category": "Refund",
-    "sections": ["Section 54", "Rule 89"],
-    "keywords": ["refund", "export", "inverted duty structure", "accumulated ITC", "Rule 89", "refund formula", "turnover of zero-rated supply"],
+    "sections": [
+      "Section 54",
+      "Rule 89"
+    ],
+    "keywords": [
+      "refund",
+      "export",
+      "inverted duty structure",
+      "accumulated ITC",
+      "Rule 89",
+      "refund formula",
+      "turnover of zero-rated supply"
+    ],
     "summary": "Clarifies various issues related to refund under GST including refund of accumulated ITC on account of export and inverted duty structure.",
-    "fullText": "The Board clarifies various refund-related issues under GST: (1) Refund of accumulated ITC on account of inverted duty structure - clarification on the formula under Rule 89(5) and what constitutes 'Net ITC'; (2) Refund on account of exports - treatment of goods exported on payment of IGST and under LUT/Bond; (3) Documents required for claiming refund; (4) Time limit for filing refund application; (5) Treatment of credit notes in refund computation; (6) Provisional refund under Rule 91."
+    "fullText": "The Board clarifies various refund-related issues under GST: (1) Refund of accumulated ITC on account of inverted duty structure - clarification on the formula under Rule 89(5) and what constitutes 'Net ITC'; (2) Refund on account of exports - treatment of goods exported on payment of IGST and under LUT/Bond; (3) Documents required for claiming refund; (4) Time limit for filing refund application; (5) Treatment of credit notes in refund computation; (6) Provisional refund under Rule 91.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1001135/ENG/Circulars"
   },
   {
     "id": "CIR-CGST-2020-137",
@@ -484,10 +835,22 @@
     "effectiveDate": "2020-04-13",
     "subject": "Clarification on relief measures taken by the Government for taxpayers due to COVID-19",
     "category": "COVID Relief",
-    "sections": ["Multiple"],
-    "keywords": ["COVID-19", "relief", "extension", "compliance", "due date", "late fee", "interest waiver", "pandemic"],
+    "sections": [
+      "Multiple"
+    ],
+    "keywords": [
+      "COVID-19",
+      "relief",
+      "extension",
+      "compliance",
+      "due date",
+      "late fee",
+      "interest waiver",
+      "pandemic"
+    ],
     "summary": "Clarifies relief measures under GST on account of COVID-19 pandemic including extended due dates, reduced late fees, and interest rate concessions.",
-    "fullText": "The Board clarifies various relief measures notified by the Government for taxpayers in view of the COVID-19 pandemic. Key reliefs include: extension of due dates for filing GSTR-3B and GSTR-1, waiver/reduction of late fee for delayed filing, reduced rate of interest for delayed payment of tax, extension of due dates for compliance under various sections, extension of validity of e-way bills, and other procedural relaxations."
+    "fullText": "The Board clarifies various relief measures notified by the Government for taxpayers in view of the COVID-19 pandemic. Key reliefs include: extension of due dates for filing GSTR-3B and GSTR-1, waiver/reduction of late fee for delayed filing, reduced rate of interest for delayed payment of tax, extension of due dates for compliance under various sections, extension of validity of e-way bills, and other procedural relaxations.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1001137/ENG/Circulars"
   },
   {
     "id": "CIR-CGST-2021-160",
@@ -498,10 +861,21 @@
     "effectiveDate": "2021-09-20",
     "subject": "Clarification in respect of applicability of Dynamic QR Code on B2C invoices",
     "category": "E-Invoice",
-    "sections": ["Rule 46"],
-    "keywords": ["QR code", "dynamic QR", "B2C", "invoice", "e-invoice", "consumer", "digital payment"],
+    "sections": [
+      "Rule 46"
+    ],
+    "keywords": [
+      "QR code",
+      "dynamic QR",
+      "B2C",
+      "invoice",
+      "e-invoice",
+      "consumer",
+      "digital payment"
+    ],
     "summary": "Clarifies applicability of Dynamic QR code requirement on B2C invoices and the manner of its implementation.",
-    "fullText": "The Board clarifies issues relating to the requirement of Dynamic QR code on B2C invoices. The circular addresses: (1) Who is required to include Dynamic QR code; (2) Information to be embedded in QR code; (3) Mode of generating dynamic QR code; (4) Exemptions from QR code requirement; (5) Penalty provisions for non-compliance; (6) Transition relief for implementation."
+    "fullText": "The Board clarifies issues relating to the requirement of Dynamic QR code on B2C invoices. The circular addresses: (1) Who is required to include Dynamic QR code; (2) Information to be embedded in QR code; (3) Mode of generating dynamic QR code; (4) Exemptions from QR code requirement; (5) Penalty provisions for non-compliance; (6) Transition relief for implementation.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1001160/ENG/Circulars"
   },
   {
     "id": "CIR-CGST-2022-170",
@@ -512,10 +886,22 @@
     "effectiveDate": "2022-07-06",
     "subject": "Clarification on various issues pertaining to GST",
     "category": "Clarification",
-    "sections": ["Multiple"],
-    "keywords": ["road construction", "annuity", "overloading charges", "liquidated damages", "e-commerce", "export", "LUT", "place of supply"],
+    "sections": [
+      "Multiple"
+    ],
+    "keywords": [
+      "road construction",
+      "annuity",
+      "overloading charges",
+      "liquidated damages",
+      "e-commerce",
+      "export",
+      "LUT",
+      "place of supply"
+    ],
     "summary": "Omnibus circular clarifying various GST issues including GST on annuity payments for road construction, overloading charges, liquidated damages, e-commerce supplies, export procedures.",
-    "fullText": "The Board clarifies multiple issues: (1) GST applicability on annuity payment received for construction on BOT basis; (2) Taxability of charges for overloading of goods vehicles; (3) GST on penalties, fines, liquidated damages; (4) ITC eligibility on CSR activities; (5) Perquisites provided by employer to employees as per contractual agreement; (6) Supply of goods from DTA to SEZ and vice versa; (7) Place of supply determination for various supplies."
+    "fullText": "The Board clarifies multiple issues: (1) GST applicability on annuity payment received for construction on BOT basis; (2) Taxability of charges for overloading of goods vehicles; (3) GST on penalties, fines, liquidated damages; (4) ITC eligibility on CSR activities; (5) Perquisites provided by employer to employees as per contractual agreement; (6) Supply of goods from DTA to SEZ and vice versa; (7) Place of supply determination for various supplies.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1001170/ENG/Circulars"
   },
   {
     "id": "CIR-CGST-2023-200",
@@ -526,10 +912,21 @@
     "effectiveDate": "2023-08-01",
     "subject": "Clarification regarding GST rates and classification of certain goods based on recommendations of GST Council",
     "category": "Rate Clarification",
-    "sections": ["Section 9", "Section 11"],
-    "keywords": ["rate clarification", "classification", "HSN", "goods classification", "GST rate", "council recommendation"],
+    "sections": [
+      "Section 9",
+      "Section 11"
+    ],
+    "keywords": [
+      "rate clarification",
+      "classification",
+      "HSN",
+      "goods classification",
+      "GST rate",
+      "council recommendation"
+    ],
     "summary": "Clarifies GST rates and classification of various goods based on the recommendations of the GST Council in its meetings.",
-    "fullText": "The Board clarifies the classification and applicable GST rate on various goods based on the recommendations of the GST Council. Issues clarified include: correct classification of specific products under the Customs Tariff Act/GST Tariff, applicable rate for certain food products, classification disputes on machinery and equipment, and effective dates for rate changes."
+    "fullText": "The Board clarifies the classification and applicable GST rate on various goods based on the recommendations of the GST Council. Issues clarified include: correct classification of specific products under the Customs Tariff Act/GST Tariff, applicable rate for certain food products, classification disputes on machinery and equipment, and effective dates for rate changes.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1001200/ENG/Circulars"
   },
   {
     "id": "CIR-CGST-2024-211",
@@ -540,10 +937,21 @@
     "effectiveDate": "2024-06-26",
     "subject": "Clarification on time limit for filing refund applications under Section 54",
     "category": "Refund",
-    "sections": ["Section 54"],
-    "keywords": ["refund", "time limit", "two years", "relevant date", "export", "inverted duty", "section 54"],
+    "sections": [
+      "Section 54"
+    ],
+    "keywords": [
+      "refund",
+      "time limit",
+      "two years",
+      "relevant date",
+      "export",
+      "inverted duty",
+      "section 54"
+    ],
     "summary": "Clarifies the computation of time limit for filing refund applications under Section 54 of CGST Act, including the relevant date for different types of refund claims.",
-    "fullText": "The Board clarifies the manner of computation of the time limit for filing refund applications under Section 54 of the CGST Act. Issues addressed: (1) Meaning and computation of 'relevant date' for refund of ITC on exports; (2) Time limit for refund of accumulated ITC on account of inverted duty structure; (3) Whether the time limit of two years runs from the date of invoice or date of receipt of payment; (4) Applicability of exclusion of time on account of stay orders or court proceedings."
+    "fullText": "The Board clarifies the manner of computation of the time limit for filing refund applications under Section 54 of the CGST Act. Issues addressed: (1) Meaning and computation of 'relevant date' for refund of ITC on exports; (2) Time limit for refund of accumulated ITC on account of inverted duty structure; (3) Whether the time limit of two years runs from the date of invoice or date of receipt of payment; (4) Applicability of exclusion of time on account of stay orders or court proceedings.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1001211/ENG/Circulars"
   },
   {
     "id": "NT-IGST-2017-001",
@@ -554,10 +962,19 @@
     "effectiveDate": "2017-07-01",
     "subject": "Seeks to bring into force the provisions of IGST Act, 2017 w.e.f. 01.07.2017",
     "category": "Commencement",
-    "sections": ["Section 1"],
-    "keywords": ["appointed day", "IGST", "commencement", "1st July", "integrated tax"],
+    "sections": [
+      "Section 1"
+    ],
+    "keywords": [
+      "appointed day",
+      "IGST",
+      "commencement",
+      "1st July",
+      "integrated tax"
+    ],
     "summary": "Appoints 1st July 2017 as the date on which all provisions of the IGST Act, 2017 shall come into force.",
-    "fullText": "In exercise of the powers conferred by sub-section (3) of section 1 of the Integrated Goods and Services Tax Act, 2017, the Central Government hereby appoints the 1st day of July, 2017, as the date on which all the provisions of the said Act shall come into force."
+    "fullText": "In exercise of the powers conferred by sub-section (3) of section 1 of the Integrated Goods and Services Tax Act, 2017, the Central Government hereby appoints the 1st day of July, 2017, as the date on which all the provisions of the said Act shall come into force.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1003001/ENG/Notifications"
   },
   {
     "id": "NT-IGST-2017-002",
@@ -568,10 +985,23 @@
     "effectiveDate": "2017-07-01",
     "subject": "Seeks to notify the rate of IGST on supply of goods",
     "category": "Rate",
-    "sections": ["Section 5"],
-    "keywords": ["IGST rate", "goods rate", "tax rate", "schedule", "5%", "12%", "18%", "28%", "rate schedule"],
+    "sections": [
+      "Section 5"
+    ],
+    "keywords": [
+      "IGST rate",
+      "goods rate",
+      "tax rate",
+      "schedule",
+      "5%",
+      "12%",
+      "18%",
+      "28%",
+      "rate schedule"
+    ],
     "summary": "Notifies the rates of IGST on supply of goods. Specifies 4 rate slabs - 5%, 12%, 18% and 28% along with NIL rated and exempt goods.",
-    "fullText": "In exercise of the powers conferred by sub-section (1) of section 5 of the IGST Act, the Central Government on the recommendations of the Council, hereby notifies the rate of IGST on intra-State supply of goods falling under the specified Schedules. Schedule I - 2.5% CGST + 2.5% SGST (5% IGST), Schedule II - 6% + 6% (12% IGST), Schedule III - 9% + 9% (18% IGST), Schedule IV - 14% + 14% (28% IGST)."
+    "fullText": "In exercise of the powers conferred by sub-section (1) of section 5 of the IGST Act, the Central Government on the recommendations of the Council, hereby notifies the rate of IGST on intra-State supply of goods falling under the specified Schedules. Schedule I - 2.5% CGST + 2.5% SGST (5% IGST), Schedule II - 6% + 6% (12% IGST), Schedule III - 9% + 9% (18% IGST), Schedule IV - 14% + 14% (28% IGST).",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1003002/ENG/Notifications"
   },
   {
     "id": "NT-IGST-2017-004",
@@ -582,10 +1012,19 @@
     "effectiveDate": "2017-07-01",
     "subject": "Seeks to exempt IGST on supply of certain goods",
     "category": "Exemption",
-    "sections": ["Section 6(1)"],
-    "keywords": ["exemption", "exempt goods", "nil rate", "IGST exemption", "inter-state exempt"],
+    "sections": [
+      "Section 6(1)"
+    ],
+    "keywords": [
+      "exemption",
+      "exempt goods",
+      "nil rate",
+      "IGST exemption",
+      "inter-state exempt"
+    ],
     "summary": "Grants exemption from IGST on inter-State supply of goods as specified in the annexed schedule. Covers essential commodities and items of common use.",
-    "fullText": "In exercise of the powers conferred by sub-section (1) of section 6 of the IGST Act, the Central Government, on the recommendations of the Council, hereby exempts the inter-State supply of goods specified in the annexed schedule from the whole of the IGST leviable thereon."
+    "fullText": "In exercise of the powers conferred by sub-section (1) of section 6 of the IGST Act, the Central Government, on the recommendations of the Council, hereby exempts the inter-State supply of goods specified in the annexed schedule from the whole of the IGST leviable thereon.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1003004/ENG/Notifications"
   },
   {
     "id": "NT-IGST-2017-007",
@@ -596,10 +1035,19 @@
     "effectiveDate": "2017-10-13",
     "subject": "Seeks to prescribe IGST rate on supply of goods for Compensation Cess purpose",
     "category": "Rate",
-    "sections": ["Section 5"],
-    "keywords": ["rate change", "GST Council", "rate reduction", "rate revision", "18th meeting"],
+    "sections": [
+      "Section 5"
+    ],
+    "keywords": [
+      "rate change",
+      "GST Council",
+      "rate reduction",
+      "rate revision",
+      "18th meeting"
+    ],
     "summary": "Amends IGST rate notifications based on recommendations of 18th GST Council meeting for specific goods.",
-    "fullText": "Based on the recommendations of the 18th GST Council meeting, the Government amends the rate of IGST on certain goods. Multiple items see rate rationalization across the four schedules."
+    "fullText": "Based on the recommendations of the 18th GST Council meeting, the Government amends the rate of IGST on certain goods. Multiple items see rate rationalization across the four schedules.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1003007/ENG/Notifications"
   },
   {
     "id": "NT-IGST-2017-009",
@@ -610,10 +1058,20 @@
     "effectiveDate": "2017-07-01",
     "subject": "Seeks to exempt IGST on supply of certain services",
     "category": "Exemption",
-    "sections": ["Section 6(1)"],
-    "keywords": ["services exemption", "IGST exempt services", "education", "health", "transportation", "exempt supply"],
+    "sections": [
+      "Section 6(1)"
+    ],
+    "keywords": [
+      "services exemption",
+      "IGST exempt services",
+      "education",
+      "health",
+      "transportation",
+      "exempt supply"
+    ],
     "summary": "Grants exemption from IGST on inter-State supply of specified services including healthcare, education, transportation of passengers, etc.",
-    "fullText": "In exercise of the powers conferred by sub-section (1) of section 6 of the IGST Act, the Central Government exempts the inter-State supply of services specified from the whole of the IGST leviable thereon. Services exempted include healthcare services, educational services, transportation of passengers in non-air-conditioned public transport, services by charitable institutions, etc."
+    "fullText": "In exercise of the powers conferred by sub-section (1) of section 6 of the IGST Act, the Central Government exempts the inter-State supply of services specified from the whole of the IGST leviable thereon. Services exempted include healthcare services, educational services, transportation of passengers in non-air-conditioned public transport, services by charitable institutions, etc.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1003009/ENG/Notifications"
   },
   {
     "id": "NT-IGST-2017-010",
@@ -624,10 +1082,21 @@
     "effectiveDate": "2017-07-01",
     "subject": "Seeks to notify the categories of services on which IGST shall be payable under reverse charge mechanism",
     "category": "Reverse Charge",
-    "sections": ["Section 5(3)"],
-    "keywords": ["reverse charge", "RCM", "IGST", "imported services", "ocean freight", "GTA", "inter-state RCM"],
+    "sections": [
+      "Section 5(3)"
+    ],
+    "keywords": [
+      "reverse charge",
+      "RCM",
+      "IGST",
+      "imported services",
+      "ocean freight",
+      "GTA",
+      "inter-state RCM"
+    ],
     "summary": "Notifies categories of inter-State supply of services on which IGST is payable under reverse charge mechanism by the recipient.",
-    "fullText": "In exercise of the powers conferred by sub-section (3) of section 5 of the IGST Act, the Central Government notifies the categories of supply of services on which IGST shall be paid on reverse charge basis by the recipient. This mirrors the CGST reverse charge notifications for inter-state transactions."
+    "fullText": "In exercise of the powers conferred by sub-section (3) of section 5 of the IGST Act, the Central Government notifies the categories of supply of services on which IGST shall be paid on reverse charge basis by the recipient. This mirrors the CGST reverse charge notifications for inter-state transactions.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1003010/ENG/Notifications"
   },
   {
     "id": "NT-IGST-2020-001",
@@ -638,10 +1107,21 @@
     "effectiveDate": "2020-02-02",
     "subject": "Seeks to amend Notification No. 10/2017-IT (Rate) to exempt IGST on supply of goods for authorized operations in Special Economic Zones",
     "category": "SEZ",
-    "sections": ["Section 5", "Section 6"],
-    "keywords": ["SEZ", "special economic zone", "exemption", "authorized operations", "zero rated", "refund"],
+    "sections": [
+      "Section 5",
+      "Section 6"
+    ],
+    "keywords": [
+      "SEZ",
+      "special economic zone",
+      "exemption",
+      "authorized operations",
+      "zero rated",
+      "refund"
+    ],
     "summary": "Provides IGST exemption for supply of goods for authorized operations in SEZ, subject to conditions.",
-    "fullText": "The Central Government amends the IGST rate notification to provide exemption from IGST on supply of goods to SEZ units/developers for authorized operations. This ensures that supplies to SEZ are effectively zero-rated under the GST framework."
+    "fullText": "The Central Government amends the IGST rate notification to provide exemption from IGST on supply of goods to SEZ units/developers for authorized operations. This ensures that supplies to SEZ are effectively zero-rated under the GST framework.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1003030/ENG/Notifications"
   },
   {
     "id": "NT-IGST-2023-001",
@@ -652,10 +1132,22 @@
     "effectiveDate": "2023-10-01",
     "subject": "Seeks to amend IGST on specified actionable claims including online gaming, casinos and horse racing",
     "category": "Rate",
-    "sections": ["Section 5"],
-    "keywords": ["online gaming", "casino", "horse racing", "28%", "actionable claims", "betting", "gambling", "full face value"],
+    "sections": [
+      "Section 5"
+    ],
+    "keywords": [
+      "online gaming",
+      "casino",
+      "horse racing",
+      "28%",
+      "actionable claims",
+      "betting",
+      "gambling",
+      "full face value"
+    ],
     "summary": "Imposes 28% IGST on the full face value of bets placed in online gaming, casinos, and horse racing with effect from 1st October 2023.",
-    "fullText": "In exercise of the powers conferred by the IGST Act, the Central Government notifies that the supply of online gaming, casino, and horse racing shall be taxed at the rate of 28% IGST on the full face value of the bets placed or the amount paid for participation. This follows the recommendation of the 50th and 51st GST Council meetings to bring clarity on taxation of these activities and to ensure uniform treatment across modes of play."
+    "fullText": "In exercise of the powers conferred by the IGST Act, the Central Government notifies that the supply of online gaming, casino, and horse racing shall be taxed at the rate of 28% IGST on the full face value of the bets placed or the amount paid for participation. This follows the recommendation of the 50th and 51st GST Council meetings to bring clarity on taxation of these activities and to ensure uniform treatment across modes of play.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1003045/ENG/Notifications"
   },
   {
     "id": "CIR-CGST-2024-230",
@@ -666,10 +1158,25 @@
     "effectiveDate": "2024-10-15",
     "subject": "Clarification on Section 128A - Waiver of interest and penalty for demands under Section 73",
     "category": "Amnesty",
-    "sections": ["Section 128A", "Section 73"],
-    "keywords": ["amnesty", "section 128A", "waiver", "interest", "penalty", "section 73", "FY 2017-18", "FY 2018-19", "FY 2019-20", "conditional waiver"],
+    "sections": [
+      "Section 128A",
+      "Section 73"
+    ],
+    "keywords": [
+      "amnesty",
+      "section 128A",
+      "waiver",
+      "interest",
+      "penalty",
+      "section 73",
+      "FY 2017-18",
+      "FY 2018-19",
+      "FY 2019-20",
+      "conditional waiver"
+    ],
     "summary": "Detailed clarification on the implementation of Section 128A amnesty scheme for waiver of interest and penalty on Section 73 demands for FY 2017-18 to 2019-20.",
-    "fullText": "The Board issues comprehensive clarifications on the implementation of Section 128A of the CGST Act. Key clarifications include: (1) Scope of the scheme - covers SCNs and orders under Section 73 only, not Section 74; (2) Eligible periods - FY 2017-18, 2018-19, and 2019-20; (3) Condition - full tax amount must be paid on or before the prescribed date; (4) Effect of waiver on pending appeals; (5) Treatment of part payments already made; (6) Procedure for applying for waiver; (7) Clarification that the scheme does not apply to demands under Section 74 involving fraud/misstatement/suppression."
+    "fullText": "The Board issues comprehensive clarifications on the implementation of Section 128A of the CGST Act. Key clarifications include: (1) Scope of the scheme - covers SCNs and orders under Section 73 only, not Section 74; (2) Eligible periods - FY 2017-18, 2018-19, and 2019-20; (3) Condition - full tax amount must be paid on or before the prescribed date; (4) Effect of waiver on pending appeals; (5) Treatment of part payments already made; (6) Procedure for applying for waiver; (7) Clarification that the scheme does not apply to demands under Section 74 involving fraud/misstatement/suppression.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1001230/ENG/Circulars"
   },
   {
     "id": "NT-CGST-2024-025",
@@ -680,10 +1187,24 @@
     "effectiveDate": "2025-01-01",
     "subject": "Seeks to extend time limit for ITC claims under Section 16(4) for FY 2017-18 to 2020-21",
     "category": "Input Tax Credit",
-    "sections": ["Section 16(4)", "Section 16(5)"],
-    "keywords": ["ITC time limit", "section 16(4)", "section 16(5)", "retrospective", "ITC claim deadline", "FY 2017-18", "FY 2018-19", "FY 2019-20", "FY 2020-21"],
+    "sections": [
+      "Section 16(4)",
+      "Section 16(5)"
+    ],
+    "keywords": [
+      "ITC time limit",
+      "section 16(4)",
+      "section 16(5)",
+      "retrospective",
+      "ITC claim deadline",
+      "FY 2017-18",
+      "FY 2018-19",
+      "FY 2019-20",
+      "FY 2020-21"
+    ],
     "summary": "Introduces Section 16(5) allowing extended time limit for claiming ITC for FY 2017-18 to 2020-21 in certain cases, providing retrospective relief to taxpayers.",
-    "fullText": "The Central Government notifies the newly inserted Section 16(5) of the CGST Act which provides a conditional relaxation of the time limit for availing ITC under Section 16(4). For financial years 2017-18, 2018-19, 2019-20 and 2020-21, the time limit for claiming ITC shall be extended up to the due date of filing GSTR-3B for November 2021 or the annual return for the relevant year, whichever is later. This addresses the genuine hardship faced by taxpayers who could not claim ITC within the original time limit due to various reasons including system glitches and initial GST implementation challenges."
+    "fullText": "The Central Government notifies the newly inserted Section 16(5) of the CGST Act which provides a conditional relaxation of the time limit for availing ITC under Section 16(4). For financial years 2017-18, 2018-19, 2019-20 and 2020-21, the time limit for claiming ITC shall be extended up to the due date of filing GSTR-3B for November 2021 or the annual return for the relevant year, whichever is later. This addresses the genuine hardship faced by taxpayers who could not claim ITC within the original time limit due to various reasons including system glitches and initial GST implementation challenges.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1000429/ENG/Notifications"
   },
   {
     "id": "CIR-CGST-2023-185",
@@ -694,10 +1215,25 @@
     "effectiveDate": "2022-12-27",
     "subject": "Clarification on the treatment of statutory dues under GST in respect of Insolvency and Bankruptcy Code proceedings",
     "category": "IBC",
-    "sections": ["Section 16", "Section 73", "Section 74"],
-    "keywords": ["IBC", "insolvency", "bankruptcy", "CIRP", "corporate debtor", "pre-CIRP", "post-CIRP", "statutory dues", "moratorium"],
+    "sections": [
+      "Section 16",
+      "Section 73",
+      "Section 74"
+    ],
+    "keywords": [
+      "IBC",
+      "insolvency",
+      "bankruptcy",
+      "CIRP",
+      "corporate debtor",
+      "pre-CIRP",
+      "post-CIRP",
+      "statutory dues",
+      "moratorium"
+    ],
     "summary": "Clarifies the treatment of GST dues (registration, ITC, returns, demands) during Corporate Insolvency Resolution Process (CIRP) under IBC.",
-    "fullText": "The Board clarifies multiple issues regarding treatment of GST dues during insolvency proceedings under IBC. Key clarifications: (1) New registration to be obtained for the period of CIRP; (2) ITC of pre-CIRP period not available to post-CIRP entity; (3) Treatment of pending demands and recovery proceedings; (4) Filing of returns during CIRP period; (5) Responsibility of Resolution Professional vis-a-vis GST compliances; (6) Treatment of amounts collected as GST by the corporate debtor."
+    "fullText": "The Board clarifies multiple issues regarding treatment of GST dues during insolvency proceedings under IBC. Key clarifications: (1) New registration to be obtained for the period of CIRP; (2) ITC of pre-CIRP period not available to post-CIRP entity; (3) Treatment of pending demands and recovery proceedings; (4) Filing of returns during CIRP period; (5) Responsibility of Resolution Professional vis-a-vis GST compliances; (6) Treatment of amounts collected as GST by the corporate debtor.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1001185/ENG/Circulars"
   },
   {
     "id": "NT-CGST-2023-052",
@@ -708,10 +1244,21 @@
     "effectiveDate": "2023-10-26",
     "subject": "Seeks to notify the special procedure for taxpayers for filing of GSTR-7 (TDS return)",
     "category": "TDS",
-    "sections": ["Section 51", "Section 39"],
-    "keywords": ["TDS", "GSTR-7", "tax deduction at source", "return", "government deductor", "TDS certificate"],
+    "sections": [
+      "Section 51",
+      "Section 39"
+    ],
+    "keywords": [
+      "TDS",
+      "GSTR-7",
+      "tax deduction at source",
+      "return",
+      "government deductor",
+      "TDS certificate"
+    ],
     "summary": "Notifies the special procedure for filing of GSTR-7 (TDS return) by persons required to deduct tax at source under Section 51 of CGST Act.",
-    "fullText": "The Central Government notifies the special procedure to be followed by persons required to deduct tax at source under Section 51 for filing the TDS return in FORM GSTR-7. The return shall include details of TDS deducted, TDS payable, and other related information. TDS certificates shall be made available to the deductee through the common portal."
+    "fullText": "The Central Government notifies the special procedure to be followed by persons required to deduct tax at source under Section 51 for filing the TDS return in FORM GSTR-7. The return shall include details of TDS deducted, TDS payable, and other related information. TDS certificates shall be made available to the deductee through the common portal.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1000382/ENG/Notifications"
   },
   {
     "id": "CIR-CGST-2021-161",
@@ -722,10 +1269,21 @@
     "effectiveDate": "2021-09-20",
     "subject": "Clarification relating to export of services - condition (v) of Section 2(6) of IGST Act",
     "category": "Export",
-    "sections": ["Section 2(6) of IGST Act"],
-    "keywords": ["export of services", "intermediary", "condition", "distinct person", "establishment", "related parties", "payment in convertible foreign exchange"],
+    "sections": [
+      "Section 2(6) of IGST Act"
+    ],
+    "keywords": [
+      "export of services",
+      "intermediary",
+      "condition",
+      "distinct person",
+      "establishment",
+      "related parties",
+      "payment in convertible foreign exchange"
+    ],
     "summary": "Clarifies condition regarding payment in convertible foreign exchange for export of services and the condition regarding supplier and recipient not being merely establishments of a distinct person.",
-    "fullText": "The Board clarifies the conditions for qualifying as export of services under Section 2(6) of the IGST Act. Key clarifications: (1) The condition that supplier of service is located in India; (2) The recipient of service is located outside India; (3) The place of supply of service is outside India; (4) Payment for such service has been received in convertible foreign exchange or in Indian rupees wherever permitted by RBI; (5) The supplier of service and recipient of service are not merely establishments of a distinct person - clarification on the meaning and scope of this condition."
+    "fullText": "The Board clarifies the conditions for qualifying as export of services under Section 2(6) of the IGST Act. Key clarifications: (1) The condition that supplier of service is located in India; (2) The recipient of service is located outside India; (3) The place of supply of service is outside India; (4) Payment for such service has been received in convertible foreign exchange or in Indian rupees wherever permitted by RBI; (5) The supplier of service and recipient of service are not merely establishments of a distinct person - clarification on the meaning and scope of this condition.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1001161/ENG/Circulars"
   },
   {
     "id": "NT-CGST-2023-031",
@@ -736,10 +1294,23 @@
     "effectiveDate": "2023-10-01",
     "subject": "Seeks to notify the provisions related to online gaming, casinos and horse racing under CGST Act",
     "category": "Rate",
-    "sections": ["Section 9", "Schedule III"],
-    "keywords": ["online gaming", "casino", "horse racing", "actionable claims", "28%", "betting", "gambling", "specified actionable claim"],
+    "sections": [
+      "Section 9",
+      "Schedule III"
+    ],
+    "keywords": [
+      "online gaming",
+      "casino",
+      "horse racing",
+      "actionable claims",
+      "28%",
+      "betting",
+      "gambling",
+      "specified actionable claim"
+    ],
     "summary": "Notifies 28% GST on full face value of specified actionable claims in online gaming, casinos and horse racing under CGST Act from 1st October 2023.",
-    "fullText": "The Central Government notifies the provisions related to taxation of online gaming, casinos, and horse racing under the CGST Act. Supply of specified actionable claims including online gaming, casino, and horse racing are to be taxed at 28% on the full face value of bets placed. Amendments to Schedule III clarify that these activities constitute supply and are taxable. Definitions of 'online gaming', 'online money gaming', 'specified actionable claim', and 'virtual digital assets' are also notified."
+    "fullText": "The Central Government notifies the provisions related to taxation of online gaming, casinos, and horse racing under the CGST Act. Supply of specified actionable claims including online gaming, casino, and horse racing are to be taxed at 28% on the full face value of bets placed. Amendments to Schedule III clarify that these activities constitute supply and are taxable. Definitions of 'online gaming', 'online money gaming', 'specified actionable claim', and 'virtual digital assets' are also notified.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1000361/ENG/Notifications"
   },
   {
     "id": "CIR-CGST-2023-202",
@@ -750,10 +1321,23 @@
     "effectiveDate": "2023-10-27",
     "subject": "Clarification on the taxability of personal guarantee and corporate guarantee under GST",
     "category": "Valuation",
-    "sections": ["Section 15", "Rule 28"],
-    "keywords": ["corporate guarantee", "personal guarantee", "related party", "deemed supply", "valuation", "director", "holding company", "subsidiary"],
+    "sections": [
+      "Section 15",
+      "Rule 28"
+    ],
+    "keywords": [
+      "corporate guarantee",
+      "personal guarantee",
+      "related party",
+      "deemed supply",
+      "valuation",
+      "director",
+      "holding company",
+      "subsidiary"
+    ],
     "summary": "Clarifies GST applicability on personal guarantee provided by director and corporate guarantee provided by holding company to subsidiary. Prescribes deemed value of 1% of guarantee amount.",
-    "fullText": "The Board clarifies the GST implications on guarantees: (1) Corporate guarantee provided by holding company to bank on behalf of subsidiary - constitutes taxable supply between related persons, value shall be higher of actual consideration or 1% of the amount of guarantee per annum; (2) Personal guarantee by director to bank on behalf of company - if no consideration flows from company to director, no GST implications; however, if consideration is paid, GST is applicable. These clarifications are based on recommendations of the 52nd GST Council meeting."
+    "fullText": "The Board clarifies the GST implications on guarantees: (1) Corporate guarantee provided by holding company to bank on behalf of subsidiary - constitutes taxable supply between related persons, value shall be higher of actual consideration or 1% of the amount of guarantee per annum; (2) Personal guarantee by director to bank on behalf of company - if no consideration flows from company to director, no GST implications; however, if consideration is paid, GST is applicable. These clarifications are based on recommendations of the 52nd GST Council meeting.",
+    "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/1001202/ENG/Circulars"
   },
   {
     "id": "CIR-CGST-2024-215",
@@ -764,9 +1348,22 @@
     "effectiveDate": "2024-07-26",
     "subject": "Clarification on place of supply of data hosting services and supply of OIDAR services",
     "category": "Place of Supply",
-    "sections": ["Section 12", "Section 13 of IGST Act"],
-    "keywords": ["data hosting", "OIDAR", "online information", "database access", "place of supply", "IT services", "cloud computing", "SaaS"],
+    "sections": [
+      "Section 12",
+      "Section 13 of IGST Act"
+    ],
+    "keywords": [
+      "data hosting",
+      "OIDAR",
+      "online information",
+      "database access",
+      "place of supply",
+      "IT services",
+      "cloud computing",
+      "SaaS"
+    ],
     "summary": "Clarifies place of supply rules for data hosting services and Online Information and Database Access or Retrieval (OIDAR) services.",
-    "fullText": "The Board clarifies the determination of place of supply for: (1) Data hosting services provided by a person in India to a person outside India - whether it qualifies as export of service; (2) The distinction between data hosting and OIDAR services; (3) Criteria for classifying a service as OIDAR service; (4) Place of supply determination when service is provided through the internet; (5) Registration requirements for suppliers of OIDAR services located outside India making supplies to non-taxable online recipients in India."
+    "fullText": "The Board clarifies the determination of place of supply for: (1) Data hosting services provided by a person in India to a person outside India - whether it qualifies as export of service; (2) The distinction between data hosting and OIDAR services; (3) Criteria for classifying a service as OIDAR service; (4) Place of supply determination when service is provided through the internet; (5) Registration requirements for suppliers of OIDAR services located outside India making supplies to non-taxable online recipients in India.",
+    "pdfUrl": ""
   }
 ]
