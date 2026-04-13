@@ -74,9 +74,16 @@ Your GST search tool is now live and accessible to anyone!
   "sections": ["Section 9", "Schedule III"],
   "keywords": ["keyword1", "keyword2", "keyword3"],
   "summary": "Brief 2-3 line summary of the notification.",
-  "fullText": "Complete text of the notification for full-text search."
+  "fullText": "Complete text of the notification for full-text search.",
+  "pdfUrl": "https://taxinformation.cbic.gov.in/view-pdf/XXXXXX/ENG/Notifications"
 }
 ```
+
+**How to find the PDF URL:**
+1. Visit [taxinformation.cbic.gov.in](https://taxinformation.cbic.gov.in)
+2. Navigate to the notification/circular
+3. Right-click the PDF link and copy the URL
+4. Paste it in the `pdfUrl` field
 
 5. Commit the changes — the site updates automatically within minutes.
 
@@ -103,6 +110,7 @@ Your GST search tool is now live and accessible to anyone!
 | `keywords` | No | Array of search keywords |
 | `summary` | Yes | Brief summary (2-3 sentences) |
 | `fullText` | Yes | Full text for search indexing |
+| `pdfUrl` | No | Direct URL to official PDF on CBIC portal |
 
 ### Categories Used
 `Commencement`, `Rules`, `Rules Amendment`, `Rate`, `Rate Clarification`, `Exemption`, `Reverse Charge`, `Composition`, `Registration`, `Return Filing`, `Input Tax Credit`, `E-Way Bill`, `E-Invoice`, `TDS`, `Refund`, `Interest`, `Amendment`, `Amnesty`, `Adjudication`, `Valuation`, `Export`, `Place of Supply`, `SEZ`, `IBC`, `Administration`, `Clarification`, `COVID Relief`
