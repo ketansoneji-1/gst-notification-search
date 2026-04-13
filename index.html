@@ -1,0 +1,1399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GST Notification & Circular Search | India</title>
+<meta name="description" content="Search all GST Notifications, Circulars and Orders issued by CBIC. Free, open-source tool for CA, Tax professionals and businesses.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/fuse.js/7.0.0/fuse.min.js"></script>
+<style>
+:root {
+  --primary: #1e40af;
+  --primary-light: #3b82f6;
+  --primary-dark: #1e3a8a;
+  --accent: #f59e0b;
+  --accent-light: #fbbf24;
+  --bg: #f8fafc;
+  --bg-card: #ffffff;
+  --text: #1e293b;
+  --text-muted: #64748b;
+  --text-light: #94a3b8;
+  --border: #e2e8f0;
+  --border-light: #f1f5f9;
+  --success: #10b981;
+  --warning: #f59e0b;
+  --danger: #ef4444;
+  --shadow: 0 1px 3px rgba(0,0,0,0.08), 0 1px 2px rgba(0,0,0,0.06);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.07), 0 2px 4px rgba(0,0,0,0.06);
+  --shadow-lg: 0 10px 15px rgba(0,0,0,0.07), 0 4px 6px rgba(0,0,0,0.05);
+  --radius: 10px;
+  --radius-sm: 6px;
+}
+
+[data-theme="dark"] {
+  --primary: #3b82f6;
+  --primary-light: #60a5fa;
+  --primary-dark: #2563eb;
+  --bg: #0f172a;
+  --bg-card: #1e293b;
+  --text: #f1f5f9;
+  --text-muted: #94a3b8;
+  --text-light: #64748b;
+  --border: #334155;
+  --border-light: #1e293b;
+  --shadow: 0 1px 3px rgba(0,0,0,0.3);
+  --shadow-md: 0 4px 6px rgba(0,0,0,0.3);
+  --shadow-lg: 0 10px 15px rgba(0,0,0,0.3);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  line-height: 1.6;
+  min-height: 100vh;
+}
+
+/* Header */
+.header {
+  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 50%, var(--primary-light) 100%);
+  color: white;
+  padding: 2rem 1.5rem 3rem;
+  position: relative;
+  overflow: hidden;
+}
+.header::before {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -20%;
+  width: 500px;
+  height: 500px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 50%;
+}
+.header-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  position: relative;
+  z-index: 1;
+}
+.header-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+.logo {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+.logo-icon {
+  width: 44px;
+  height: 44px;
+  background: rgba(255,255,255,0.15);
+  border-radius: var(--radius);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  backdrop-filter: blur(10px);
+}
+.logo-text h1 {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+}
+.logo-text span {
+  font-size: 0.75rem;
+  opacity: 0.8;
+  font-weight: 400;
+}
+.header-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+.btn-icon {
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  border: 1px solid rgba(255,255,255,0.2);
+  background: rgba(255,255,255,0.1);
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  transition: all 0.2s;
+  backdrop-filter: blur(10px);
+}
+.btn-icon:hover { background: rgba(255,255,255,0.2); }
+
+/* Search Box */
+.search-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+.search-box {
+  position: relative;
+  margin-bottom: 0.75rem;
+}
+.search-input {
+  width: 100%;
+  padding: 1rem 1.25rem 1rem 3rem;
+  border: 2px solid rgba(255,255,255,0.2);
+  border-radius: var(--radius);
+  background: rgba(255,255,255,0.12);
+  color: white;
+  font-size: 1.05rem;
+  font-family: inherit;
+  outline: none;
+  backdrop-filter: blur(10px);
+  transition: all 0.2s;
+}
+.search-input::placeholder { color: rgba(255,255,255,0.6); }
+.search-input:focus {
+  background: rgba(255,255,255,0.18);
+  border-color: rgba(255,255,255,0.4);
+}
+.search-icon {
+  position: absolute;
+  left: 1rem;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 1.2rem;
+  opacity: 0.7;
+}
+.search-hint {
+  text-align: center;
+  font-size: 0.8rem;
+  opacity: 0.7;
+}
+
+/* Stats Bar */
+.stats-bar {
+  max-width: 1200px;
+  margin: -1.5rem auto 1.5rem;
+  padding: 0 1.5rem;
+  position: relative;
+  z-index: 2;
+}
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+  gap: 0.75rem;
+}
+.stat-card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  padding: 1rem 1.25rem;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border);
+  text-align: center;
+}
+.stat-value {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--primary);
+  line-height: 1.2;
+}
+.stat-label {
+  font-size: 0.72rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-weight: 500;
+  margin-top: 0.15rem;
+}
+
+/* Main Layout */
+.main {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 1.5rem 3rem;
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  gap: 1.5rem;
+}
+
+/* Filters Sidebar */
+.filters {
+  position: sticky;
+  top: 1rem;
+  align-self: start;
+}
+.filter-card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  overflow: hidden;
+  margin-bottom: 1rem;
+}
+.filter-header {
+  padding: 0.85rem 1rem;
+  font-weight: 600;
+  font-size: 0.85rem;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: var(--text);
+}
+.filter-clear {
+  font-size: 0.72rem;
+  color: var(--primary-light);
+  cursor: pointer;
+  font-weight: 500;
+  border: none;
+  background: none;
+  font-family: inherit;
+}
+.filter-clear:hover { text-decoration: underline; }
+.filter-body { padding: 0.75rem 1rem; }
+.filter-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0;
+  cursor: pointer;
+  font-size: 0.85rem;
+  color: var(--text);
+  transition: color 0.15s;
+}
+.filter-option:hover { color: var(--primary); }
+.filter-option input[type="checkbox"] {
+  accent-color: var(--primary);
+  width: 15px;
+  height: 15px;
+  cursor: pointer;
+}
+.filter-count {
+  margin-left: auto;
+  font-size: 0.72rem;
+  background: var(--border-light);
+  color: var(--text-muted);
+  padding: 0.1rem 0.45rem;
+  border-radius: 99px;
+  font-weight: 500;
+}
+.date-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+}
+.date-input {
+  padding: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.8rem;
+  font-family: inherit;
+  background: var(--bg);
+  color: var(--text);
+  outline: none;
+}
+.date-input:focus { border-color: var(--primary-light); }
+
+/* Results Area */
+.results-area {}
+.results-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.results-count {
+  font-size: 0.9rem;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+.results-count strong { color: var(--text); }
+.results-sort {
+  display: flex;
+  gap: 0.25rem;
+}
+.sort-btn {
+  padding: 0.4rem 0.75rem;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  font-size: 0.78rem;
+  font-family: inherit;
+  cursor: pointer;
+  font-weight: 500;
+  transition: all 0.15s;
+}
+.sort-btn.active {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+.sort-btn:hover:not(.active) { border-color: var(--primary-light); color: var(--primary); }
+
+/* Result Card */
+.result-card {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  border: 1px solid var(--border);
+  margin-bottom: 0.75rem;
+  overflow: hidden;
+  transition: box-shadow 0.2s, transform 0.15s;
+}
+.result-card:hover {
+  box-shadow: var(--shadow-md);
+  transform: translateY(-1px);
+}
+.result-main {
+  padding: 1.15rem 1.25rem;
+  cursor: pointer;
+}
+.result-badges {
+  display: flex;
+  gap: 0.4rem;
+  flex-wrap: wrap;
+  margin-bottom: 0.6rem;
+}
+.badge {
+  font-size: 0.68rem;
+  padding: 0.2rem 0.55rem;
+  border-radius: 99px;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-transform: uppercase;
+}
+.badge-notification { background: #dbeafe; color: #1e40af; }
+.badge-circular { background: #fef3c7; color: #92400e; }
+.badge-order { background: #fce7f3; color: #9d174d; }
+.badge-cgst { background: #dcfce7; color: #166534; }
+.badge-igst { background: #e0e7ff; color: #3730a3; }
+.badge-utgst { background: #fef9c3; color: #854d0e; }
+.badge-cess { background: #ffe4e6; color: #9f1239; }
+.badge-category {
+  background: var(--border-light);
+  color: var(--text-muted);
+}
+[data-theme="dark"] .badge-notification { background: #1e3a5f; color: #93c5fd; }
+[data-theme="dark"] .badge-circular { background: #451a03; color: #fcd34d; }
+[data-theme="dark"] .badge-cgst { background: #052e16; color: #86efac; }
+[data-theme="dark"] .badge-igst { background: #1e1b4b; color: #a5b4fc; }
+[data-theme="dark"] .badge-category { background: var(--border); color: var(--text-muted); }
+
+.result-number {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: var(--primary);
+  margin-bottom: 0.25rem;
+}
+.result-subject {
+  font-size: 0.92rem;
+  font-weight: 500;
+  line-height: 1.5;
+  margin-bottom: 0.5rem;
+  color: var(--text);
+}
+.result-meta {
+  display: flex;
+  gap: 1.25rem;
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  flex-wrap: wrap;
+}
+.result-meta span { display: flex; align-items: center; gap: 0.3rem; }
+.result-expand-icon {
+  float: right;
+  font-size: 1.2rem;
+  color: var(--text-light);
+  transition: transform 0.2s;
+}
+.result-card.expanded .result-expand-icon { transform: rotate(180deg); }
+
+/* Expanded Content */
+.result-details {
+  display: none;
+  border-top: 1px solid var(--border);
+  padding: 1.15rem 1.25rem;
+  background: var(--border-light);
+}
+.result-card.expanded .result-details { display: block; }
+
+.detail-section { margin-bottom: 1rem; }
+.detail-section:last-child { margin-bottom: 0; }
+.detail-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: var(--text-muted);
+  margin-bottom: 0.35rem;
+}
+.detail-text {
+  font-size: 0.88rem;
+  line-height: 1.7;
+  color: var(--text);
+}
+.detail-keywords {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+.keyword-tag {
+  font-size: 0.72rem;
+  padding: 0.2rem 0.55rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  color: var(--text-muted);
+  font-weight: 500;
+}
+
+/* Highlight matches */
+mark {
+  background: #fef08a;
+  color: inherit;
+  padding: 0.05em 0.15em;
+  border-radius: 2px;
+}
+[data-theme="dark"] mark { background: #854d0e; color: #fef9c3; }
+
+/* No Results */
+.no-results {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--text-muted);
+}
+.no-results-icon { font-size: 3rem; margin-bottom: 1rem; opacity: 0.5; }
+.no-results h3 { font-size: 1.1rem; margin-bottom: 0.5rem; color: var(--text); }
+.no-results p { font-size: 0.9rem; }
+
+/* Pagination */
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 0.35rem;
+  margin-top: 1.5rem;
+  flex-wrap: wrap;
+}
+.page-btn {
+  padding: 0.45rem 0.85rem;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.82rem;
+  font-family: inherit;
+  font-weight: 500;
+  transition: all 0.15s;
+}
+.page-btn:hover { border-color: var(--primary); color: var(--primary); }
+.page-btn.active { background: var(--primary); color: white; border-color: var(--primary); }
+.page-btn:disabled { opacity: 0.4; cursor: default; }
+
+/* Export Button */
+.btn-export {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.8rem;
+  font-family: inherit;
+  font-weight: 500;
+  transition: all 0.15s;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+.btn-export:hover { border-color: var(--primary); color: var(--primary); }
+
+/* Loading */
+.loading {
+  text-align: center;
+  padding: 3rem;
+  color: var(--text-muted);
+}
+.spinner {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--border);
+  border-top-color: var(--primary);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 1rem;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+/* Mobile */
+@media (max-width: 900px) {
+  .main {
+    grid-template-columns: 1fr;
+  }
+  .filters {
+    position: static;
+  }
+  .mobile-filter-toggle {
+    display: flex !important;
+  }
+  .filters-panel {
+    display: none;
+  }
+  .filters-panel.show {
+    display: block;
+  }
+  .stats-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (min-width: 901px) {
+  .mobile-filter-toggle { display: none !important; }
+  .filters-panel { display: block !important; }
+}
+
+.mobile-filter-toggle {
+  width: 100%;
+  padding: 0.75rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  color: var(--text);
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  margin-bottom: 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+/* Year select */
+.year-select {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  font-size: 0.85rem;
+  font-family: inherit;
+  background: var(--bg);
+  color: var(--text);
+  outline: none;
+  cursor: pointer;
+}
+.year-select:focus { border-color: var(--primary-light); }
+
+/* Footer */
+.footer {
+  text-align: center;
+  padding: 2rem 1.5rem;
+  border-top: 1px solid var(--border);
+  color: var(--text-muted);
+  font-size: 0.8rem;
+  line-height: 1.7;
+}
+.footer a { color: var(--primary-light); text-decoration: none; }
+.footer a:hover { text-decoration: underline; }
+
+/* Active filter tags */
+.active-filters {
+  display: flex;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  margin-bottom: 1rem;
+}
+.active-filter-tag {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.6rem;
+  background: #dbeafe;
+  color: #1e40af;
+  border-radius: 99px;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  font-weight: 500;
+}
+[data-theme="dark"] .active-filter-tag { background: #1e3a5f; color: #93c5fd; }
+.active-filter-tag button {
+  background: none;
+  border: none;
+  color: inherit;
+  cursor: pointer;
+  font-size: 1rem;
+  line-height: 1;
+  opacity: 0.7;
+  padding: 0;
+}
+.active-filter-tag button:hover { opacity: 1; }
+
+/* Scroll to top */
+.scroll-top {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--primary);
+  color: white;
+  border: none;
+  cursor: pointer;
+  font-size: 1.2rem;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--shadow-lg);
+  z-index: 100;
+  transition: transform 0.2s;
+}
+.scroll-top:hover { transform: scale(1.1); }
+.scroll-top.show { display: flex; }
+
+/* Add data modal */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  z-index: 200;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+.modal-overlay.show { display: flex; }
+.modal {
+  background: var(--bg-card);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  max-width: 600px;
+  width: 100%;
+  max-height: 80vh;
+  overflow-y: auto;
+  padding: 1.5rem;
+}
+.modal h2 {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+}
+.modal p {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+  margin-bottom: 1rem;
+}
+.modal pre {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 1rem;
+  font-size: 0.75rem;
+  overflow-x: auto;
+  line-height: 1.6;
+  color: var(--text);
+}
+.modal-close {
+  float: right;
+  background: none;
+  border: none;
+  font-size: 1.3rem;
+  cursor: pointer;
+  color: var(--text-muted);
+}
+</style>
+</head>
+<body>
+<!-- Header -->
+<header class="header">
+  <div class="header-content">
+    <div class="header-top">
+      <div class="logo">
+        <div class="logo-icon">&#9878;</div>
+        <div class="logo-text">
+          <h1>GST Search India</h1>
+          <span>Notifications &bull; Circulars &bull; Orders</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <button class="btn-icon" id="addDataBtn" title="How to add data">&#43;</button>
+        <button class="btn-icon" id="themeToggle" title="Toggle dark mode">&#9789;</button>
+      </div>
+    </div>
+    <div class="search-container">
+      <div class="search-box">
+        <span class="search-icon">&#128269;</span>
+        <input type="text" class="search-input" id="searchInput"
+               placeholder="Search by keyword, topic, section, notification number..."
+               autocomplete="off" autofocus>
+      </div>
+      <div class="search-hint">
+        Try: "reverse charge", "e-invoice", "ITC restriction", "section 16", "refund", "amnesty"
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Stats -->
+<div class="stats-bar">
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-value" id="totalCount">0</div>
+      <div class="stat-label">Total Documents</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="notifCount">0</div>
+      <div class="stat-label">Notifications</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="circCount">0</div>
+      <div class="stat-label">Circulars</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="cgstCount">0</div>
+      <div class="stat-label">CGST</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="igstCount">0</div>
+      <div class="stat-label">IGST</div>
+    </div>
+    <div class="stat-card">
+      <div class="stat-value" id="yearRange">--</div>
+      <div class="stat-label">Year Range</div>
+    </div>
+  </div>
+</div>
+
+<!-- Main -->
+<div class="main">
+  <!-- Filters -->
+  <aside class="filters">
+    <button class="mobile-filter-toggle" id="mobileFilterToggle">
+      &#9776; Filters & Categories
+    </button>
+    <div class="filters-panel" id="filtersPanel">
+
+      <div class="filter-card">
+        <div class="filter-header">
+          Document Type
+          <button class="filter-clear" onclick="clearFilter('type')">Clear</button>
+        </div>
+        <div class="filter-body" id="typeFilters"></div>
+      </div>
+
+      <div class="filter-card">
+        <div class="filter-header">
+          Tax Type
+          <button class="filter-clear" onclick="clearFilter('tax')">Clear</button>
+        </div>
+        <div class="filter-body" id="taxFilters"></div>
+      </div>
+
+      <div class="filter-card">
+        <div class="filter-header">
+          Category
+          <button class="filter-clear" onclick="clearFilter('category')">Clear</button>
+        </div>
+        <div class="filter-body" id="categoryFilters"></div>
+      </div>
+
+      <div class="filter-card">
+        <div class="filter-header">
+          Year
+          <button class="filter-clear" onclick="clearFilter('year')">Clear</button>
+        </div>
+        <div class="filter-body">
+          <select class="year-select" id="yearFilter">
+            <option value="">All Years</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="filter-card">
+        <div class="filter-header">
+          Date Range
+          <button class="filter-clear" onclick="clearFilter('date')">Clear</button>
+        </div>
+        <div class="filter-body">
+          <div class="date-inputs">
+            <input type="date" class="date-input" id="dateFrom" placeholder="From">
+            <input type="date" class="date-input" id="dateTo" placeholder="To">
+          </div>
+        </div>
+      </div>
+
+      <div class="filter-card">
+        <div class="filter-header">
+          Section / Rule
+          <button class="filter-clear" onclick="clearFilter('section')">Clear</button>
+        </div>
+        <div class="filter-body">
+          <input type="text" class="date-input" id="sectionFilter"
+                 style="width:100%" placeholder="e.g. Section 16, Rule 36(4)">
+        </div>
+      </div>
+
+    </div>
+  </aside>
+
+  <!-- Results -->
+  <div class="results-area">
+    <div class="active-filters" id="activeFilters"></div>
+    <div class="results-header">
+      <div class="results-count" id="resultsCount">Loading...</div>
+      <div style="display:flex;gap:0.5rem;align-items:center;">
+        <div class="results-sort">
+          <button class="sort-btn active" data-sort="relevance" onclick="setSort('relevance')">Relevance</button>
+          <button class="sort-btn" data-sort="newest" onclick="setSort('newest')">Newest</button>
+          <button class="sort-btn" data-sort="oldest" onclick="setSort('oldest')">Oldest</button>
+        </div>
+        <button class="btn-export" onclick="exportResults()" title="Export results as CSV">
+          &#8681; Export
+        </button>
+      </div>
+    </div>
+    <div id="resultsContainer">
+      <div class="loading"><div class="spinner"></div>Loading notifications...</div>
+    </div>
+    <div class="pagination" id="pagination"></div>
+  </div>
+</div>
+
+<!-- Footer -->
+<footer class="footer">
+  <strong>GST Notification & Circular Search</strong> &mdash; Open Source Tool for Indian Tax Professionals<br>
+  Data sourced from <a href="https://cbic-gst.gov.in" target="_blank">CBIC GST Portal</a> &bull;
+  Built with &#10084; for the CA &amp; Tax Community<br>
+  <em>Disclaimer: This is an unofficial tool. Always verify with the official CBIC gazette notifications.</em>
+</footer>
+
+<!-- Scroll to top -->
+<button class="scroll-top" id="scrollTopBtn" onclick="window.scrollTo({top:0,behavior:'smooth'})">&#8593;</button>
+
+<!-- Add Data Modal -->
+<div class="modal-overlay" id="addDataModal">
+  <div class="modal">
+    <button class="modal-close" onclick="document.getElementById('addDataModal').classList.remove('show')">&times;</button>
+    <h2>How to Add New Notifications / Circulars</h2>
+    <p>Edit the <code>data.json</code> file in the repository and add a new entry in the following format:</p>
+    <pre>{
+  "id": "NT-CGST-2025-001",
+  "type": "Notification",
+  "tax": "CGST",
+  "number": "01/2025-Central Tax",
+  "date": "2025-01-15",
+  "effectiveDate": "2025-02-01",
+  "subject": "Subject of the notification...",
+  "category": "Rate / Exemption / Rules / etc.",
+  "sections": ["Section XX"],
+  "keywords": ["keyword1", "keyword2"],
+  "summary": "Brief summary...",
+  "fullText": "Full text of the notification..."
+}</pre>
+    <p style="margin-top:1rem">
+      <strong>Steps to contribute on GitHub:</strong><br>
+      1. Fork the repository<br>
+      2. Edit <code>data.json</code> and add the new entry<br>
+      3. Submit a Pull Request<br>
+      4. Once merged, the site updates automatically via GitHub Pages
+    </p>
+  </div>
+</div>
+
+<script>
+// ===== APP STATE =====
+let allData = [];
+let filteredData = [];
+let fuse = null;
+let currentSort = 'relevance';
+let currentPage = 1;
+const PAGE_SIZE = 15;
+let activeFilters = { type: [], tax: [], category: [], year: '', dateFrom: '', dateTo: '', section: '' };
+let searchQuery = '';
+
+// ===== INIT =====
+document.addEventListener('DOMContentLoaded', async () => {
+  await loadData();
+  setupFuse();
+  populateFilters();
+  updateStats();
+  applyFiltersAndSearch();
+  setupEventListeners();
+  loadTheme();
+});
+
+// ===== DATA LOADING =====
+async function loadData() {
+  try {
+    const resp = await fetch('data.json');
+    if (!resp.ok) throw new Error('Failed to load data.json');
+    allData = await resp.json();
+    // Sort by date descending by default
+    allData.sort((a, b) => new Date(b.date) - new Date(a.date));
+  } catch (e) {
+    console.error('Error loading data:', e);
+    document.getElementById('resultsContainer').innerHTML =
+      '<div class="no-results"><div class="no-results-icon">&#9888;</div>' +
+      '<h3>Could not load data</h3><p>Make sure data.json is in the same directory.</p></div>';
+  }
+}
+
+// ===== FUSE.JS SETUP =====
+function setupFuse() {
+  fuse = new Fuse(allData, {
+    keys: [
+      { name: 'number', weight: 0.25 },
+      { name: 'subject', weight: 0.25 },
+      { name: 'keywords', weight: 0.2 },
+      { name: 'summary', weight: 0.15 },
+      { name: 'fullText', weight: 0.1 },
+      { name: 'sections', weight: 0.05 }
+    ],
+    threshold: 0.35,
+    distance: 300,
+    includeScore: true,
+    includeMatches: true,
+    minMatchCharLength: 2,
+    ignoreLocation: true
+  });
+}
+
+// ===== FILTERS POPULATION =====
+function populateFilters() {
+  const types = countBy(allData, 'type');
+  const taxes = countBy(allData, 'tax');
+  const categories = countBy(allData, 'category');
+  const years = [...new Set(allData.map(d => new Date(d.date).getFullYear()))].sort((a,b) => b-a);
+
+  renderCheckboxFilter('typeFilters', types, 'type');
+  renderCheckboxFilter('taxFilters', taxes, 'tax');
+  renderCheckboxFilter('categoryFilters', categories, 'category');
+
+  const yearSelect = document.getElementById('yearFilter');
+  years.forEach(y => {
+    const opt = document.createElement('option');
+    opt.value = y;
+    opt.textContent = y;
+    yearSelect.appendChild(opt);
+  });
+}
+
+function countBy(arr, key) {
+  const counts = {};
+  arr.forEach(item => {
+    const val = item[key];
+    counts[val] = (counts[val] || 0) + 1;
+  });
+  return counts;
+}
+
+function renderCheckboxFilter(containerId, counts, filterKey) {
+  const container = document.getElementById(containerId);
+  const sorted = Object.entries(counts).sort((a,b) => b[1] - a[1]);
+  container.innerHTML = sorted.map(([val, count]) =>
+    `<label class="filter-option">
+      <input type="checkbox" value="${val}" data-filter="${filterKey}"
+             onchange="toggleFilter('${filterKey}', '${val}')">
+      ${val}
+      <span class="filter-count">${count}</span>
+    </label>`
+  ).join('');
+}
+
+// ===== STATS =====
+function updateStats() {
+  document.getElementById('totalCount').textContent = allData.length;
+  document.getElementById('notifCount').textContent = allData.filter(d => d.type === 'Notification').length;
+  document.getElementById('circCount').textContent = allData.filter(d => d.type === 'Circular').length;
+  document.getElementById('cgstCount').textContent = allData.filter(d => d.tax === 'CGST').length;
+  document.getElementById('igstCount').textContent = allData.filter(d => d.tax === 'IGST').length;
+  if (allData.length > 0) {
+    const years = allData.map(d => new Date(d.date).getFullYear());
+    document.getElementById('yearRange').textContent = Math.min(...years) + '-' + Math.max(...years);
+  }
+}
+
+// ===== FILTER LOGIC =====
+function toggleFilter(key, value) {
+  const idx = activeFilters[key].indexOf(value);
+  if (idx > -1) activeFilters[key].splice(idx, 1);
+  else activeFilters[key].push(value);
+  currentPage = 1;
+  applyFiltersAndSearch();
+}
+
+function clearFilter(key) {
+  if (key === 'type' || key === 'tax' || key === 'category') {
+    activeFilters[key] = [];
+    document.querySelectorAll(`input[data-filter="${key}"]`).forEach(cb => cb.checked = false);
+  } else if (key === 'year') {
+    activeFilters.year = '';
+    document.getElementById('yearFilter').value = '';
+  } else if (key === 'date') {
+    activeFilters.dateFrom = '';
+    activeFilters.dateTo = '';
+    document.getElementById('dateFrom').value = '';
+    document.getElementById('dateTo').value = '';
+  } else if (key === 'section') {
+    activeFilters.section = '';
+    document.getElementById('sectionFilter').value = '';
+  }
+  currentPage = 1;
+  applyFiltersAndSearch();
+}
+
+function applyFiltersAndSearch() {
+  let results;
+
+  // Search
+  if (searchQuery.trim()) {
+    const fuseResults = fuse.search(searchQuery);
+    results = fuseResults.map(r => ({ ...r.item, _score: r.score, _matches: r.matches }));
+  } else {
+    results = allData.map(d => ({ ...d, _score: 0 }));
+  }
+
+  // Apply filters
+  if (activeFilters.type.length > 0) {
+    results = results.filter(r => activeFilters.type.includes(r.type));
+  }
+  if (activeFilters.tax.length > 0) {
+    results = results.filter(r => activeFilters.tax.includes(r.tax));
+  }
+  if (activeFilters.category.length > 0) {
+    results = results.filter(r => activeFilters.category.includes(r.category));
+  }
+  if (activeFilters.year) {
+    results = results.filter(r => new Date(r.date).getFullYear() == activeFilters.year);
+  }
+  if (activeFilters.dateFrom) {
+    results = results.filter(r => r.date >= activeFilters.dateFrom);
+  }
+  if (activeFilters.dateTo) {
+    results = results.filter(r => r.date <= activeFilters.dateTo);
+  }
+  if (activeFilters.section) {
+    const sec = activeFilters.section.toLowerCase();
+    results = results.filter(r =>
+      r.sections && r.sections.some(s => s.toLowerCase().includes(sec))
+    );
+  }
+
+  // Sort
+  if (currentSort === 'newest') {
+    results.sort((a, b) => new Date(b.date) - new Date(a.date));
+  } else if (currentSort === 'oldest') {
+    results.sort((a, b) => new Date(a.date) - new Date(b.date));
+  }
+  // 'relevance' keeps Fuse.js order when searching, date desc otherwise
+
+  filteredData = results;
+  renderActiveFilterTags();
+  renderResults();
+  renderPagination();
+}
+
+// ===== RENDER ACTIVE FILTERS =====
+function renderActiveFilterTags() {
+  const container = document.getElementById('activeFilters');
+  const tags = [];
+  activeFilters.type.forEach(v => tags.push({ key: 'type', value: v, label: v }));
+  activeFilters.tax.forEach(v => tags.push({ key: 'tax', value: v, label: v }));
+  activeFilters.category.forEach(v => tags.push({ key: 'category', value: v, label: v }));
+  if (activeFilters.year) tags.push({ key: 'year', value: '', label: 'Year: ' + activeFilters.year });
+  if (activeFilters.dateFrom || activeFilters.dateTo) {
+    tags.push({ key: 'date', value: '', label: 'Date: ' + (activeFilters.dateFrom || '...') + ' to ' + (activeFilters.dateTo || '...') });
+  }
+  if (activeFilters.section) tags.push({ key: 'section', value: '', label: 'Section: ' + activeFilters.section });
+
+  container.innerHTML = tags.map(t =>
+    `<span class="active-filter-tag">${t.label}
+      <button onclick="removeFilterTag('${t.key}','${t.value}')">&times;</button>
+    </span>`
+  ).join('');
+}
+
+function removeFilterTag(key, value) {
+  if (key === 'type' || key === 'tax' || key === 'category') {
+    const idx = activeFilters[key].indexOf(value);
+    if (idx > -1) activeFilters[key].splice(idx, 1);
+    const cb = document.querySelector(`input[data-filter="${key}"][value="${value}"]`);
+    if (cb) cb.checked = false;
+  } else {
+    clearFilter(key);
+    return;
+  }
+  currentPage = 1;
+  applyFiltersAndSearch();
+}
+
+// ===== RENDER RESULTS =====
+function renderResults() {
+  const container = document.getElementById('resultsContainer');
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const pageData = filteredData.slice(start, start + PAGE_SIZE);
+
+  document.getElementById('resultsCount').innerHTML =
+    `Showing <strong>${Math.min(start + 1, filteredData.length)}-${Math.min(start + PAGE_SIZE, filteredData.length)}</strong> of <strong>${filteredData.length}</strong> results`;
+
+  if (filteredData.length === 0) {
+    container.innerHTML = `
+      <div class="no-results">
+        <div class="no-results-icon">&#128270;</div>
+        <h3>No results found</h3>
+        <p>Try different keywords, broaden your search, or adjust filters.</p>
+      </div>`;
+    return;
+  }
+
+  container.innerHTML = pageData.map(item => {
+    const typeBadge = item.type === 'Notification' ? 'badge-notification' :
+                      item.type === 'Circular' ? 'badge-circular' : 'badge-order';
+    const taxBadge = 'badge-' + item.tax.toLowerCase();
+    const dateStr = formatDate(item.date);
+    const effDate = item.effectiveDate ? formatDate(item.effectiveDate) : '';
+
+    return `
+    <div class="result-card" id="card-${item.id}">
+      <div class="result-main" onclick="toggleCard('${item.id}')">
+        <span class="result-expand-icon">&#9662;</span>
+        <div class="result-badges">
+          <span class="badge ${typeBadge}">${item.type}</span>
+          <span class="badge ${taxBadge}">${item.tax}</span>
+          <span class="badge badge-category">${item.category}</span>
+        </div>
+        <div class="result-number">${highlightText(item.number, searchQuery)}</div>
+        <div class="result-subject">${highlightText(item.subject, searchQuery)}</div>
+        <div class="result-meta">
+          <span>&#128197; ${dateStr}</span>
+          ${effDate ? `<span>&#9989; Effective: ${effDate}</span>` : ''}
+          ${item.sections && item.sections.length ? `<span>&#167; ${item.sections.join(', ')}</span>` : ''}
+        </div>
+      </div>
+      <div class="result-details">
+        <div class="detail-section">
+          <div class="detail-label">Summary</div>
+          <div class="detail-text">${highlightText(item.summary, searchQuery)}</div>
+        </div>
+        <div class="detail-section">
+          <div class="detail-label">Full Text</div>
+          <div class="detail-text">${highlightText(item.fullText, searchQuery)}</div>
+        </div>
+        ${item.keywords && item.keywords.length ? `
+        <div class="detail-section">
+          <div class="detail-label">Keywords</div>
+          <div class="detail-keywords">
+            ${item.keywords.map(k => `<span class="keyword-tag">${k}</span>`).join('')}
+          </div>
+        </div>` : ''}
+        <div class="detail-section">
+          <div class="detail-label">Sections / Rules Referenced</div>
+          <div class="detail-text">${item.sections ? item.sections.join(', ') : 'N/A'}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function toggleCard(id) {
+  const card = document.getElementById('card-' + id);
+  card.classList.toggle('expanded');
+}
+
+function highlightText(text, query) {
+  if (!text) return '';
+  if (!query || !query.trim()) return escapeHtml(text);
+  const escaped = escapeHtml(text);
+  const words = query.trim().split(/\s+/).filter(w => w.length > 1);
+  if (words.length === 0) return escaped;
+  const regex = new RegExp('(' + words.map(w => w.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')', 'gi');
+  return escaped.replace(regex, '<mark>$1</mark>');
+}
+
+function escapeHtml(str) {
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function formatDate(dateStr) {
+  const d = new Date(dateStr);
+  return d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' });
+}
+
+// ===== PAGINATION =====
+function renderPagination() {
+  const container = document.getElementById('pagination');
+  const totalPages = Math.ceil(filteredData.length / PAGE_SIZE);
+  if (totalPages <= 1) { container.innerHTML = ''; return; }
+
+  let html = '';
+  html += `<button class="page-btn" onclick="goToPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled' : ''}>&laquo; Prev</button>`;
+
+  const range = getPageRange(currentPage, totalPages);
+  range.forEach(p => {
+    if (p === '...') {
+      html += `<span class="page-btn" style="cursor:default;border:none;">...</span>`;
+    } else {
+      html += `<button class="page-btn ${p === currentPage ? 'active' : ''}" onclick="goToPage(${p})">${p}</button>`;
+    }
+  });
+
+  html += `<button class="page-btn" onclick="goToPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled' : ''}>Next &raquo;</button>`;
+  container.innerHTML = html;
+}
+
+function getPageRange(current, total) {
+  if (total <= 7) return Array.from({ length: total }, (_, i) => i + 1);
+  const pages = [];
+  pages.push(1);
+  if (current > 3) pages.push('...');
+  for (let i = Math.max(2, current - 1); i <= Math.min(total - 1, current + 1); i++) pages.push(i);
+  if (current < total - 2) pages.push('...');
+  pages.push(total);
+  return pages;
+}
+
+function goToPage(page) {
+  const totalPages = Math.ceil(filteredData.length / PAGE_SIZE);
+  if (page < 1 || page > totalPages) return;
+  currentPage = page;
+  renderResults();
+  renderPagination();
+  window.scrollTo({ top: document.querySelector('.results-area').offsetTop - 20, behavior: 'smooth' });
+}
+
+// ===== SORTING =====
+function setSort(sort) {
+  currentSort = sort;
+  document.querySelectorAll('.sort-btn').forEach(btn => {
+    btn.classList.toggle('active', btn.dataset.sort === sort);
+  });
+  currentPage = 1;
+  applyFiltersAndSearch();
+}
+
+// ===== EXPORT =====
+function exportResults() {
+  if (filteredData.length === 0) return;
+  const headers = ['Number', 'Type', 'Tax', 'Date', 'Effective Date', 'Category', 'Subject', 'Sections', 'Summary'];
+  const rows = filteredData.map(d => [
+    d.number, d.type, d.tax, d.date, d.effectiveDate || '',
+    d.category, '"' + (d.subject || '').replace(/"/g, '""') + '"',
+    (d.sections || []).join('; '),
+    '"' + (d.summary || '').replace(/"/g, '""') + '"'
+  ]);
+  const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+  const blob = new Blob(['\ufeff' + csv], { type: 'text/csv;charset=utf-8;' });
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(blob);
+  link.download = 'gst_search_results_' + new Date().toISOString().slice(0,10) + '.csv';
+  link.click();
+}
+
+// ===== EVENT LISTENERS =====
+function setupEventListeners() {
+  // Search with debounce
+  let debounceTimer;
+  document.getElementById('searchInput').addEventListener('input', (e) => {
+    clearTimeout(debounceTimer);
+    debounceTimer = setTimeout(() => {
+      searchQuery = e.target.value;
+      currentPage = 1;
+      if (!searchQuery.trim()) currentSort = 'newest';
+      else currentSort = 'relevance';
+      document.querySelectorAll('.sort-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.sort === currentSort);
+      });
+      applyFiltersAndSearch();
+    }, 250);
+  });
+
+  // Year filter
+  document.getElementById('yearFilter').addEventListener('change', (e) => {
+    activeFilters.year = e.target.value;
+    currentPage = 1;
+    applyFiltersAndSearch();
+  });
+
+  // Date filters
+  document.getElementById('dateFrom').addEventListener('change', (e) => {
+    activeFilters.dateFrom = e.target.value;
+    currentPage = 1;
+    applyFiltersAndSearch();
+  });
+  document.getElementById('dateTo').addEventListener('change', (e) => {
+    activeFilters.dateTo = e.target.value;
+    currentPage = 1;
+    applyFiltersAndSearch();
+  });
+
+  // Section filter with debounce
+  let secTimer;
+  document.getElementById('sectionFilter').addEventListener('input', (e) => {
+    clearTimeout(secTimer);
+    secTimer = setTimeout(() => {
+      activeFilters.section = e.target.value;
+      currentPage = 1;
+      applyFiltersAndSearch();
+    }, 300);
+  });
+
+  // Theme toggle
+  document.getElementById('themeToggle').addEventListener('click', toggleTheme);
+
+  // Mobile filter toggle
+  document.getElementById('mobileFilterToggle').addEventListener('click', () => {
+    document.getElementById('filtersPanel').classList.toggle('show');
+  });
+
+  // Scroll to top
+  window.addEventListener('scroll', () => {
+    document.getElementById('scrollTopBtn').classList.toggle('show', window.scrollY > 400);
+  });
+
+  // Add data modal
+  document.getElementById('addDataBtn').addEventListener('click', () => {
+    document.getElementById('addDataModal').classList.add('show');
+  });
+  document.getElementById('addDataModal').addEventListener('click', (e) => {
+    if (e.target === e.currentTarget) e.currentTarget.classList.remove('show');
+  });
+
+  // Keyboard shortcut: / to focus search
+  document.addEventListener('keydown', (e) => {
+    if (e.key === '/' && document.activeElement.tagName !== 'INPUT') {
+      e.preventDefault();
+      document.getElementById('searchInput').focus();
+    }
+    if (e.key === 'Escape') {
+      document.getElementById('addDataModal').classList.remove('show');
+    }
+  });
+}
+
+// ===== THEME =====
+function toggleTheme() {
+  const isDark = document.documentElement.getAttribute('data-theme') === 'dark';
+  document.documentElement.setAttribute('data-theme', isDark ? 'light' : 'dark');
+  localStorage.setItem('gst-theme', isDark ? 'light' : 'dark');
+  document.getElementById('themeToggle').innerHTML = isDark ? '&#9789;' : '&#9788;';
+}
+
+function loadTheme() {
+  const saved = localStorage.getItem('gst-theme');
+  if (saved === 'dark') {
+    document.documentElement.setAttribute('data-theme', 'dark');
+    document.getElementById('themeToggle').innerHTML = '&#9788;';
+  }
+}
+</script>
+</body>
+</html>
