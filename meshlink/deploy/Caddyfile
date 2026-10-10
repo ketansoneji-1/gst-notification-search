@@ -1,0 +1,4 @@
+# Automatic HTTPS (Let's Encrypt) in front of the coordination server.
+vpn.example.com {
+    reverse_proxy 127.0.0.1:8443
+}
