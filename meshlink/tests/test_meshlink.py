@@ -16,9 +16,17 @@ ADMIN = {"Authorization": "Bearer admin-token-0123456789"}
 
 @pytest.fixture
 def client(tmp_path):
-    s = Settings(db_path=str(tmp_path / "t.db"), admin_token=ADMIN["Authorization"][7:],
-                 public_endpoint="vpn.example.com:51820", hub_apply=False)
+    s = Settings(data_dir=str(tmp_path), admin_token=ADMIN["Authorization"][7:],
+                 public_endpoint="vpn.example.com:51820", hub_apply=False, watch_public_ip=False)
     return TestClient(create_app(s))
+
+
+@pytest.fixture
+def auto_client(tmp_path):
+    """Default on-premises mode: endpoint follows the address the device used."""
+    s = Settings(data_dir=str(tmp_path), admin_token=ADMIN["Authorization"][7:],
+                 hub_apply=False, watch_public_ip=False, tls_fingerprint="AB" * 32)
+    return TestClient(create_app(s), base_url="https://192.168.1.10:8443")
 
 
 def authkey(c, **kw):
@@ -132,3 +140,103 @@ def test_agent_hosts_block(tmp_path, monkeypatch):
 def test_agent_strip_conf():
     out = agent.strip_conf("[Interface]\nPrivateKey = x\nAddress = 1.2.3.4/32\nDNS = 1.1.1.1\n")
     assert "Address" not in out and "DNS" not in out and "PrivateKey = x" in out
+
+
+def test_auto_endpoint_follows_request_host(auto_client):
+    a = join(auto_client, authkey(auto_client), "office-pc")
+    assert "Endpoint = 192.168.1.10:51820" in a["wireguard"]
+    h = {"Authorization": f"Bearer {a['node_token']}"}
+    cfg = auto_client.get("https://203.0.113.7:8443/api/v1/config", headers=h).json()
+    assert "Endpoint = 203.0.113.7:51820" in cfg["wireguard"]
+
+
+def test_manual_public_ip_is_advertised(auto_client):
+    r = auto_client.put("/api/v1/admin/server-info", json={"public_ip": "203.0.113.9"}, headers=ADMIN)
+    assert r.status_code == 200
+    info = auto_client.get("/api/v1/admin/server-info", headers=ADMIN).json()
+    assert info["public_ip"] == "203.0.113.9" and info["tls_fingerprint"] == "AB" * 32
+    a = join(auto_client, authkey(auto_client), "pc")
+    assert a["server_urls"]["public"] == "https://203.0.113.9:8443"
+    bad = auto_client.put("/api/v1/admin/server-info", json={"public_ip": "not-an-ip"}, headers=ADMIN)
+    assert bad.status_code == 422
+
+
+def test_rdp_allowed_from_follows_acl(client):
+    staff = authkey(client, tags=["staff"], reusable=True)
+    srv = authkey(client, tags=["servers"], reusable=True)
+    alice = join(client, staff, "alice")
+    host = join(client, srv, "rdp-host", rdp_enabled=True)
+    acl = {"rules": [{"src": ["tag:staff"], "dst": ["tag:servers"], "ports": ["rdp"]}]}
+    client.put("/api/v1/admin/acl", json=acl, headers=ADMIN)
+    cfg = client.get("/api/v1/config", headers={"Authorization": f"Bearer {host['node_token']}"}).json()
+    assert cfg["rdp_allowed_from"] == [alice["node"]["ip"]]
+    acl = {"rules": [{"src": ["tag:staff"], "dst": ["tag:servers"], "ports": ["ssh"]}]}
+    client.put("/api/v1/admin/acl", json=acl, headers=ADMIN)
+    cfg = client.get("/api/v1/config", headers={"Authorization": f"Bearer {host['node_token']}"}).json()
+    assert cfg["rdp_allowed_from"] == []
+
+
+def test_public_ip_classification():
+    from server import upnp
+    assert upnp.classify_public_ip("100.70.1.2").startswith("The ISP uses carrier-grade NAT")
+    assert "double NAT" in upnp.classify_public_ip("192.168.0.5")
+    assert upnp.classify_public_ip("49.36.10.20") is None
+
+
+def test_self_signed_cert_is_stable(tmp_path):
+    from server.tls import ensure_cert
+    _, _, fp1 = ensure_cert(tmp_path)
+    _, _, fp2 = ensure_cert(tmp_path)
+    assert fp1 == fp2 and len(fp1) == 64
+
+
+def test_agent_server_candidates_order():
+    st = {"last_good": "https://203.0.113.7:8443", "servers": ["https://192.168.1.10:8443/"],
+          "learned_servers": {"lan": "https://192.168.1.10:8443", "public": "https://198.51.100.4:8443"}}
+    assert agent.server_candidates(st) == ["https://203.0.113.7:8443", "https://192.168.1.10:8443",
+                                           "https://198.51.100.4:8443"]
+
+
+def test_upnp_against_fake_router(monkeypatch):
+    import threading
+    from http.server import BaseHTTPRequestHandler, HTTPServer
+    from server import upnp
+
+    calls = []
+    desc = b"""<?xml version="1.0"?><root xmlns="urn:schemas-upnp-org:device-1-0"><device><deviceList>
+      <device><serviceList><service>
+        <serviceType>urn:schemas-upnp-org:service:WANIPConnection:1</serviceType>
+        <controlURL>/ctl/IPConn</controlURL></service></serviceList></device>
+    </deviceList></device></root>"""
+
+    class H(BaseHTTPRequestHandler):
+        def log_message(self, *a):
+            pass
+
+        def do_GET(self):
+            self.send_response(200); self.end_headers(); self.wfile.write(desc)
+
+        def do_POST(self):
+            body = self.rfile.read(int(self.headers["Content-Length"])).decode()
+            calls.append((self.headers["SOAPAction"], body))
+            self.send_response(200); self.end_headers()
+            self.wfile.write(b'<s:Envelope xmlns:s="http://schemas.xmlsoap.org/soap/envelope/"><s:Body>'
+                             b'<u:R xmlns:u="x"><NewExternalIPAddress>49.36.10.20</NewExternalIPAddress>'
+                             b'</u:R></s:Body></s:Envelope>')
+
+    srv = HTTPServer(("127.0.0.1", 0), H)
+    threading.Thread(target=srv.serve_forever, daemon=True).start()
+    monkeypatch.setattr(upnp, "_discover", lambda: [f"http://127.0.0.1:{srv.server_port}/desc.xml"])
+    gw = upnp.Gateway.find()
+    assert gw.control_url.endswith("/ctl/IPConn")
+    assert gw.external_ip() == "49.36.10.20"
+    gw.add_port_mapping(51820, "udp", "MeshLink WireGuard")
+    assert "AddPortMapping" in calls[-1][0] and "<NewExternalPort>51820</NewExternalPort>" in calls[-1][1]
+    assert "<NewProtocol>UDP</NewProtocol>" in calls[-1][1]
+    srv.shutdown()
+
+
+def test_upnp_ignores_public_gateway():
+    from server import upnp
+    with pytest.raises(upnp.UPnPError):
+        upnp._local_only("http://8.8.8.8:5000/desc.xml")

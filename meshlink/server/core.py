@@ -6,7 +6,11 @@ from __future__ import annotations
 
 import base64
 import ipaddress
+import os
+import platform
 import re
+import shutil
+from pathlib import Path
 from dataclasses import dataclass, field
 
 # Ports used by remote-desktop style services; handy aliases in ACL rules.
@@ -136,6 +140,18 @@ def allowed(policy: dict, src: Node, dst: Node) -> bool:
     )
 
 
+def allowed_port(policy: dict, src: Node, dst: Node, proto: str, port: int) -> bool:
+    """True if `src` may connect to `dst` on proto/port."""
+    for r in policy["rules"]:
+        if not (any(_matches(s, src) for s in r["src"]) and any(_matches(d, dst) for d in r["dst"])):
+            continue
+        for spec in r.get("ports", ["*"]):
+            p = _parse_port(spec)
+            if p is None or (p[0] == proto and p[1] <= port <= p[2]):
+                return True
+    return False
+
+
 def visible_peers(policy: dict, me: Node, nodes: list[Node]) -> list[Node]:
     """Nodes `me` needs to know about: anything it can reach or that can reach it."""
     return [n for n in nodes if n.id != me.id and (allowed(policy, me, n) or allowed(policy, n, me))]
@@ -196,3 +212,26 @@ def render_hub_config(hub_privkey: str, cidr: str, listen_port: int, nodes: list
     for n in nodes:
         out += ["", f"# {n.name}", "[Peer]", f"PublicKey = {n.pubkey}", f"AllowedIPs = {n.ip}/32"]
     return "\n".join(out) + "\n"
+
+
+def strip_conf(text: str) -> str:
+    """Equivalent of `wg-quick strip`: drop wg-quick-only keys so `wg syncconf` accepts the file."""
+    skip = ("address", "dns", "mtu", "table", "preup", "postup", "predown", "postdown", "saveconfig")
+    return "\n".join(l for l in text.splitlines() if l.split("=", 1)[0].strip().lower() not in skip) + "\n"
+
+
+def _wireguard_dir() -> Path:
+    return Path(os.environ.get("ProgramFiles", r"C:\Program Files")) / "WireGuard"
+
+
+def find_wg() -> str | None:
+    if platform.system() == "Windows" and (_wireguard_dir() / "wg.exe").exists():
+        return str(_wireguard_dir() / "wg.exe")
+    return shutil.which("wg")
+
+
+def wireguard_exe() -> str:
+    exe = _wireguard_dir() / "wireguard.exe"
+    if not exe.exists():
+        raise FileNotFoundError("WireGuard for Windows is not installed")
+    return str(exe)

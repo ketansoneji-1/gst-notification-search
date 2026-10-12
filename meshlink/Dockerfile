@@ -6,6 +6,6 @@ WORKDIR /opt/meshlink
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY server ./server
-ENV MESHLINK_DB=/var/lib/meshlink/meshlink.db MESHLINK_HUB_APPLY=1
+ENV MESHLINK_DATA_DIR=/var/lib/meshlink MESHLINK_HUB_APPLY=1
 EXPOSE 8443 51820/udp
-CMD ["uvicorn", "--factory", "server.main:create_app", "--host", "0.0.0.0", "--port", "8443", "--proxy-headers"]
+CMD ["python", "-m", "server.run"]

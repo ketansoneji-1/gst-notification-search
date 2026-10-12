@@ -1,145 +1,161 @@
-# MeshLink — self-hosted VPN mesh with Remote Desktop
+# MeshLink — on-premises VPN mesh with Remote Desktop
 
-MeshLink is a self-hosted alternative to Tailscale for connecting office and home computers into a private network and opening Remote Desktop (RDP) sessions between them. All infrastructure runs on a server you control; no third-party account is required.
+MeshLink is a fully self-hosted alternative to Tailscale. The server runs **on your own office machine** (Windows or Linux). It connects office PCs, home PCs and laptops into one private network and lets you open Remote Desktop (RDP) sessions between them.
+
+It does not depend on any outside service:
+- **No cloud account and no rented VPS:** the coordination server and relay run on your server.
+- **No public certificate authority:** the server creates its own HTTPS certificate, and every device is locked to its fingerprint.
+- **No dynamic-DNS or "what is my IP" website:** the server asks your office router (UPnP, on the LAN) for the current public IP.
+- **No telemetry:** devices talk only to your server and to each other.
 
 ## How it works
 
-- **Data plane:** standard [WireGuard](https://www.wireguard.com/) (kernel module on Linux, official clients on Windows/macOS). MeshLink does no custom cryptography.
-- **Coordination server** (`server/`): hands out mesh IPs (default `100.96.0.0/16`), distributes public keys, enforces access rules, and serves an admin dashboard.
-- **Hub / relay:** the same server runs a WireGuard interface that relays traffic for devices behind NAT, with the ACL enforced through `iptables`.
-- **Direct paths:** a device registered with a reachable `--endpoint` (public IP or port-forward) is reached directly by peers; everything else falls back to the hub.
-- **Agent** (`agent/meshlink.py`): one Python file (standard library only) that generates keys locally, joins the network, keeps peers in sync, maintains `name` / `name.mesh` host entries, and launches RDP.
-
-Private keys never leave the device. Auth keys and device tokens are stored only as SHA-256 hashes.
-
 ```
- Laptop (NAT) ──WireGuard──┐                 ┌──WireGuard── Office PC (NAT, RDP host)
-                           ├── MeshLink hub ─┤
- Home PC (NAT) ─WireGuard──┘ (VPS, public IP)└──WireGuard── Server (public IP) ◄── direct path
+ Home PC ─────┐   internet   ┌──── office router ─── Office server (MeshLink hub, 100.96.0.1)
+ Laptop  ─────┘ (WireGuard)  │      (forwards UDP 51820, TCP 8443)        │
+                                                                           ├── Office PC-1 (RDP host)
+                                                                           └── Office PC-2
 ```
 
-## Comparison with Tailscale
+- **Encryption:** standard [WireGuard](https://www.wireguard.com/). MeshLink adds no custom cryptography, and private keys never leave the device that created them.
+- **Server / hub** (`server/`): assigns mesh IPs (`100.96.x.x`), enrols devices with auth keys, applies access rules, and runs the admin dashboard. It also relays traffic between devices that are both behind routers.
+- **Agent** (`agent/meshlink.py`, standard library only): joins a device to the network and keeps peers in sync. It maintains device names (`office-pc`, `office-pc.mesh`, `hub`), launches RDP, and keeps the Windows Firewall RDP rule in line with the access policy.
 
-| Capability | Tailscale | MeshLink |
-|---|---|---|
-| WireGuard encryption | Yes | Yes |
-| Self-hosted control plane | Headscale only | Yes (built in) |
-| NAT traversal | Automatic hole punching + DERP relays | Hub relay; direct when one side is reachable |
-| Access control (ACLs) | Yes | Yes (tags, names, IPs, ports) |
-| Name resolution | MagicDNS | Hosts-file entries (`pc`, `pc.mesh`) |
-| RDP helper | No | `meshlink rdp`, `meshlink enable-rdp` |
-| SSO login | Yes | Auth keys (pre-shared) |
+## Dynamic public IP: how it is handled
 
-## 1. Install the server (Ubuntu/Debian VPS with a public IP)
+1. **Detection:** every 5 minutes the server asks the office router (UPnP) for the current public IP and shows it on the dashboard. With `-UPnP`, it also creates the port forwards on the router itself.
+2. **Two addresses per device:** devices are given both addresses, the office LAN URL and the public URL. Inside the office they connect over the LAN, so no router "hairpin" support is needed; outside, they use the public IP.
+3. **Tunnel follows automatically:** the WireGuard endpoint each device uses is the same address it reached the server on. When a device's address changes, the tunnel follows without any further step.
+4. **Automatic pickup of a new IP:** any device that syncs after the IP changed (for example, a laptop that comes back into the office) learns the new public IP on its own.
+5. **One manual case:** a device that was outside the office when the IP changed cannot find the server on its own, because without an outside service there is nothing to tell it. Read the new IP from the dashboard and run on that device:
+   `meshlink set-server https://<office-LAN-IP>:8443,https://<NEW-PUBLIC-IP>:8443`
+6. **Recommendation:** if remote use is frequent, a static IP from your ISP removes step 5 entirely. If the dashboard shows a **CGNAT** warning, the ISP is not giving you a public IP at all, and inbound connections cannot work until they do.
 
-```bash
-git clone <this repo> && cd <repo>/meshlink
-sudo PUBLIC_HOST=vpn.example.com ./deploy/install-server.sh
-```
+## 1. Install the server on your Windows machine
 
-The script installs WireGuard, enables IP forwarding, creates `/etc/meshlink/server.env` with a random admin token, and starts the `meshlink-server` systemd service on `127.0.0.1:8443`.
+**Requirements**
+- Windows Server 2016+ or Windows 10/11 Pro, kept always on.
+- A fixed LAN IP: set a DHCP reservation on the router.
 
-Then:
-1. Open **UDP 51820** in the firewall / cloud security group.
-2. Put the API behind HTTPS, e.g. with Caddy: copy `deploy/Caddyfile`, set your domain, `sudo systemctl reload caddy`.
-3. Open `https://vpn.example.com/`, paste the admin token (`sudo cat /etc/meshlink/server.env`).
+**Steps**
+1. Copy the `meshlink` folder to the server.
+2. Open **PowerShell as Administrator** and run:
+   ```powershell
+   cd meshlink\deploy
+   Set-ExecutionPolicy -Scope Process Bypass
+   .\install-server-windows.ps1 -UPnP -AllowRdpFromMesh
+   ```
+   - `-UPnP`: the server opens the router ports itself. Omit it if you forward ports by hand.
+   - `-AllowRdpFromMesh`: lets MeshLink devices RDP into the server itself, at mesh IP `100.96.0.1` / name `hub`.
+3. Note the **Admin token** and **Certificate fingerprint** the script prints.
+4. If you are not using `-UPnP`, forward these ports on the office router to the server's LAN IP:
+   - **UDP 51820** (WireGuard)
+   - **TCP 8443** (API)
+5. Open `https://localhost:8443/` on the server and accept the self-signed certificate warning. Paste the admin token, then check the **Server** panel:
+   - The public IP is shown.
+   - There is no CGNAT or double-NAT warning.
 
-Docker alternative: `docker build -t meshlink . && docker run -d --network host --cap-add NET_ADMIN --env-file server.env -v meshlink:/var/lib/meshlink meshlink` (the host still needs `net.ipv4.ip_forward=1`).
+**What the installer sets up**
+- WireGuard for Windows and machine-wide Python.
+- The MeshLink server, as a startup task running under the SYSTEM account.
+- Windows Firewall rules for the two ports.
+- IP forwarding, so the server can relay traffic between devices.
 
-### Server settings (`server.env`)
+**Fully offline installation (optional)**
+- Put the WireGuard `.msi` and the Python `.exe` installer in `deploy\offline\`.
+- Put a `wheels\` folder in the same place. Build it once on any internet-connected PC with the `pip download` command shown at the top of `install-server-windows.ps1`.
+- The installer then downloads nothing.
 
-| Variable | Default | Purpose |
-|---|---|---|
-| `MESHLINK_ADMIN_TOKEN` | — (required, ≥16 chars) | Dashboard / admin API token |
-| `MESHLINK_PUBLIC_ENDPOINT` | — | `host:port` devices use to reach the hub |
-| `MESHLINK_CIDR` | `100.96.0.0/16` | Mesh address range |
-| `MESHLINK_WG_PORT` | `51820` | Hub WireGuard UDP port |
-| `MESHLINK_DOMAIN` | `mesh` | Suffix for device names |
-| `MESHLINK_HUB_APPLY` | `0` | `1` = configure the hub's WireGuard interface and firewall automatically |
-| `MESHLINK_DB` | `meshlink.db` | SQLite database path |
+A Linux server is also supported: `sudo UPNP=1 ./deploy/install-server.sh`.
 
 ## 2. Add devices
 
-Create an **auth key** in the dashboard (single-use by default; tick *Reusable* for bulk roll-out; add tags such as `staff` or `servers`).
+1. In the dashboard, create an **auth key**:
+   - Single-use by default; tick *Reusable* for rolling out to many PCs.
+   - Add tags such as `staff` or `servers`.
+2. The dashboard then shows the exact join command.
+3. On each Windows PC, open **PowerShell as Administrator** in `meshlink\deploy` and paste the command:
 
-**Windows** (elevated PowerShell; installs WireGuard and Python via winget if missing):
 ```powershell
-.\deploy\install-agent-windows.ps1 -Server https://vpn.example.com -AuthKey mlk-XXXX -EnableRdp
+.\install-agent-windows.ps1 -Server "https://192.168.1.10:8443,https://49.36.10.20:8443" `
+    -Fingerprint 05E6B8... -AuthKey mlk-... -EnableRdp
 ```
 
-**Linux** (`sudo apt install wireguard-tools`):
-```bash
-sudo install -D agent/meshlink.py /opt/meshlink/meshlink.py && sudo ln -sf /opt/meshlink/meshlink.py /usr/local/bin/meshlink
-sudo python3 /opt/meshlink/meshlink.py up --server https://vpn.example.com --authkey mlk-XXXX
-sudo cp deploy/meshlink-agent.service /etc/systemd/system/ && sudo systemctl enable --now meshlink-agent
-```
+- Use `-EnableRdp` on PCs that others should be able to RDP **into**.
+- The agent runs at startup and adds a `meshlink` command.
 
-**macOS** (`brew install wireguard-tools`): same as Linux using `sudo python3 meshlink.py up ...`; run `meshlink.py daemon` via launchd to keep peers in sync.
-
-Optional flags for `up`: `--hostname NAME`, `--rdp` (advertise RDP), `--endpoint 203.0.113.5:51820` (device is directly reachable; enables direct paths).
+On Linux or macOS, install `wireguard-tools`, then run:
+`sudo python3 agent/meshlink.py up --server "<urls>" --fingerprint <fp> --authkey <key>`
 
 ## 3. Remote Desktop
 
-On the PC you want to connect **to** (Windows Pro/Enterprise/Server):
-```powershell
-python "C:\Program Files\MeshLink\meshlink.py" enable-rdp
+```text
+meshlink status                        # devices, online/offline, direct or relayed, RDP
+meshlink rdp office-pc --user ABC\ca1  # opens mstsc (Windows), Windows App (macOS) or FreeRDP (Linux)
+meshlink rdp hub                       # RDP into the server itself
 ```
-This enables RDP with Network Level Authentication and adds a firewall rule allowing TCP/UDP 3389 **only from the mesh range**. Consider disabling Windows' built-in "Remote Desktop" firewall rules so RDP is not exposed on other networks.
 
-From any other device:
-```bash
-meshlink status                          # list devices, online state, direct/relay path, RDP
-meshlink rdp office-pc --user ACME\\ca1  # opens mstsc (Windows), Windows App (macOS) or FreeRDP/Remmina (Linux)
-```
-You can also type `office-pc` or `office-pc.mesh` directly into any RDP client.
+You can also type `office-pc` or `office-pc.mesh` directly into the Windows Remote Desktop client.
+
+What `-EnableRdp` / `meshlink enable-rdp` does on the target PC:
+- Turns on RDP with Network Level Authentication.
+- Opens port 3389 in Windows Firewall **only to the MeshLink devices the access policy allows**. The agent updates this list whenever the policy or the devices change.
+- Recommended: also disable Windows' built-in "Remote Desktop" firewall rules, so RDP cannot be reached from the LAN or internet directly.
 
 ## 4. Access control
 
-Default policy allows every device to reach every other device. Example: staff may only RDP/SSH into servers, admins may reach everything:
+The default policy lets every device reach every other device. A typical office policy:
 
 ```json
 {
   "rules": [
-    {"src": ["tag:staff"],  "dst": ["tag:servers"], "ports": ["rdp", "ssh"]},
-    {"src": ["tag:admins"], "dst": ["*"],           "ports": ["*"]}
+    {"src": ["tag:staff"],  "dst": ["tag:office"], "ports": ["rdp"]},
+    {"src": ["tag:admins"], "dst": ["*"],          "ports": ["*"]}
   ]
 }
 ```
 
-- Selectors: `*`, `tag:<name>`, device name, IP, or CIDR.
-- Ports: `*`, `rdp`, `ssh`, `vnc`, `http`, `https`, `3389`, `udp:53`, `1000-2000` (TCP unless prefixed).
-- Devices only learn about peers they are allowed to talk to; the hub firewall enforces ports for relayed traffic. Direct paths are filtered by visibility only, so use host firewalls (as `enable-rdp` does) for port-level control on directly reachable devices.
+**How rules are written**
+- Selectors: `*`, `tag:<name>`, device name, IP or CIDR.
+- Ports: `*`, `rdp`, `ssh`, `vnc`, `http`, `https`, `3389`, `udp:53`, `1000-2000`. A port is TCP unless prefixed with `udp:`.
 
-## Admin API
-
-All admin calls take `Authorization: Bearer <admin token>`.
-
-| Method & path | Purpose |
-|---|---|
-| `POST /api/v1/admin/authkeys` | Create auth key `{description, reusable, ephemeral, tags, ttl_hours}` |
-| `GET /api/v1/admin/authkeys` · `DELETE …/{id}` | List / revoke keys |
-| `GET /api/v1/admin/nodes` | List devices |
-| `PATCH /api/v1/admin/nodes/{id}` · `DELETE …/{id}` | Rename / retag / remove a device |
-| `GET` · `PUT /api/v1/admin/acl` | Read / replace the access policy |
-| `GET /api/v1/admin/hub-config` | Rendered hub WireGuard config + firewall (for manual setups) |
+**How rules are enforced**
+- Devices only learn about the peers they are allowed to reach.
+- RDP permissions are enforced by each PC's Windows Firewall, which the agent keeps up to date.
+- On a Linux hub, relayed traffic is also filtered per port with `iptables`.
+- A Windows hub relays without per-port filtering, because Windows Firewall does not filter routed traffic. On a Windows hub, the PC-level firewall rules above are therefore the enforcement point.
 
 ## Security notes
 
-- Serve the coordination API over HTTPS only; auth keys and device tokens travel in requests.
-- Use short-lived, single-use auth keys; revoke unused keys; remove lost devices from the dashboard immediately.
-- Back up the database (`/var/lib/meshlink/meshlink.db`): it holds the hub private key and device registry.
-- Keep NLA enabled and use strong Windows passwords or account lockout for RDP hosts.
+- Keep the admin token secret. Use single-use, short-lived auth keys, and remove lost devices from the dashboard at once.
+- Back up `C:\ProgramData\MeshLink\server\`. It holds the database, the hub private key and the TLS certificate. If the certificate is lost, every device must be given the new fingerprint with `meshlink set-server <urls> --fingerprint <new>`.
+- Only SYSTEM and Administrators can read the data folder.
+- Use strong Windows passwords and an account-lockout policy on PCs that accept RDP.
+
+## Admin API
+
+All calls require `Authorization: Bearer <admin token>`.
+
+| Method & path | Purpose |
+|---|---|
+| `GET /api/v1/admin/server-info[?refresh=true]` | Public/LAN IP, CGNAT warning, UPnP status, certificate fingerprint |
+| `PUT /api/v1/admin/server-info` | Set the public IP by hand `{public_ip}`, for routers without UPnP |
+| `POST /api/v1/admin/authkeys` | Create an auth key `{description, reusable, ephemeral, tags, ttl_hours}` |
+| `GET /api/v1/admin/authkeys` · `DELETE …/{id}` | List / revoke auth keys |
+| `GET /api/v1/admin/nodes` · `PATCH`/`DELETE …/{id}` | List, rename, retag or remove devices |
+| `GET` · `PUT /api/v1/admin/acl` | Read / replace the access policy |
 
 ## Development
 
 ```bash
 pip install -r requirements-dev.txt
 python -m pytest -q tests
-MESHLINK_ADMIN_TOKEN=dev-token-123456789 uvicorn --factory server.main:create_app --reload --port 8443
+MESHLINK_ADMIN_TOKEN=dev-token-123456789 MESHLINK_DATA_DIR=./data python -m server.run
 ```
 
 ## Limitations
 
-- No UDP hole punching yet: two devices both behind NAT communicate via the hub (adds latency; consumes VPS bandwidth).
-- No SSO/OIDC login; enrolment uses auth keys.
-- Name resolution uses the hosts file rather than a DNS server.
+- Two devices that are both outside the office talk through the office server. This uses the office upload bandwidth; RDP typically needs 0.5–2 Mbps per session.
+- There is no UDP hole punching, and no SSO login: enrolment uses auth keys.
+- Name resolution uses the hosts file, not a DNS server.
+- The Windows hub has not yet been tested end to end on real Windows hardware. Pilot it with two or three PCs before rolling it out.

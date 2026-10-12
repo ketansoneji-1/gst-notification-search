@@ -6,7 +6,8 @@ Wants=network-online.target
 [Service]
 EnvironmentFile=/etc/meshlink/server.env
 WorkingDirectory=/opt/meshlink
-ExecStart=/opt/meshlink/.venv/bin/uvicorn --factory server.main:create_app --host 127.0.0.1 --port 8443 --proxy-headers
+Environment=MESHLINK_ENV_FILE=/etc/meshlink/server.env
+ExecStart=/opt/meshlink/.venv/bin/python -m server.run
 Restart=always
 RestartSec=3
 

@@ -35,6 +35,16 @@
   </section>
 
   <section>
+    <h2>Server</h2>
+    <div id="srv" class="muted">—</div>
+    <div class="row" style="margin-top:8px">
+      <input id="manualip" placeholder="Public IP override (only if router has no UPnP)" style="flex:1;min-width:220px">
+      <button onclick="setManualIp()">Save</button>
+      <button onclick="loadServer(true)">Re-check router</button>
+    </div>
+  </section>
+
+  <section>
     <h2>Devices</h2>
     <table><thead><tr><th>Status</th><th>Name</th><th>Mesh IP</th><th>OS</th><th>Tags</th><th>RDP</th><th>Path</th><th></th></tr></thead>
     <tbody id="nodes"></tbody></table>
@@ -51,6 +61,7 @@
       <button onclick="createKey()">Generate</button>
     </div>
     <p id="newkey"></p>
+    <pre id="joincmd" style="white-space:pre-wrap;word-break:break-all;font-size:12px"></pre>
   </section>
 
   <section>
@@ -75,7 +86,7 @@
     return r.json();
   }
 
-  function saveToken() { token = $('token').value.trim(); try { sessionStorage.setItem('ml_token', token); } catch (e) {} load(true); }
+  function saveToken() { token = $('token').value.trim(); try { sessionStorage.setItem('ml_token', token); } catch (e) {} load(true); loadServer(); }
 
   async function load(withAcl) {
     if (!token) return msg('Enter the admin token to continue.');
@@ -92,6 +103,27 @@
     } catch (e) { msg(e.message, true); }
   }
 
+  let srv = {};
+  async function loadServer(refresh) {
+    try {
+      srv = await api('GET', '/server-info' + (refresh ? '?refresh=true' : ''));
+      const rows = [
+        ['Public IP', srv.public_ip ? `<code>${esc(srv.public_ip)}</code>${srv.public_ip_manual ? ' (manual)' : ' (from router)'}` : '<span style="color:var(--bad)">unknown</span>'],
+        ['Office LAN IP', `<code>${esc(srv.lan_ip || 'unknown')}</code>`],
+        ['Ports to forward on router', `UDP ${srv.wg_port} (WireGuard), TCP ${srv.api_port} (API)`],
+        ['Router UPnP', esc(srv.upnp_status || 'not checked yet')],
+        ['Certificate fingerprint', `<code style="word-break:break-all">${esc(srv.tls_fingerprint)}</code>`],
+        ['Hub mesh IP', `<code>${esc(srv.hub_ip)}</code> (RDP to the server itself)`],
+      ];
+      if (srv.public_ip_warning) rows.unshift(['Warning', `<span style="color:var(--bad)">${esc(srv.public_ip_warning)}</span>`]);
+      $('srv').innerHTML = '<table>' + rows.map(([k, v]) => `<tr><th style="width:220px">${k}</th><td style="white-space:normal">${v}</td></tr>`).join('') + '</table>';
+    } catch (e) { msg(e.message, true); }
+  }
+  async function setManualIp() { try { await api('PUT', '/server-info', { public_ip: $('manualip').value.trim() || null }); loadServer(); msg('Saved.'); } catch (e) { msg(e.message, true); } }
+  function serverList() {
+    return [srv.lan_ip, srv.public_ip].filter(Boolean).map((ip) => `https://${ip}:${srv.api_port}`).join(',');
+  }
+
   async function setTags(id, v) { try { await api('PATCH', `/nodes/${id}`, { tags: v.split(',').map((t) => t.trim()).filter(Boolean) }); msg('Tags updated.'); } catch (e) { msg(e.message, true); } }
   async function delNode(id, name) { if (confirm(`Remove ${name} from the network?`)) { try { await api('DELETE', `/nodes/${id}`); load(); } catch (e) { msg(e.message, true); } } }
   async function createKey() {
@@ -99,11 +131,16 @@
       const k = await api('POST', '/authkeys', { description: $('kdesc').value, tags: $('ktags').value.split(',').map((t) => t.trim()).filter(Boolean),
         ttl_hours: Number($('kttl').value) || null, reusable: $('kreuse').checked, ephemeral: $('keph').checked });
       $('newkey').innerHTML = `Auth key (shown once): <code>${esc(k.authkey)}</code>`;
+      const servers = serverList();
+      $('joincmd').textContent =
+        `Windows (elevated PowerShell, add -EnableRdp for PCs you want to RDP into):\n` +
+        `.\\install-agent-windows.ps1 -Server "${servers}" -Fingerprint ${srv.tls_fingerprint} -AuthKey ${k.authkey}\n\n` +
+        `Linux / macOS:\nsudo meshlink up --server "${servers}" --fingerprint ${srv.tls_fingerprint} --authkey ${k.authkey}`;
     } catch (e) { msg(e.message, true); }
   }
   async function saveAcl() { try { await api('PUT', '/acl', JSON.parse($('acl').value)); msg('Policy saved.'); } catch (e) { msg(e.message, true); } }
 
-  load(true); setInterval(() => token && load(), 15000);
+  load(true); if (token) loadServer(); setInterval(() => token && load(), 15000);
 </script>
 </body>
 </html>
