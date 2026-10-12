@@ -1,0 +1,15 @@
+[Unit]
+Description=MeshLink coordination server and WireGuard hub
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+EnvironmentFile=/etc/meshlink/server.env
+WorkingDirectory=/opt/meshlink
+Environment=MESHLINK_ENV_FILE=/etc/meshlink/server.env
+ExecStart=/opt/meshlink/.venv/bin/python -m server.run
+Restart=always
+RestartSec=3
+
+[Install]
+WantedBy=multi-user.target
