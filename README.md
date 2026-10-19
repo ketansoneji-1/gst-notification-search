@@ -53,6 +53,12 @@ Your GST search tool is now live and accessible to anyone!
 
 ---
 
+## AI Agents for the CA Practice
+
+The `ca-agents/` folder contains a starter kit of specialist AI agents (GST advisory, income tax, tax audit review, notice replies, ROC compliance, client communication). Each agent is a single `SKILL.md` file that runs on Claude or fully offline on Ollama. See [`ca-agents/README.md`](ca-agents/README.md) for the step-by-step start guide.
+
+---
+
 ## How to Add New Notifications / Circulars
 
 ### Option A: Edit Directly on GitHub (Easiest)
