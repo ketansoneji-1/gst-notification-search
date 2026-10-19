@@ -164,3 +164,9 @@ Contributions are welcome! The most helpful contribution is adding new notificat
 ---
 
 Built with care for the Indian CA & Tax Professional Community.
+
+---
+
+## MeshLink (self-hosted VPN + RDP)
+
+The [`meshlink/`](meshlink/) folder contains a separate, self-hosted WireGuard mesh VPN with Remote Desktop helpers (an alternative to Tailscale). See [meshlink/README.md](meshlink/README.md).
