@@ -8,6 +8,12 @@ A free, offline-friendly web app of Gujarati Aartis, Stutis, Bhajans, Shloks and
 - **Listen**: ▶ Play reads the text aloud line by line using the device's Gujarati / Hindi / Marathi voice (Web Speech API), with the current line highlighted, adjustable speed and a synthesised aarti bell. Tap any line to start from there. Links to sung versions on YouTube, and an option to play your own MP3 alongside the text.
 - English meaning (ભાવાર્થ) for every item, filters by type and deity, search in Gujarati or English, favourites, text size, light/dark theme.
 
+## Audio: pandit and singer pronunciation
+▶ Play uses the best source available for each prayer:
+1. **Your saved recording.** Tap **🎙 Record now** and have your pandit chant (or a singer sing) the prayer once into the phone, or **Save an MP3** you already have. It is stored on the device for that prayer.
+2. **A recording bundled with the app.** Put files in `audio/` and list them in `audio/recordings.js` (instructions inside). Only bundle recordings you made or have permission to share.
+3. **The phone's Hindi / Gujarati voice**, with recitation rules applied (`pronounce.js`): Om, voiced visarga, silent avagraha, pauses at । and ॥, (૨) repeats, and the full final "a" in Sanskrit. A computer voice cannot reproduce svara or a tune; use it only as a fallback.
+
 ## Install on mobile (as an app)
 The app is a Progressive Web App: it installs with its own home-screen icon, opens full-screen and works offline.
 1. Open `https://<your-username>.github.io/gst-notification-search/gujarati-aarti/` in **Chrome on Android**.

@@ -116,6 +116,9 @@ p.title-en{margin:.15rem 0 0;font-size:1.05rem;color:var(--muted)}
 .player input[type=range]{width:100px;accent-color:var(--brass)}
 .status{font-size:.8rem;color:var(--muted);flex:1 1 220px;min-width:0}
 .player input[type=checkbox]{accent-color:var(--brass)}
+.player select{border:1px solid var(--line);border-radius:6px;background:var(--surface);padding:3px 4px;font-size:.85rem}
+.rec-row{display:flex;flex-wrap:wrap;gap:8px}
+.rec-credit{color:var(--ink)!important}
 
 @media (max-width:860px){
   .wrap{grid-template-columns:minmax(0,1fr)}
@@ -170,15 +173,19 @@ p.title-en{margin:.15rem 0 0;font-size:1.05rem;color:var(--muted)}
   <div class="player-in">
     <button class="play" id="playBtn" type="button">▶ Play</button>
     <button class="ctl" id="stopBtn" type="button">■ Stop</button>
-    <label for="rate">Speed <input id="rate" type="range" min="0.5" max="1.3" step="0.05" value="0.85"></label>
+    <label for="rate">Speed <input id="rate" type="range" min="0.5" max="1.2" step="0.05" value="0.8"></label>
+    <label for="voiceSel">Voice <select id="voiceSel"></select></label>
     <label for="bellChk"><input id="bellChk" type="checkbox" checked> Bell</label>
     <button class="ctl" id="bellBtn" type="button" aria-label="Ring the aarti bell">🔔 Ghanti</button>
+    <button class="ctl" id="installVoice" type="button" hidden>Install voice</button>
     <div class="status" id="status">Tap ▶ Play to listen. Tap any line to start from there.</div>
   </div>
 </div>
 
 <script src="translit.js"></script>
+<script src="pronounce.js"></script>
 <script src="data.js"></script>
+<script src="audio/recordings.js"></script>
 <script>
 (function(){
   'use strict';
@@ -340,16 +347,41 @@ p.title-en{margin:.15rem 0 0;font-size:1.05rem;color:var(--muted)}
 
     var L = document.createElement('section'); L.className='listen';
     var yt = 'https://www.youtube.com/results?search_query=' + encodeURIComponent(a.en.replace(/\(.*?\)/g,'') + ' ' + TYPES[a.type].en + ' ' + (a.lang === 'gu' ? 'Gujarati' : ''));
+    var bundled = (window.RECORDINGS || {})[a.id];
+    var who = a.type === 'aarti' || a.type === 'bhajan' ? 'a singer' : 'your pandit';
     L.innerHTML = '<h3>Listen · સાંભળો</h3>' +
-      '<p>▶ Play reads the text aloud with your device\'s Indian voice, line by line. For the sung version with music:</p>' +
-      '<p><a target="_blank" rel="noopener" href="' + yt + '">Find sung versions on YouTube ↗</a></p>' +
-      '<p>Have your own recording (MP3 / M4A)? Play it here alongside the text:</p>' +
-      '<label class="file-btn icon-btn" for="ownAudio">🎵 Choose audio file<input id="ownAudio" type="file" accept="audio/*" hidden></label>' +
-      '<audio id="ownPlayer" controls hidden></audio>';
+      (bundled ? '<p class="rec-credit">🎧 Recording included with the app' + (bundled.credit ? ': <b></b>' : '') + '</p>' : '') +
+      '<p><b>For true pandit or singer pronunciation, use a real recording.</b> Ask ' + who +
+      ' to chant it once into this phone with 🎙 Record, or save an MP3 you have. ▶ Play then uses it every time.</p>' +
+      '<div class="rec-row">' +
+      '<button class="icon-btn" id="recMic" type="button">🎙 Record now</button>' +
+      '<label class="file-btn icon-btn" for="ownAudio">🎵 <span id="recLabel">Save an MP3</span>' +
+      '<input id="ownAudio" type="file" accept="audio/*" hidden></label>' +
+      '<button class="icon-btn" id="recRemove" type="button" hidden>Remove my recording</button></div>' +
+      '<audio id="ownPlayer" controls hidden></audio>' +
+      '<p>Without a recording, ▶ Play reads the text with the phone\'s Hindi or Gujarati voice, following recitation rules ' +
+      '(Om, visarga, pauses at । and ॥, repeats marked (૨), the full final "a" in Sanskrit). A computer voice cannot sing the tune.</p>' +
+      '<p><a target="_blank" rel="noopener" href="' + yt + '">Find sung versions on YouTube ↗</a></p>';
     r.appendChild(L);
+    var player = L.querySelector('#ownPlayer');
+    player.onplay = function(){ stopSpeech(true); playing = true; setPlayLabel(); setStatus('Playing recording.'); };
+    player.onpause = player.onended = function(){ playing = false; setPlayLabel(); };
+    if (bundled && bundled.credit) L.querySelector('.rec-credit b').textContent = bundled.credit;
+    loadRecording(a.id, player, bundled);
+    L.querySelector('#recMic').onclick = function(){ toggleMic(a.id, player); };
     L.querySelector('#ownAudio').onchange = function(e){
       var f = e.target.files && e.target.files[0]; if (!f) return;
-      var p = L.querySelector('#ownPlayer'); p.src = URL.createObjectURL(f); p.hidden = false; p.play().catch(function(){});
+      saveRecording(a.id, f).then(function(ok){
+        setStatus(ok ? 'Recording saved. ▶ Play will use it from now on.' : 'Playing the file. It could not be saved on this device, so choose it again next time.');
+      });
+      showRecording(player, f);
+      player.play().catch(function(){});
+    };
+    L.querySelector('#recRemove').onclick = function(){
+      deleteRecording(a.id); player.pause(); player.removeAttribute('src'); player.hidden = true;
+      $('recRemove').hidden = true; $('recLabel').textContent = 'Save an MP3'; state.hasRec = false;
+      if (bundled){ player.src = bundled.file; player.hidden = false; state.hasRec = true; setStatus('Your recording was removed. ▶ Play uses the included recording.'); }
+      else setStatus('Recording removed. ▶ Play will use the phone voice.');
     };
 
     var n = document.createElement('p'); n.className='note';
@@ -370,18 +402,113 @@ p.title-en{margin:.15rem 0 0;font-size:1.05rem;color:var(--muted)}
     if (a) { window.scrollTo(0,0); document.title = a.en + ' · Aarti Sangrah'; } else document.title = 'Aarti Sangrah';
   }
 
-  /* ---------- speech (Web Speech API) ---------- */
-  var synth = window.speechSynthesis, voices = [], playing = false, idx = 0, token = 0;
-  function loadVoices(){ voices = synth ? synth.getVoices() : []; }
-  if (synth){ loadVoices(); if ('onvoiceschanged' in synth) synth.onvoiceschanged = loadVoices; }
+  /* ---------- saved recordings (IndexedDB, per prayer) ---------- */
+  var dbP = null, recUrl = null;
+  function db(){
+    if (dbP) return dbP;
+    dbP = new Promise(function(res){
+      try{
+        var rq = indexedDB.open('aarti-sangrah', 1);
+        rq.onupgradeneeded = function(){ rq.result.createObjectStore('rec'); };
+        rq.onsuccess = function(){ res(rq.result); };
+        rq.onerror = function(){ res(null); };
+      }catch(e){ res(null); }
+    });
+    return dbP;
+  }
+  function saveRecording(id, file){
+    return db().then(function(d){ if (!d) return false; return new Promise(function(res){
+      try{ var tx = d.transaction('rec','readwrite'); tx.objectStore('rec').put({ blob: file, name: file.name || 'recording' }, id);
+        tx.oncomplete = function(){ res(true); }; tx.onerror = function(){ res(false); }; }catch(e){ res(false); }
+    }); });
+  }
+  function deleteRecording(id){ db().then(function(d){ if (d) try{ d.transaction('rec','readwrite').objectStore('rec').delete(id); }catch(e){} }); }
+  function showRecording(player, blob, name){
+    if (recUrl) URL.revokeObjectURL(recUrl);
+    recUrl = URL.createObjectURL(blob); player.src = recUrl; player.hidden = false; state.hasRec = true;
+    $('recRemove').hidden = false; $('recLabel').textContent = 'Replace recording' + (name ? ' (' + name + ')' : '');
+  }
+  /** Priority: the user's own saved recording, then a recording bundled with the app, then the phone voice. */
+  function loadRecording(id, player, bundled){
+    state.hasRec = false;
+    if (bundled){ player.src = bundled.file; player.hidden = false; state.hasRec = true; }
+    db().then(function(d){ if (!d) return; try{
+      var rq = d.transaction('rec','readonly').objectStore('rec').get(id);
+      rq.onsuccess = function(){ if (rq.result && state.current && state.current.id === id) showRecording(player, rq.result.blob, rq.result.name); };
+    }catch(e){} });
+  }
 
-  function pickVoice(lang){
-    var order = lang === 'gu' ? ['gu','hi','mr'] : lang === 'mr' ? ['mr','hi','gu'] : ['hi','mr','gu'];
-    for (var i = 0; i < order.length; i++){
-      var v = voices.find(function(x){ return x.lang && x.lang.toLowerCase().indexOf(order[i]) === 0; });
-      if (v) return v;
-    }
-    return voices.find(function(x){ return /en[-_]IN/i.test(x.lang); }) || null;
+  /* ---------- record from the microphone (e.g. your pandit chanting once) ---------- */
+  var mic = null;
+  function toggleMic(id, player){
+    var btn = $('recMic');
+    if (mic){ mic.rec.stop(); return; }
+    if (!navigator.mediaDevices || !window.MediaRecorder){ setStatus('Recording is not supported here. Record with the phone\'s voice recorder and use "Save an MP3".'); return; }
+    navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: true, autoGainControl: true } }).then(function(stream){
+      stopSpeech();
+      var chunks = [], rec = new MediaRecorder(stream), t0 = Date.now();
+      mic = { rec: rec, tick: setInterval(function(){
+        var s = Math.round((Date.now() - t0) / 1000);
+        btn.textContent = '■ Stop recording ' + Math.floor(s / 60) + ':' + ('0' + s % 60).slice(-2);
+      }, 500) };
+      btn.textContent = '■ Stop recording 0:00';
+      setStatus('Recording… chant or sing the full ' + (state.current ? TYPES[state.current.type].en.split(' ')[0].toLowerCase() : 'prayer') + ', then press Stop.');
+      rec.ondataavailable = function(e){ if (e.data && e.data.size) chunks.push(e.data); };
+      rec.onstop = function(){
+        clearInterval(mic.tick); mic = null; btn.textContent = '🎙 Record again';
+        stream.getTracks().forEach(function(tr){ tr.stop(); });
+        if (!chunks.length){ setStatus('Nothing was recorded. Please try again.'); return; }
+        var blob = new Blob(chunks, { type: chunks[0].type || 'audio/webm' });
+        blob.name = 'Recorded ' + new Date().toLocaleDateString();
+        showRecording(player, blob, blob.name);
+        saveRecording(id, blob).then(function(ok){
+          setStatus(ok ? 'Recording saved to this prayer. ▶ Play will use it from now on.' : 'Recorded, but it could not be saved on this device.');
+        });
+      };
+      rec.start(1000);
+    }).catch(function(){
+      setStatus('Microphone permission was not given. Allow the microphone for this app and try again.');
+    });
+  }
+
+  /* ---------- speech: phone / browser voice with recitation rules ---------- */
+  var P = window.Pronounce;
+  var synth = window.speechSynthesis, voices = [], playing = false, idx = 0, segI = 0, token = 0, timer = null;
+  var bridge = window.AndroidTTS || null;           // native TextToSpeech in the Android app
+  var voicePref = load('voice', 'auto');
+  var VOICE_NAMES = { gu: 'ગુજરાતી', hi: 'हिन्दी', mr: 'मराठी' };
+  function loadVoices(){ voices = synth ? synth.getVoices() : []; renderVoiceSelect(); }
+  if (synth && !bridge){ loadVoices(); if ('onvoiceschanged' in synth) synth.onvoiceschanged = loadVoices; }
+
+  /** Indian voices present on this device, as language codes gu / hi / mr. */
+  function availableLangs(){
+    if (bridge){ try{ return (bridge.langs() || '').split(',').map(function(t){ return t.slice(0,2); }).filter(function(c){ return VOICE_NAMES[c]; }); }catch(e){ return []; } }
+    var out = [];
+    voices.forEach(function(v){ var c = (v.lang || '').toLowerCase().slice(0,2); if (VOICE_NAMES[c] && out.indexOf(c) < 0) out.push(c); });
+    return out;
+  }
+  function chooseLang(itemLang){
+    var av = availableLangs();
+    if (voicePref !== 'auto' && av.indexOf(voicePref) >= 0) return voicePref;
+    // Sanskrit / Hindi / Marathi read best with the Hindi voice; Gujarati with the Gujarati voice
+    var order = itemLang === 'gu' ? ['gu','hi','mr'] : itemLang === 'mr' ? ['mr','hi','gu'] : ['hi','mr','gu'];
+    for (var i = 0; i < order.length; i++) if (av.indexOf(order[i]) >= 0) return order[i];
+    return '';
+  }
+  function browserVoice(code){
+    var list = voices.filter(function(v){ return (v.lang || '').toLowerCase().indexOf(code) === 0; });
+    // prefer natural / online voices, which pronounce far better than the local fallback ones
+    list.sort(function(x, y){ return (/natural|online|google/i.test(y.name) ? 1 : 0) - (/natural|online|google/i.test(x.name) ? 1 : 0); });
+    return list[0] || null;
+  }
+
+  function renderVoiceSelect(){
+    var sel = $('voiceSel'); if (!sel) return;
+    var av = availableLangs(), cur = voicePref;
+    sel.innerHTML = '';
+    [['auto','Auto']].concat(['hi','gu','mr'].map(function(c){ return [c, VOICE_NAMES[c] + (av.indexOf(c) < 0 ? ' (not installed)' : '')]; }))
+      .forEach(function(o){ var op = document.createElement('option'); op.value = o[0]; op.textContent = o[1]; sel.appendChild(op); });
+    sel.value = cur;
   }
 
   function spokenLines(a){ return a.lines.filter(function(l){ return l.kind === 'v'; }); }
@@ -398,61 +525,79 @@ p.title-en{margin:.15rem 0 0;font-size:1.05rem;color:var(--muted)}
 
   function setStatus(t){ $('status').textContent = t; }
   function setPlayLabel(){ $('playBtn').textContent = playing ? '❚❚ Pause' : '▶ Play'; }
+  function cancelAll(){ clearTimeout(timer); if (bridge) { try{ bridge.stop(); }catch(e){} } else if (synth) synth.cancel(); }
 
-  /* Android app: native TextToSpeech exposed by the APK wrapper as window.AndroidTTS */
-  var bridge = window.AndroidTTS || null;
-  function cancelAll(){ if (bridge) { try{ bridge.stop(); }catch(e){} } else if (synth) synth.cancel(); }
-  function pickAndroidLang(lang){
-    var avail = (bridge.langs() || '').split(',').filter(Boolean);
-    var order = lang === 'gu' ? ['gu-IN','hi-IN','mr-IN'] : lang === 'mr' ? ['mr-IN','hi-IN','gu-IN'] : ['hi-IN','mr-IN','gu-IN'];
-    for (var i = 0; i < order.length; i++) if (avail.indexOf(order[i]) >= 0) return order[i];
-    return avail.indexOf('en-IN') >= 0 ? 'en-IN' : '';
-  }
-  function speakNextAndroid(t, a, l, lines){
-    var tag = pickAndroidLang(a.lang), p = tag.slice(0,2);
-    var text = p === 'gu' ? l.gu : (p === 'hi' || p === 'mr') ? l.deva : T.guToRoman(l.gu, a.lang, 'simple');
-    var id = 'u' + t + '_' + idx;
-    window.__ttsEvent = function(type, uid){
-      if (uid !== id || t !== token) return;
-      idx++; speakNext(t);
-    };
-    highlight(idx);
-    setStatus('Reading line ' + (idx + 1) + ' of ' + lines.length + (tag ? ' · voice: ' + tag : ' · no Indian voice installed, using default'));
-    bridge.speak(text, tag, +$('rate').value, id);
+  function noVoiceHelp(){
+    if (bridge) $('installVoice').hidden = false;
+    setStatus(bridge
+      ? 'No Hindi or Gujarati voice is installed on this phone. Tap "Install voice", download Hindi and Gujarati, then press ▶ Play.'
+      : 'This browser has no Hindi or Gujarati voice. Use Chrome on Android, or add an Indian-language voice in your system settings.');
   }
 
   function startSpeech(from){
     var a = state.current; if (!a) return;
-    if (!synth && !bridge){ setStatus('This browser cannot read text aloud. Use the YouTube link or your own audio file below.'); return; }
+    var player = $('ownPlayer');
+    if (state.hasRec && player){ if (from) player.currentTime = 0; player.play().catch(function(){}); return; }
+    if (!synth && !bridge){ setStatus('This browser cannot read text aloud. Save a recording below or use the YouTube link.'); return; }
     if (bridge && !bridge.ready()){ setStatus('Voice engine is starting. Please press ▶ Play again in a moment.'); return; }
     if (!bridge && !voices.length) loadVoices();
+    if (!chooseLang(a.lang)){ noVoiceHelp(); return; }
+    $('installVoice').hidden = true;
     cancelAll(); token++;
-    idx = from || 0; playing = true; setPlayLabel();
-    if ($('bellChk').checked && idx === 0){ ringBell(); setTimeout(function(t){ return function(){ if (t === token) speakNext(t); }; }(token), 1400); }
+    idx = from || 0; segI = 0; playing = true; setPlayLabel();
+    if ($('bellChk').checked && idx === 0){ ringBell(); timer = setTimeout(function(t){ return function(){ if (t === token) speakNext(t); }; }(token), 1400); }
     else speakNext(token);
+  }
+
+  function lineSegments(a, l){
+    if (!l._seg) l._seg = P.segments(l.deva, a.lang);
+    return l._seg;
   }
 
   function speakNext(t){
     var a = state.current, lines = spokenLines(a);
     if (t !== token || !playing) return;
     if (idx >= lines.length){ playing = false; setPlayLabel(); highlight(-1); setStatus('Finished. Jay Shri Krishna 🙏'); if ($('bellChk').checked) ringBell(); return; }
-    if (bridge) { speakNextAndroid(t, a, lines[idx], lines); return; }
-    var l = lines[idx], v = pickVoice(a.lang), u;
-    var vl = v ? v.lang.toLowerCase().slice(0,2) : '';
-    if (vl === 'gu') u = new SpeechSynthesisUtterance(l.gu);
-    else if (vl === 'hi' || vl === 'mr') u = new SpeechSynthesisUtterance(l.deva);
-    else u = new SpeechSynthesisUtterance(T.guToRoman(l.gu, a.lang, 'simple'));
-    if (v){ u.voice = v; u.lang = v.lang; } else u.lang = 'hi-IN';
-    u.rate = +$('rate').value; u.pitch = 1;
-    highlight(idx);
-    setStatus('Reading line ' + (idx + 1) + ' of ' + lines.length + (v ? ' · voice: ' + v.name : ' · no Indian voice found, using default'));
-    u.onend = function(){ if (t !== token) return; idx++; speakNext(t); };
-    u.onerror = function(e){ if (t !== token || e.error === 'interrupted' || e.error === 'canceled') return; idx++; speakNext(t); };
+    var segs = lineSegments(a, lines[idx]);
+    if (segI >= segs.length){ idx++; segI = 0; return speakNext(t); }
+    var code = chooseLang(a.lang), sp = segs[segI];
+    var text = code === 'gu' ? T.devaToGu(sp.text) : sp.text;
+    var rate = +$('rate').value;
+    if (segI === 0) highlight(idx);
+    setStatus('Line ' + (idx + 1) + ' of ' + lines.length + ' · ' + VOICE_NAMES[code] + ' voice');
+    function after(){
+      if (t !== token) return;
+      segI++;
+      timer = setTimeout(function(){ speakNext(t); }, Math.round(sp.pause / Math.max(rate, 0.5)));
+    }
+    if (bridge){
+      var id = 'u' + t + '_' + idx + '_' + segI;
+      window.__ttsEvent = function(type, uid){ if (uid === id) after(); };
+      bridge.speak(text, code + '-IN', rate, id);
+      return;
+    }
+    var u = new SpeechSynthesisUtterance(text), v = browserVoice(code);
+    if (v) u.voice = v;
+    u.lang = v ? v.lang : code + '-IN';
+    u.rate = rate; u.pitch = 0.95;
+    u.onend = after;
+    u.onerror = function(e){ if (e.error === 'interrupted' || e.error === 'canceled') return; after(); };
     synth.speak(u);
   }
 
-  function pauseSpeech(){ token++; playing = false; cancelAll(); setPlayLabel(); setStatus('Paused at line ' + (idx + 1) + '. Press ▶ Play to continue.'); }
-  function stopSpeech(){ token++; playing = false; idx = 0; cancelAll(); setPlayLabel(); highlight(-1); setStatus('Tap ▶ Play to listen. Tap any line to start from there.'); }
+  function pauseSpeech(){
+    var player = $('ownPlayer'); if (state.hasRec && player && !player.paused){ player.pause(); return; }
+    token++; playing = false; cancelAll(); segI = 0; setPlayLabel(); setStatus('Paused at line ' + (idx + 1) + '. Press ▶ Play to continue.');
+  }
+  function stopSpeech(keepRecording){
+    token++; playing = false; idx = 0; segI = 0; cancelAll(); setPlayLabel(); highlight(-1);
+    var player = $('ownPlayer'); if (!keepRecording && player && !player.paused){ player.pause(); player.currentTime = 0; }
+    setStatus('Tap ▶ Play to listen. Tap any line to start from there.');
+  }
+
+  $('voiceSel').onchange = function(e){ voicePref = e.target.value; save('voice', voicePref); stopSpeech(); };
+  $('installVoice').onclick = function(){ if (bridge && bridge.installVoices) bridge.installVoices(); };
+  renderVoiceSelect();
 
   $('playBtn').onclick = function(){ if (playing) pauseSpeech(); else startSpeech(idx); };
   $('stopBtn').onclick = stopSpeech;
@@ -502,7 +647,7 @@ p.title-en{margin:.15rem 0 0;font-size:1.05rem;color:var(--muted)}
     deferredInstall.prompt();
     deferredInstall.userChoice.finally(function(){ deferredInstall = null; $('installBtn').hidden = true; });
   };
-  if ('serviceWorker' in navigator && location.protocol === 'https:'){
+  if ('serviceWorker' in navigator && location.protocol === 'https:' && !window.AndroidTTS){
     navigator.serviceWorker.register('sw.js').catch(function(){});
   }
 

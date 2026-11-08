@@ -13,16 +13,17 @@ SDK="${ANDROID_HOME:?Set ANDROID_HOME to your Android SDK}"
 BT="$SDK/build-tools/35.0.0"
 JAR="$SDK/platforms/android-34/android.jar"
 OUT="$HERE/build"
-VERSION_CODE="${VERSION_CODE:-2}"
-VERSION_NAME="${VERSION_NAME:-1.1}"
+VERSION_CODE="${VERSION_CODE:-3}"
+VERSION_NAME="${VERSION_NAME:-1.2}"
 
 rm -rf "$OUT/gen" "$OUT/classes" "$OUT/dex" "$OUT/assets" "$OUT"/*.apk "$OUT/res.zip"
-mkdir -p "$OUT/gen" "$OUT/classes" "$OUT/dex" "$OUT/assets/www/icons"
+mkdir -p "$OUT/gen" "$OUT/classes" "$OUT/dex" "$OUT/assets/www/icons" "$OUT/assets/www/audio"
 
 # 1. Bundle the web app
 cp "$HERE/../gujarati-aarti/index.html" "$HERE/../gujarati-aarti/data.js" \
-   "$HERE/../gujarati-aarti/translit.js" "$OUT/assets/www/"
+   "$HERE/../gujarati-aarti/translit.js" "$HERE/../gujarati-aarti/pronounce.js" "$OUT/assets/www/"
 cp "$HERE/../gujarati-aarti/icons/"* "$OUT/assets/www/icons/"
+cp -r "$HERE/../gujarati-aarti/audio/." "$OUT/assets/www/audio/"   # bundled recordings
 
 # 2. Resources + manifest
 "$BT/aapt2" compile --dir "$HERE/res" -o "$OUT/res.zip"

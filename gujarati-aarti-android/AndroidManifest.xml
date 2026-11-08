@@ -3,6 +3,8 @@
     package="com.aartisangrah.app">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
 
     <!-- Needed on Android 11+ so the app can find the installed Text-to-Speech engine -->
     <queries>
