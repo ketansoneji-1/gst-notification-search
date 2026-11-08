@@ -118,7 +118,10 @@ p.title-en{margin:.15rem 0 0;font-size:1.05rem;color:var(--muted)}
 .player input[type=checkbox]{accent-color:var(--brass)}
 .player select{border:1px solid var(--line);border-radius:6px;background:var(--surface);padding:3px 4px;font-size:.85rem}
 .rec-row{display:flex;flex-wrap:wrap;gap:8px}
-.rec-credit{color:var(--ink)!important}
+.rec-credit{color:var(--ink);font-size:.88rem;line-height:1.5;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.rec-credit a{color:var(--brass)}
+.related{display:flex;flex-direction:column;gap:6px}
+.related audio{width:100%;max-width:30rem}
 
 @media (max-width:860px){
   .wrap{grid-template-columns:minmax(0,1fr)}
@@ -347,10 +350,13 @@ p.title-en{margin:.15rem 0 0;font-size:1.05rem;color:var(--muted)}
 
     var L = document.createElement('section'); L.className='listen';
     var yt = 'https://www.youtube.com/results?search_query=' + encodeURIComponent(a.en.replace(/\(.*?\)/g,'') + ' ' + TYPES[a.type].en + ' ' + (a.lang === 'gu' ? 'Gujarati' : ''));
-    var bundled = (window.RECORDINGS || {})[a.id];
+    var recEntry = (window.RECORDINGS || {})[a.id];
+    var bundled = recEntry && recEntry.exact !== false ? recEntry : null;      // used by ▶ Play
+    var related = recEntry && recEntry.exact === false ? recEntry : null;      // shown separately
     var who = a.type === 'aarti' || a.type === 'bhajan' ? 'a singer' : 'your pandit';
     L.innerHTML = '<h3>Listen · સાંભળો</h3>' +
-      (bundled ? '<p class="rec-credit">🎧 Recording included with the app' + (bundled.credit ? ': <b></b>' : '') + '</p>' : '') +
+      (bundled ? '<div class="rec-credit" id="recCreditMain"></div>' +
+        '<div class="rec-row"><button class="icon-btn" id="recOffline" type="button">⬇ Save for offline</button></div>' : '') +
       '<p><b>For true pandit or singer pronunciation, use a real recording.</b> Ask ' + who +
       ' to chant it once into this phone with 🎙 Record, or save an MP3 you have. ▶ Play then uses it every time.</p>' +
       '<div class="rec-row">' +
@@ -359,6 +365,7 @@ p.title-en{margin:.15rem 0 0;font-size:1.05rem;color:var(--muted)}
       '<input id="ownAudio" type="file" accept="audio/*" hidden></label>' +
       '<button class="icon-btn" id="recRemove" type="button" hidden>Remove my recording</button></div>' +
       '<audio id="ownPlayer" controls hidden></audio>' +
+      (related ? '<div class="related"><div class="rec-credit" id="recCreditRel"></div><audio id="relPlayer" controls preload="none"></audio></div>' : '') +
       '<p>Without a recording, ▶ Play reads the text with the phone\'s Hindi or Gujarati voice, following recitation rules ' +
       '(Om, visarga, pauses at । and ॥, repeats marked (૨), the full final "a" in Sanskrit). A computer voice cannot sing the tune.</p>' +
       '<p><a target="_blank" rel="noopener" href="' + yt + '">Find sung versions on YouTube ↗</a></p>';
@@ -366,7 +373,15 @@ p.title-en{margin:.15rem 0 0;font-size:1.05rem;color:var(--muted)}
     var player = L.querySelector('#ownPlayer');
     player.onplay = function(){ stopSpeech(true); playing = true; setPlayLabel(); setStatus('Playing recording.'); };
     player.onpause = player.onended = function(){ playing = false; setPlayLabel(); };
-    if (bundled && bundled.credit) L.querySelector('.rec-credit b').textContent = bundled.credit;
+    if (bundled){
+      creditBlock(L.querySelector('#recCreditMain'), bundled, '🎧 Recording included');
+      L.querySelector('#recOffline').onclick = function(){ saveOffline(a.id, bundled, player); };
+    }
+    if (related){
+      creditBlock(L.querySelector('#recCreditRel'), related, '🎧 Related recording (may not follow this exact text)');
+      setRecSrc(L.querySelector('#relPlayer'), related);
+      L.querySelector('#relPlayer').onplay = function(){ stopSpeech(); };
+    }
     loadRecording(a.id, player, bundled);
     L.querySelector('#recMic').onclick = function(){ toggleMic(a.id, player); };
     L.querySelector('#ownAudio').onchange = function(e){
@@ -380,7 +395,7 @@ p.title-en{margin:.15rem 0 0;font-size:1.05rem;color:var(--muted)}
     L.querySelector('#recRemove').onclick = function(){
       deleteRecording(a.id); player.pause(); player.removeAttribute('src'); player.hidden = true;
       $('recRemove').hidden = true; $('recLabel').textContent = 'Save an MP3'; state.hasRec = false;
-      if (bundled){ player.src = bundled.file; player.hidden = false; state.hasRec = true; setStatus('Your recording was removed. ▶ Play uses the included recording.'); }
+      if (bundled){ setRecSrc(player, bundled); player.hidden = false; state.hasRec = true; setStatus('Your recording was removed. ▶ Play uses the included recording.'); }
       else setStatus('Recording removed. ▶ Play will use the phone voice.');
     };
 
@@ -431,11 +446,40 @@ p.title-en{margin:.15rem 0 0;font-size:1.05rem;color:var(--muted)}
   /** Priority: the user's own saved recording, then a recording bundled with the app, then the phone voice. */
   function loadRecording(id, player, bundled){
     state.hasRec = false;
-    if (bundled){ player.src = bundled.file; player.hidden = false; state.hasRec = true; }
+    if (bundled){ setRecSrc(player, bundled); player.hidden = false; state.hasRec = true; }
     db().then(function(d){ if (!d) return; try{
       var rq = d.transaction('rec','readonly').objectStore('rec').get(id);
       rq.onsuccess = function(){ if (rq.result && state.current && state.current.id === id) showRecording(player, rq.result.blob, rq.result.name); };
     }catch(e){} });
+  }
+
+  /** Bundled copy first; if it is not packed in this build, stream from the online source. */
+  function setRecSrc(el, e){
+    el.onerror = null;
+    if (e.file){
+      el.src = e.file;
+      el.onerror = function(){ if (e.url && el.getAttribute('src') !== e.url){ el.onerror = null; el.src = e.url; } };
+    } else el.src = e.url;
+  }
+  function creditBlock(el, e, label){
+    el.innerHTML = '<b></b><br><span class="rc-t"></span> · by <span class="rc-a"></span><br>' +
+      '<a class="rc-l" target="_blank" rel="noopener"></a> · <a class="rc-s" target="_blank" rel="noopener">Source ↗</a>';
+    el.querySelector('b').textContent = label;
+    el.querySelector('.rc-t').textContent = e.title || '';
+    el.querySelector('.rc-a').textContent = e.credit || 'unknown';
+    var l = el.querySelector('.rc-l'); l.textContent = 'Licence: ' + (e.license || 'see source'); if (e.licenseUrl) l.href = e.licenseUrl;
+    var s = el.querySelector('.rc-s'); if (e.source) s.href = e.source; else s.remove();
+  }
+  /** Downloads an online recording once and keeps it on the device (works without internet afterwards). */
+  function saveOffline(id, e, player){
+    var btn = $('recOffline'); btn.disabled = true; btn.textContent = 'Downloading…';
+    fetch(e.url).then(function(r){ if (!r.ok) throw 0; return r.blob(); }).then(function(b){
+      b.name = e.title || 'Recording';
+      return saveRecording(id, b).then(function(ok){
+        btn.textContent = ok ? '✓ Saved for offline' : 'Could not save on this device';
+        if (ok) showRecording(player, b, b.name);
+      });
+    }).catch(function(){ btn.disabled = false; btn.textContent = '⬇ Save for offline'; setStatus('Download failed. Check the internet connection and try again.'); });
   }
 
   /* ---------- record from the microphone (e.g. your pandit chanting once) ---------- */

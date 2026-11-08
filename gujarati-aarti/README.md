@@ -11,7 +11,7 @@ A free, offline-friendly web app of Gujarati Aartis, Stutis, Bhajans, Shloks and
 ## Audio: pandit and singer pronunciation
 ▶ Play uses the best source available for each prayer:
 1. **Your saved recording.** Tap **🎙 Record now** and have your pandit chant (or a singer sing) the prayer once into the phone, or **Save an MP3** you already have. It is stored on the device for that prayer.
-2. **A recording bundled with the app.** Put files in `audio/` and list them in `audio/recordings.js` (instructions inside). Only bundle recordings you made or have permission to share.
+2. **A recording listed in `audio/recordings.js`.** Eight freely licensed Wikimedia Commons recordings are listed (credits in `audio/CREDITS.md`). `audio/fetch-audio.sh` downloads them so the APK bundles them; otherwise the app streams them online, and **⬇ Save for offline** keeps them on the phone. Exact matches (Jay Sadguru Swami, Gayatri, Mahamrityunjaya, Om Namo Bhagavate Vasudevaya, Guru Stotram) are used by ▶ Play; related ones (Lakshmi, Ganesh and Radha Govind aartis) are shown as a separate player. Only add recordings you made or have permission to share.
 3. **The phone's Hindi / Gujarati voice**, with recitation rules applied (`pronounce.js`): Om, voiced visarga, silent avagraha, pauses at । and ॥, (૨) repeats, and the full final "a" in Sanskrit. A computer voice cannot reproduce svara or a tune; use it only as a fallback.
 
 ## Install on mobile (as an app)

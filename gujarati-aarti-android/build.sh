@@ -13,17 +13,24 @@ SDK="${ANDROID_HOME:?Set ANDROID_HOME to your Android SDK}"
 BT="$SDK/build-tools/35.0.0"
 JAR="$SDK/platforms/android-34/android.jar"
 OUT="$HERE/build"
-VERSION_CODE="${VERSION_CODE:-3}"
-VERSION_NAME="${VERSION_NAME:-1.2}"
+VERSION_CODE="${VERSION_CODE:-4}"
+VERSION_NAME="${VERSION_NAME:-1.3}"
 
 rm -rf "$OUT/gen" "$OUT/classes" "$OUT/dex" "$OUT/assets" "$OUT"/*.apk "$OUT/res.zip"
 mkdir -p "$OUT/gen" "$OUT/classes" "$OUT/dex" "$OUT/assets/www/icons" "$OUT/assets/www/audio"
+
+# 0. Download the freely licensed recordings listed in audio/recordings.js
+#    (skipped with SKIP_AUDIO_FETCH=1; missing files are streamed online by the app)
+if [ "${SKIP_AUDIO_FETCH:-0}" != "1" ]; then
+  bash "$HERE/../gujarati-aarti/audio/fetch-audio.sh" || echo "Audio download incomplete: the app will stream missing recordings online."
+fi
 
 # 1. Bundle the web app
 cp "$HERE/../gujarati-aarti/index.html" "$HERE/../gujarati-aarti/data.js" \
    "$HERE/../gujarati-aarti/translit.js" "$HERE/../gujarati-aarti/pronounce.js" "$OUT/assets/www/"
 cp "$HERE/../gujarati-aarti/icons/"* "$OUT/assets/www/icons/"
-cp -r "$HERE/../gujarati-aarti/audio/." "$OUT/assets/www/audio/"   # bundled recordings
+cp "$HERE/../gujarati-aarti/audio/"*.js "$HERE/../gujarati-aarti/audio/CREDITS.md" "$OUT/assets/www/audio/"
+find "$HERE/../gujarati-aarti/audio" -maxdepth 1 -type f \( -name "*.mp3" -o -name "*.ogg" -o -name "*.oga" -o -name "*.m4a" -o -name "*.opus" -o -name "*.wav" \) -exec cp {} "$OUT/assets/www/audio/" \;   # bundled recordings
 
 # 2. Resources + manifest
 "$BT/aapt2" compile --dir "$HERE/res" -o "$OUT/res.zip"

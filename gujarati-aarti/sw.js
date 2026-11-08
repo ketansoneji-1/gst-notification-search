@@ -1,5 +1,5 @@
 /* Offline cache for Aarti Sangrah. Bump VERSION when files change. */
-var VERSION = 'aarti-v4';
+var VERSION = 'aarti-v5';
 var FILES = ['./', './index.html', './data.js', './translit.js', './pronounce.js', './audio/recordings.js', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png'];
 self.addEventListener('install', function (e) {
   e.waitUntil(caches.open(VERSION).then(function (c) { return c.addAll(FILES); }).then(function () { return self.skipWaiting(); }));
