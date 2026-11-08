@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="gu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Aarti Sangrah</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Gujarati Aarti, Stuti, Bhajan, Shlok and Mantra collection in Gujarati script with English transliteration, meanings and audio read-aloud.">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1E1A38">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+Bhai+2:wght@500;700&family=Hind+Vadodara:wght@400;500;600&family=Noto+Serif+Gujarati:wght@400;600&display=swap">
+<style>
+/* Layout: evening-sky shell; library rail on the left, the open aarti as a "pothi" page on the right. */
+:root{
+  --bg:#F5F3FA; --surface:#FFFFFF; --ink:#1E1A38; --muted:#5D5878; --line:#E2DDEE;
+  --brass:#B86E00; --brass-ink:#1E1A38; --brass-soft:#FCEBCB; --kumkum:#A3122A; --sel:#ECE7F8;
+  --f-display:"Baloo Bhai 2","Hind Vadodara",system-ui,sans-serif;
+  --f-verse:"Noto Serif Gujarati","Noto Serif",Georgia,serif;
+  --f-ui:"Hind Vadodara",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --verse-size:1.18rem;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#121027; --surface:#1B1838; --ink:#EEEAF8; --muted:#A7A2C3; --line:#2D2952;
+  --brass:#F2A93B; --brass-ink:#1A1405; --brass-soft:#3A2D12; --kumkum:#FF7A8A; --sel:#272250; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#121027; --surface:#1B1838; --ink:#EEEAF8; --muted:#A7A2C3; --line:#2D2952;
+  --brass:#F2A93B; --brass-ink:#1A1405; --brass-soft:#3A2D12; --kumkum:#FF7A8A; --sel:#272250; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.5 var(--f-ui);-webkit-text-size-adjust:100%}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px}
+.brand{display:flex;align-items:center;gap:12px;justify-content:space-between;flex-wrap:wrap}
+.brand h1{margin:0;font:700 1.5rem/1.1 var(--f-display);letter-spacing:.2px}
+.brand h1 small{display:block;font:500 .78rem/1.2 var(--f-ui);color:var(--muted);letter-spacing:.6px;text-transform:uppercase}
+.diya{width:30px;height:30px;flex:none}
+.brand-left{display:flex;align-items:center;gap:10px}
+.top-actions{display:flex;gap:6px}
+.icon-btn{border:1px solid var(--line);background:transparent;border-radius:8px;padding:6px 10px;font-size:.9rem;min-height:36px}
+.icon-btn:hover{background:var(--sel)}
+
+.wrap{display:grid;grid-template-columns:340px minmax(0,1fr);max-width:1240px;margin:0 auto;min-height:calc(100vh - 70px)}
+aside.lib{border-right:1px solid var(--line);padding-block:14px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
+.search{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.tabs,.chips{display:flex;flex-wrap:wrap;gap:6px}
+.tab{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 12px;font-size:.88rem}
+.tab[aria-pressed="true"]{background:var(--brass);border-color:var(--brass);color:var(--brass-ink);font-weight:600}
+.chip{border:1px dashed var(--line);background:transparent;border-radius:6px;padding:2px 8px;font-size:.8rem;color:var(--muted)}
+.chip[aria-pressed="true"]{border-style:solid;border-color:var(--ink);color:var(--ink);background:var(--sel)}
+.quick{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
+.quick button{flex:none;border:1px solid var(--brass);background:var(--brass-soft);color:var(--ink);border-radius:8px;padding:6px 10px;font:600 .9rem/1.2 var(--f-verse)}
+.quick button small{display:block;font:500 .7rem/1.2 var(--f-ui);color:var(--muted)}
+.label{font-size:.72rem;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);font-weight:600}
+.count{font-size:.82rem;color:var(--muted)}
+ul.list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+ul.list li button{width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);background:transparent;padding:10px 6px;display:grid;grid-template-columns:1fr auto;gap:2px 8px;border-radius:0}
+ul.list li button:hover{background:var(--sel)}
+ul.list li button[aria-current="true"]{background:var(--sel);box-shadow:inset 3px 0 0 var(--brass)}
+.li-gu{font:600 1.05rem/1.3 var(--f-verse)}
+.li-en{font-size:.84rem;color:var(--muted);grid-column:1}
+.li-type{grid-row:1/span 2;grid-column:2;align-self:center;font-size:.7rem;text-transform:uppercase;letter-spacing:.6px;color:var(--brass);font-weight:600}
+.li-fav{color:var(--kumkum)}
+.empty{color:var(--muted);padding:16px 0}
+
+main.reader{padding-block:20px 120px;padding-left:24px;padding-right:max(16px,env(safe-area-inset-right,0px));min-width:0}
+.back{display:none}
+.meta{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;font-size:.85rem;color:var(--muted)}
+.pill{background:var(--brass-soft);color:var(--ink);border-radius:999px;padding:1px 10px;font-weight:600;font-size:.78rem}
+h2.title-gu{font:700 2.1rem/1.15 var(--f-display);margin:.4rem 0 0;text-wrap:balance}
+p.title-en{margin:.15rem 0 0;font-size:1.05rem;color:var(--muted)}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:16px 0 6px;padding:8px 0;border-block:1px solid var(--line)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{border:0;background:transparent;padding:5px 10px;font-size:.85rem;min-height:34px}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.tool-gap{flex:1}
+.verses{max-width:46rem;margin-top:14px}
+.stanza{margin:0 0 1.1rem}
+.v{display:block;padding:3px 8px;margin:0 -8px;border-radius:6px;cursor:pointer}
+.v:hover{background:var(--sel)}
+.v.now{background:var(--brass-soft);box-shadow:inset 3px 0 0 var(--brass)}
+.v-gu{display:block;font:400 var(--verse-size)/1.75 var(--f-verse)}
+.v-ro{display:block;font:italic 400 calc(var(--verse-size)*.86)/1.55 var(--f-verse);color:var(--muted)}
+.mode-ro .v-ro{font-style:normal;color:var(--ink);font-size:var(--verse-size)}
+.mode-gu .v-ro,.mode-ro .v-gu{display:none}
+.sec{font:600 .78rem/1 var(--f-ui);text-transform:uppercase;letter-spacing:1px;color:var(--kumkum);margin:1.2rem 0 .5rem}
+.meaning{max-width:46rem;margin-top:26px;padding-top:16px;border-top:1px solid var(--line)}
+.meaning h3,.listen h3{margin:0 0 6px;font:700 1.15rem/1.2 var(--f-display)}
+.meaning p{margin:0;max-width:65ch}
+.listen{max-width:46rem;margin-top:22px;display:flex;flex-direction:column;gap:8px}
+.listen p{margin:0;color:var(--muted);font-size:.9rem;max-width:65ch}
+.listen a{color:var(--brass);font-weight:600}
+.listen audio{width:100%;max-width:30rem}
+.file-btn{display:inline-flex;align-items:center;gap:8px}
+.note{font-size:.8rem;color:var(--muted);max-width:65ch;margin-top:22px}
+
+.player{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-top:10px;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px))}
+.player-in{max-width:1240px;margin:0 auto;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+.play{background:var(--brass);color:var(--brass-ink);border:0;border-radius:999px;padding:8px 18px;font-weight:600;min-height:40px}
+.ctl{border:1px solid var(--line);background:transparent;border-radius:999px;padding:7px 14px;min-height:40px}
+.player label{display:flex;align-items:center;gap:6px;font-size:.85rem;color:var(--muted)}
+.player input[type=range]{width:100px;accent-color:var(--brass)}
+.status{font-size:.8rem;color:var(--muted);flex:1 1 220px;min-width:0}
+.player input[type=checkbox]{accent-color:var(--brass)}
+.player select{border:1px solid var(--line);border-radius:6px;background:var(--surface);padding:3px 4px;font-size:.85rem}
+.rec-row{display:flex;flex-wrap:wrap;gap:8px}
+.rec-credit{color:var(--ink);font-size:.88rem;line-height:1.5;padding:8px 10px;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+.rec-credit a{color:var(--brass)}
+.related{display:flex;flex-direction:column;gap:6px}
+.related audio{width:100%;max-width:30rem}
+
+@media (max-width:860px){
+  .wrap{grid-template-columns:minmax(0,1fr)}
+  aside.lib{border-right:0;padding-right:max(16px,env(safe-area-inset-right,0px))}
+  main.reader{padding-left:max(16px,env(safe-area-inset-left,0px))}
+  body.reading aside.lib{display:none}
+  body:not(.reading) main.reader{display:none}
+  .back{display:inline-flex}
+  h2.title-gu{font-size:1.7rem}
+}
+@media (max-width:480px){ .player input[type=range]{width:70px} .status{flex-basis:100%;font-size:.75rem} main.reader{padding-bottom:190px} }
+@media (prefers-reduced-motion:reduce){ *{scroll-behavior:auto!important} }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <div class="brand-left">
+      <svg class="diya" viewBox="0 0 32 32" aria-hidden="true">
+        <path d="M16 3c3 5 4 8 0 13-4-5-3-8 0-13z" fill="var(--brass)"/>
+        <path d="M3 18h26c-1 6-6 10-13 10S4 24 3 18z" fill="var(--kumkum)"/>
+      </svg>
+      <h1>આરતી સંગ્રહ<small>Aarti · Stuti · Shlok · Mantra</small></h1>
+    </div>
+    <div class="top-actions">
+      <button class="icon-btn" id="installBtn" type="button" hidden>⬇ Install app</button>
+      <button class="icon-btn" id="themeBtn" type="button" aria-label="Switch light or dark theme">Theme</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <aside class="lib" aria-label="Library">
+    <input class="search" id="q" type="search" placeholder="Search: Ambe, Ganesh, ગાયત્રી, Gita…" autocomplete="off">
+    <div>
+      <div class="label">Quick open · ઝટપટ</div>
+      <div class="quick" id="quick" style="margin-top:6px"></div>
+    </div>
+    <div class="tabs" id="typeTabs" role="group" aria-label="Type"></div>
+    <div>
+      <div class="label">Deity / દેવતા</div>
+      <div class="chips" id="deityChips" role="group" aria-label="Deity" style="margin-top:6px"></div>
+    </div>
+    <div class="count" id="count"></div>
+    <ul class="list" id="list"></ul>
+  </aside>
+
+  <main class="reader" id="reader" aria-live="polite"></main>
+</div>
+
+<div class="player" role="region" aria-label="Audio player">
+  <div class="player-in">
+    <button class="play" id="playBtn" type="button">▶ Play</button>
+    <button class="ctl" id="stopBtn" type="button">■ Stop</button>
+    <label for="rate">Speed <input id="rate" type="range" min="0.5" max="1.2" step="0.05" value="0.8"></label>
+    <label for="voiceSel">Voice <select id="voiceSel"></select></label>
+    <label for="bellChk"><input id="bellChk" type="checkbox" checked> Bell</label>
+    <button class="ctl" id="bellBtn" type="button" aria-label="Ring the aarti bell">🔔 Ghanti</button>
+    <button class="ctl" id="installVoice" type="button" hidden>Install voice</button>
+    <div class="status" id="status">Tap ▶ Play to listen. Tap any line to start from there.</div>
+  </div>
+</div>
+
+<script src="translit.js"></script>
+<script src="pronounce.js"></script>
+<script src="data.js"></script>
+<script src="audio/recordings.js"></script>
+<script>
+(function(){
+  'use strict';
+  var T = window.Translit, DATA = window.AARTIS, DEITIES = window.DEITIES, TYPES = window.TYPES;
+  var $ = function(id){ return document.getElementById(id); };
+
+  /* ---------- storage (per-viewer conveniences only) ---------- */
+  function load(k, d){ try{ var v = localStorage.getItem('aarti.'+k); return v === null ? d : JSON.parse(v); }catch(e){ return d; } }
+  function save(k, v){ try{ localStorage.setItem('aarti.'+k, JSON.stringify(v)); }catch(e){} }
+
+  var state = {
+    type: 'all', deity: 'all', q: '',
+    mode: load('mode','both'),          // both | gu | ro
+    style: load('style','simple'),      // simple | iast
+    size: load('size', 1.18),
+    favs: load('favs', []),
+    current: null
+  };
+
+  /* ---------- prepare data ---------- */
+  DATA.forEach(function(a){
+    a.titleGu = a.script === 'deva' ? T.devaToGu(a.title) : a.title;
+    a.lines = a.text.split('\n').map(function(raw){
+      raw = raw.trim();
+      if (!raw) return { kind:'blank' };
+      var isSec = raw.charAt(0) === '#';
+      var src = isSec ? raw.slice(1).trim() : raw;
+      var gu = a.script === 'deva' ? T.devaToGu(src) : src;
+      return { kind: isSec ? 'sec' : 'v', gu: gu, deva: a.script === 'deva' ? src : T.guToDeva(src) };
+    });
+    a.searchBlob = [a.en, a.titleGu, a.by||'', a.tag||'', DEITIES[a.deity].en, DEITIES[a.deity].gu, TYPES[a.type].en,
+      a.lines.filter(function(l){return l.gu;}).map(function(l){ return l.gu + ' ' + T.guToRoman(l.gu, a.lang, 'simple'); }).join(' ')
+    ].join(' ').toLowerCase();
+  });
+
+  /* ---------- filters ---------- */
+  function renderFilters(){
+    var tt = $('typeTabs'); tt.innerHTML = '';
+    [['all','All · બધું']].concat(Object.keys(TYPES).map(function(k){ return [k, TYPES[k].en + ' · ' + TYPES[k].gu]; }))
+      .forEach(function(p){
+        var b = document.createElement('button'); b.type='button'; b.className='tab'; b.textContent=p[1];
+        b.setAttribute('aria-pressed', state.type === p[0]);
+        b.onclick = function(){ state.type = p[0]; renderFilters(); renderList(); };
+        tt.appendChild(b);
+      });
+    var fav = document.createElement('button'); fav.type='button'; fav.className='tab'; fav.textContent='♥ Favourites';
+    fav.setAttribute('aria-pressed', state.type === 'fav');
+    fav.onclick = function(){ state.type = 'fav'; renderFilters(); renderList(); };
+    tt.appendChild(fav);
+
+    var dc = $('deityChips'); dc.innerHTML = '';
+    [['all','All']].concat(Object.keys(DEITIES).map(function(k){ return [k, DEITIES[k].en]; }))
+      .forEach(function(p){
+        var b = document.createElement('button'); b.type='button'; b.className='chip'; b.textContent=p[1];
+        b.setAttribute('aria-pressed', state.deity === p[0]);
+        b.onclick = function(){ state.deity = p[0]; renderFilters(); renderList(); };
+        dc.appendChild(b);
+      });
+  }
+
+  function filtered(){
+    var q = state.q.trim().toLowerCase();
+    return DATA.filter(function(a){
+      if (state.type === 'fav') { if (state.favs.indexOf(a.id) < 0) return false; }
+      else if (state.type !== 'all' && a.type !== state.type) return false;
+      if (state.deity !== 'all' && a.deity !== state.deity) return false;
+      if (q && a.searchBlob.indexOf(q) < 0) return false;
+      return true;
+    });
+  }
+
+  function renderList(){
+    var items = filtered(), ul = $('list'); ul.innerHTML = '';
+    $('count').textContent = items.length + ' of ' + DATA.length + ' prayers';
+    if (!items.length){ ul.innerHTML = '<li class="empty">Nothing matches. Clear the search or choose "All".</li>'; return; }
+    items.forEach(function(a){
+      var li = document.createElement('li'), b = document.createElement('button'); b.type = 'button';
+      if (state.current && state.current.id === a.id) b.setAttribute('aria-current','true');
+      var fav = state.favs.indexOf(a.id) >= 0 ? ' <span class="li-fav" aria-label="favourite">♥</span>' : '';
+      b.innerHTML = '<span class="li-gu"></span><span class="li-type"></span><span class="li-en"></span>';
+      b.querySelector('.li-gu').textContent = a.titleGu; b.querySelector('.li-gu').insertAdjacentHTML('beforeend', fav);
+      b.querySelector('.li-en').textContent = a.en + (a.tag ? ' · ' + a.tag : '');
+      b.querySelector('.li-type').textContent = TYPES[a.type].en.split(' ')[0];
+      b.onclick = function(){ location.hash = a.id; };
+      li.appendChild(b); ul.appendChild(li);
+    });
+  }
+
+  /* ---------- reader ---------- */
+  var LANG_NAME = { gu:'Gujarati', hi:'Hindi', sa:'Sanskrit', mr:'Marathi' };
+
+  function seg(name, opts, cur, onPick){
+    var s = document.createElement('div'); s.className = 'seg'; s.setAttribute('role','group'); s.setAttribute('aria-label', name);
+    opts.forEach(function(o){
+      var b = document.createElement('button'); b.type='button'; b.textContent = o[1];
+      b.setAttribute('aria-pressed', cur === o[0]); b.onclick = function(){ onPick(o[0]); };
+      s.appendChild(b);
+    });
+    return s;
+  }
+
+  function renderReader(){
+    var a = state.current, r = $('reader'); r.innerHTML = '';
+    document.documentElement.style.setProperty('--verse-size', state.size + 'rem');
+    if (!a) return;
+    var isFav = state.favs.indexOf(a.id) >= 0;
+
+    var back = document.createElement('button'); back.type='button'; back.className='icon-btn back'; back.textContent='← All prayers';
+    back.onclick = function(){ stopSpeech(); history.pushState('', document.title, location.pathname + location.search); route(); };
+    r.appendChild(back);
+
+    var meta = document.createElement('div'); meta.className='meta'; meta.style.marginTop='8px';
+    meta.innerHTML = '<span class="pill"></span><span class="m-d"></span><span class="m-l"></span>';
+    meta.querySelector('.pill').textContent = TYPES[a.type].en;
+    meta.querySelector('.m-d').textContent = DEITIES[a.deity].en + ' · ' + DEITIES[a.deity].gu;
+    meta.querySelector('.m-l').textContent = 'Language: ' + LANG_NAME[a.lang] + (a.by ? ' · ' + a.by : '') + (a.tag ? ' · ' + a.tag : '');
+    r.appendChild(meta);
+
+    var h = document.createElement('h2'); h.className='title-gu'; h.textContent = a.titleGu; r.appendChild(h);
+    var pe = document.createElement('p'); pe.className='title-en'; pe.textContent = a.en; r.appendChild(pe);
+
+    var tb = document.createElement('div'); tb.className='toolbar';
+    tb.appendChild(seg('Script', [['both','ગુજરાતી + English'],['gu','ગુજરાતી'],['ro','English']], state.mode,
+      function(v){ state.mode = v; save('mode', v); renderReader(); }));
+    tb.appendChild(seg('English style', [['simple','Easy'],['iast','IAST']], state.style,
+      function(v){ state.style = v; save('style', v); renderReader(); }));
+    tb.appendChild(seg('Text size', [['-','A−'],['+','A+']], null, function(v){
+      state.size = Math.max(0.9, Math.min(2, +(state.size + (v === '+' ? 0.1 : -0.1)).toFixed(2))); save('size', state.size); renderReader(); }));
+    var sp = document.createElement('span'); sp.className='tool-gap'; tb.appendChild(sp);
+    var fb = document.createElement('button'); fb.type='button'; fb.className='icon-btn';
+    fb.textContent = isFav ? '♥ Saved' : '♡ Save'; fb.setAttribute('aria-pressed', isFav);
+    fb.onclick = function(){
+      var i = state.favs.indexOf(a.id); if (i >= 0) state.favs.splice(i,1); else state.favs.push(a.id);
+      save('favs', state.favs); renderReader(); renderList(); };
+    tb.appendChild(fb);
+    r.appendChild(tb);
+
+    var vs = document.createElement('div'); vs.className = 'verses mode-' + state.mode;
+    var stanza = document.createElement('p'); stanza.className='stanza';
+    var speakIdx = 0;
+    a.lines.forEach(function(l){
+      if (l.kind === 'blank'){ if (stanza.childNodes.length){ vs.appendChild(stanza); stanza = document.createElement('p'); stanza.className='stanza'; } return; }
+      if (l.kind === 'sec'){
+        if (stanza.childNodes.length){ vs.appendChild(stanza); stanza = document.createElement('p'); stanza.className='stanza'; }
+        var sec = document.createElement('div'); sec.className='sec'; sec.textContent = l.gu + ' · ' + T.guToRoman(l.gu, a.lang, 'simple'); vs.appendChild(sec); return;
+      }
+      var s = document.createElement('span'); s.className='v'; s.dataset.i = speakIdx++;
+      var g = document.createElement('span'); g.className='v-gu'; g.textContent = l.gu;
+      var ro = document.createElement('span'); ro.className='v-ro'; ro.textContent = T.guToRoman(l.gu, a.lang, state.style);
+      s.appendChild(g); s.appendChild(ro);
+      s.onclick = function(){ startSpeech(+s.dataset.i); };
+      stanza.appendChild(s);
+    });
+    if (stanza.childNodes.length) vs.appendChild(stanza);
+    r.appendChild(vs);
+
+    var m = document.createElement('section'); m.className='meaning';
+    m.innerHTML = '<h3>Meaning · ભાવાર્થ</h3><p></p>'; m.querySelector('p').textContent = a.meaning; r.appendChild(m);
+
+    var L = document.createElement('section'); L.className='listen';
+    var yt = 'https://www.youtube.com/results?search_query=' + encodeURIComponent(a.en.replace(/\(.*?\)/g,'') + ' ' + TYPES[a.type].en + ' ' + (a.lang === 'gu' ? 'Gujarati' : ''));
+    var recEntry = (window.RECORDINGS || {})[a.id];
+    var bundled = recEntry && recEntry.exact !== false ? recEntry : null;      // used by ▶ Play
+    var related = recEntry && recEntry.exact === false ? recEntry : null;      // shown separately
+    var who = a.type === 'aarti' || a.type === 'bhajan' ? 'a singer' : 'your pandit';
+    L.innerHTML = '<h3>Listen · સાંભળો</h3>' +
+      (bundled ? '<div class="rec-credit" id="recCreditMain"></div>' +
+        '<div class="rec-row"><button class="icon-btn" id="recOffline" type="button">⬇ Save for offline</button></div>' : '') +
+      '<p><b>For true pandit or singer pronunciation, use a real recording.</b> Ask ' + who +
+      ' to chant it once into this phone with 🎙 Record, or save an MP3 you have. ▶ Play then uses it every time.</p>' +
+      '<div class="rec-row">' +
+      '<button class="icon-btn" id="recMic" type="button">🎙 Record now</button>' +
+      '<label class="file-btn icon-btn" for="ownAudio">🎵 <span id="recLabel">Save an MP3</span>' +
+      '<input id="ownAudio" type="file" accept="audio/*" hidden></label>' +
+      '<button class="icon-btn" id="recRemove" type="button" hidden>Remove my recording</button></div>' +
+      '<audio id="ownPlayer" controls hidden></audio>' +
+      (related ? '<div class="related"><div class="rec-credit" id="recCreditRel"></div><audio id="relPlayer" controls preload="none"></audio></div>' : '') +
+      '<p>Without a recording, ▶ Play reads the text with the phone\'s Hindi or Gujarati voice, following recitation rules ' +
+      '(Om, visarga, pauses at । and ॥, repeats marked (૨), the full final "a" in Sanskrit). A computer voice cannot sing the tune.</p>' +
+      '<p><a target="_blank" rel="noopener" href="' + yt + '">Find sung versions on YouTube ↗</a></p>';
+    r.appendChild(L);
+    var player = L.querySelector('#ownPlayer');
+    player.onplay = function(){ stopSpeech(true); playing = true; setPlayLabel(); setStatus('Playing recording.'); };
+    player.onpause = player.onended = function(){ playing = false; setPlayLabel(); };
+    if (bundled){
+      creditBlock(L.querySelector('#recCreditMain'), bundled, '🎧 Recording included');
+      L.querySelector('#recOffline').onclick = function(){ saveOffline(a.id, bundled, player); };
+    }
+    if (related){
+      creditBlock(L.querySelector('#recCreditRel'), related, '🎧 Related recording (may not follow this exact text)');
+      setRecSrc(L.querySelector('#relPlayer'), related);
+      L.querySelector('#relPlayer').onplay = function(){ stopSpeech(); };
+    }
+    loadRecording(a.id, player, bundled);
+    L.querySelector('#recMic').onclick = function(){ toggleMic(a.id, player); };
+    L.querySelector('#ownAudio').onchange = function(e){
+      var f = e.target.files && e.target.files[0]; if (!f) return;
+      saveRecording(a.id, f).then(function(ok){
+        setStatus(ok ? 'Recording saved. ▶ Play will use it from now on.' : 'Playing the file. It could not be saved on this device, so choose it again next time.');
+      });
+      showRecording(player, f);
+      player.play().catch(function(){});
+    };
+    L.querySelector('#recRemove').onclick = function(){
+      deleteRecording(a.id); player.pause(); player.removeAttribute('src'); player.hidden = true;
+      $('recRemove').hidden = true; $('recLabel').textContent = 'Save an MP3'; state.hasRec = false;
+      if (bundled){ setRecSrc(player, bundled); player.hidden = false; state.hasRec = true; setStatus('Your recording was removed. ▶ Play uses the included recording.'); }
+      else setStatus('Recording removed. ▶ Play will use the phone voice.');
+    };
+
+    var n = document.createElement('p'); n.className='note';
+    n.textContent = 'Wording follows commonly printed versions and can differ slightly between families and sampradayas. ' +
+      (a.script === 'deva' ? 'This ' + LANG_NAME[a.lang] + ' text is shown in Gujarati script, as printed in Gujarati aarti books.' : '');
+    r.appendChild(n);
+    highlight(-1);
+  }
+
+  /* ---------- routing ---------- */
+  function route(){
+    var id = decodeURIComponent(location.hash.slice(1));
+    var a = DATA.find(function(x){ return x.id === id; }) || null;
+    if (a !== state.current) stopSpeech();
+    state.current = a || (window.innerWidth > 860 ? DATA[0] : null);
+    document.body.classList.toggle('reading', !!a);
+    renderReader(); renderList();
+    if (a) { window.scrollTo(0,0); document.title = a.en + ' · Aarti Sangrah'; } else document.title = 'Aarti Sangrah';
+  }
+
+  /* ---------- saved recordings (IndexedDB, per prayer) ---------- */
+  var dbP = null, recUrl = null;
+  function db(){
+    if (dbP) return dbP;
+    dbP = new Promise(function(res){
+      try{
+        var rq = indexedDB.open('aarti-sangrah', 1);
+        rq.onupgradeneeded = function(){ rq.result.createObjectStore('rec'); };
+        rq.onsuccess = function(){ res(rq.result); };
+        rq.onerror = function(){ res(null); };
+      }catch(e){ res(null); }
+    });
+    return dbP;
+  }
+  function saveRecording(id, file){
+    return db().then(function(d){ if (!d) return false; return new Promise(function(res){
+      try{ var tx = d.transaction('rec','readwrite'); tx.objectStore('rec').put({ blob: file, name: file.name || 'recording' }, id);
+        tx.oncomplete = function(){ res(true); }; tx.onerror = function(){ res(false); }; }catch(e){ res(false); }
+    }); });
+  }
+  function deleteRecording(id){ db().then(function(d){ if (d) try{ d.transaction('rec','readwrite').objectStore('rec').delete(id); }catch(e){} }); }
+  function showRecording(player, blob, name){
+    if (recUrl) URL.revokeObjectURL(recUrl);
+    recUrl = URL.createObjectURL(blob); player.src = recUrl; player.hidden = false; state.hasRec = true;
+    $('recRemove').hidden = false; $('recLabel').textContent = 'Replace recording' + (name ? ' (' + name + ')' : '');
+  }
+  /** Priority: the user's own saved recording, then a recording bundled with the app, then the phone voice. */
+  function loadRecording(id, player, bundled){
+    state.hasRec = false;
+    if (bundled){ setRecSrc(player, bundled); player.hidden = false; state.hasRec = true; }
+    db().then(function(d){ if (!d) return; try{
+      var rq = d.transaction('rec','readonly').objectStore('rec').get(id);
+      rq.onsuccess = function(){ if (rq.result && state.current && state.current.id === id) showRecording(player, rq.result.blob, rq.result.name); };
+    }catch(e){} });
+  }
+
+  /** Bundled copy first; if it is not packed in this build, stream from the online source. */
+  function setRecSrc(el, e){
+    el.onerror = null;
+    if (e.file){
+      el.src = e.file;
+      el.onerror = function(){ if (e.url && el.getAttribute('src') !== e.url){ el.onerror = null; el.src = e.url; } };
+    } else el.src = e.url;
+  }
+  function creditBlock(el, e, label){
+    el.innerHTML = '<b></b><br><span class="rc-t"></span> · by <span class="rc-a"></span><br>' +
+      '<a class="rc-l" target="_blank" rel="noopener"></a> · <a class="rc-s" target="_blank" rel="noopener">Source ↗</a>';
+    el.querySelector('b').textContent = label;
+    el.querySelector('.rc-t').textContent = e.title || '';
+    el.querySelector('.rc-a').textContent = e.credit || 'unknown';
+    var l = el.querySelector('.rc-l'); l.textContent = 'Licence: ' + (e.license || 'see source'); if (e.licenseUrl) l.href = e.licenseUrl;
+    var s = el.querySelector('.rc-s'); if (e.source) s.href = e.source; else s.remove();
+  }
+  /** Downloads an online recording once and keeps it on the device (works without internet afterwards). */
+  function saveOffline(id, e, player){
+    var btn = $('recOffline'); btn.disabled = true; btn.textContent = 'Downloading…';
+    fetch(e.url).then(function(r){ if (!r.ok) throw 0; return r.blob(); }).then(function(b){
+      b.name = e.title || 'Recording';
+      return saveRecording(id, b).then(function(ok){
+        btn.textContent = ok ? '✓ Saved for offline' : 'Could not save on this device';
+        if (ok) showRecording(player, b, b.name);
+      });
+    }).catch(function(){ btn.disabled = false; btn.textContent = '⬇ Save for offline'; setStatus('Download failed. Check the internet connection and try again.'); });
+  }
+
+  /* ---------- record from the microphone (e.g. your pandit chanting once) ---------- */
+  var mic = null;
+  function toggleMic(id, player){
+    var btn = $('recMic');
+    if (mic){ mic.rec.stop(); return; }
+    if (!navigator.mediaDevices || !window.MediaRecorder){ setStatus('Recording is not supported here. Record with the phone\'s voice recorder and use "Save an MP3".'); return; }
+    navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: true, autoGainControl: true } }).then(function(stream){
+      stopSpeech();
+      var chunks = [], rec = new MediaRecorder(stream), t0 = Date.now();
+      mic = { rec: rec, tick: setInterval(function(){
+        var s = Math.round((Date.now() - t0) / 1000);
+        btn.textContent = '■ Stop recording ' + Math.floor(s / 60) + ':' + ('0' + s % 60).slice(-2);
+      }, 500) };
+      btn.textContent = '■ Stop recording 0:00';
+      setStatus('Recording… chant or sing the full ' + (state.current ? TYPES[state.current.type].en.split(' ')[0].toLowerCase() : 'prayer') + ', then press Stop.');
+      rec.ondataavailable = function(e){ if (e.data && e.data.size) chunks.push(e.data); };
+      rec.onstop = function(){
+        clearInterval(mic.tick); mic = null; btn.textContent = '🎙 Record again';
+        stream.getTracks().forEach(function(tr){ tr.stop(); });
+        if (!chunks.length){ setStatus('Nothing was recorded. Please try again.'); return; }
+        var blob = new Blob(chunks, { type: chunks[0].type || 'audio/webm' });
+        blob.name = 'Recorded ' + new Date().toLocaleDateString();
+        showRecording(player, blob, blob.name);
+        saveRecording(id, blob).then(function(ok){
+          setStatus(ok ? 'Recording saved to this prayer. ▶ Play will use it from now on.' : 'Recorded, but it could not be saved on this device.');
+        });
+      };
+      rec.start(1000);
+    }).catch(function(){
+      setStatus('Microphone permission was not given. Allow the microphone for this app and try again.');
+    });
+  }
+
+  /* ---------- speech: phone / browser voice with recitation rules ---------- */
+  var P = window.Pronounce;
+  var synth = window.speechSynthesis, voices = [], playing = false, idx = 0, segI = 0, token = 0, timer = null;
+  var bridge = window.AndroidTTS || null;           // native TextToSpeech in the Android app
+  var voicePref = load('voice', 'auto');
+  var VOICE_NAMES = { gu: 'ગુજરાતી', hi: 'हिन्दी', mr: 'मराठी' };
+  function loadVoices(){ voices = synth ? synth.getVoices() : []; renderVoiceSelect(); }
+  if (synth && !bridge){ loadVoices(); if ('onvoiceschanged' in synth) synth.onvoiceschanged = loadVoices; }
+
+  /** Indian voices present on this device, as language codes gu / hi / mr. */
+  function availableLangs(){
+    if (bridge){ try{ return (bridge.langs() || '').split(',').map(function(t){ return t.slice(0,2); }).filter(function(c){ return VOICE_NAMES[c]; }); }catch(e){ return []; } }
+    var out = [];
+    voices.forEach(function(v){ var c = (v.lang || '').toLowerCase().slice(0,2); if (VOICE_NAMES[c] && out.indexOf(c) < 0) out.push(c); });
+    return out;
+  }
+  function chooseLang(itemLang){
+    var av = availableLangs();
+    if (voicePref !== 'auto' && av.indexOf(voicePref) >= 0) return voicePref;
+    // Sanskrit / Hindi / Marathi read best with the Hindi voice; Gujarati with the Gujarati voice
+    var order = itemLang === 'gu' ? ['gu','hi','mr'] : itemLang === 'mr' ? ['mr','hi','gu'] : ['hi','mr','gu'];
+    for (var i = 0; i < order.length; i++) if (av.indexOf(order[i]) >= 0) return order[i];
+    return '';
+  }
+  function browserVoice(code){
+    var list = voices.filter(function(v){ return (v.lang || '').toLowerCase().indexOf(code) === 0; });
+    // prefer natural / online voices, which pronounce far better than the local fallback ones
+    list.sort(function(x, y){ return (/natural|online|google/i.test(y.name) ? 1 : 0) - (/natural|online|google/i.test(x.name) ? 1 : 0); });
+    return list[0] || null;
+  }
+
+  function renderVoiceSelect(){
+    var sel = $('voiceSel'); if (!sel) return;
+    var av = availableLangs(), cur = voicePref;
+    sel.innerHTML = '';
+    [['auto','Auto']].concat(['hi','gu','mr'].map(function(c){ return [c, VOICE_NAMES[c] + (av.indexOf(c) < 0 ? ' (not installed)' : '')]; }))
+      .forEach(function(o){ var op = document.createElement('option'); op.value = o[0]; op.textContent = o[1]; sel.appendChild(op); });
+    sel.value = cur;
+  }
+
+  function spokenLines(a){ return a.lines.filter(function(l){ return l.kind === 'v'; }); }
+
+  function highlight(i){
+    var els = document.querySelectorAll('.v');
+    els.forEach(function(e){ e.classList.toggle('now', +e.dataset.i === i); });
+    var cur = document.querySelector('.v.now');
+    if (cur && cur.scrollIntoView){
+      var rm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      cur.scrollIntoView({ block:'center', behavior: rm ? 'auto' : 'smooth' });
+    }
+  }
+
+  function setStatus(t){ $('status').textContent = t; }
+  function setPlayLabel(){ $('playBtn').textContent = playing ? '❚❚ Pause' : '▶ Play'; }
+  function cancelAll(){ clearTimeout(timer); if (bridge) { try{ bridge.stop(); }catch(e){} } else if (synth) synth.cancel(); }
+
+  function noVoiceHelp(){
+    if (bridge) $('installVoice').hidden = false;
+    setStatus(bridge
+      ? 'No Hindi or Gujarati voice is installed on this phone. Tap "Install voice", download Hindi and Gujarati, then press ▶ Play.'
+      : 'This browser has no Hindi or Gujarati voice. Use Chrome on Android, or add an Indian-language voice in your system settings.');
+  }
+
+  function startSpeech(from){
+    var a = state.current; if (!a) return;
+    var player = $('ownPlayer');
+    if (state.hasRec && player){ if (from) player.currentTime = 0; player.play().catch(function(){}); return; }
+    if (!synth && !bridge){ setStatus('This browser cannot read text aloud. Save a recording below or use the YouTube link.'); return; }
+    if (bridge && !bridge.ready()){ setStatus('Voice engine is starting. Please press ▶ Play again in a moment.'); return; }
+    if (!bridge && !voices.length) loadVoices();
+    if (!chooseLang(a.lang)){ noVoiceHelp(); return; }
+    $('installVoice').hidden = true;
+    cancelAll(); token++;
+    idx = from || 0; segI = 0; playing = true; setPlayLabel();
+    if ($('bellChk').checked && idx === 0){ ringBell(); timer = setTimeout(function(t){ return function(){ if (t === token) speakNext(t); }; }(token), 1400); }
+    else speakNext(token);
+  }
+
+  function lineSegments(a, l){
+    if (!l._seg) l._seg = P.segments(l.deva, a.lang);
+    return l._seg;
+  }
+
+  function speakNext(t){
+    var a = state.current, lines = spokenLines(a);
+    if (t !== token || !playing) return;
+    if (idx >= lines.length){ playing = false; setPlayLabel(); highlight(-1); setStatus('Finished. Jay Shri Krishna 🙏'); if ($('bellChk').checked) ringBell(); return; }
+    var segs = lineSegments(a, lines[idx]);
+    if (segI >= segs.length){ idx++; segI = 0; return speakNext(t); }
+    var code = chooseLang(a.lang), sp = segs[segI];
+    var text = code === 'gu' ? T.devaToGu(sp.text) : sp.text;
+    var rate = +$('rate').value;
+    if (segI === 0) highlight(idx);
+    setStatus('Line ' + (idx + 1) + ' of ' + lines.length + ' · ' + VOICE_NAMES[code] + ' voice');
+    function after(){
+      if (t !== token) return;
+      segI++;
+      timer = setTimeout(function(){ speakNext(t); }, Math.round(sp.pause / Math.max(rate, 0.5)));
+    }
+    if (bridge){
+      var id = 'u' + t + '_' + idx + '_' + segI;
+      window.__ttsEvent = function(type, uid){ if (uid === id) after(); };
+      bridge.speak(text, code + '-IN', rate, id);
+      return;
+    }
+    var u = new SpeechSynthesisUtterance(text), v = browserVoice(code);
+    if (v) u.voice = v;
+    u.lang = v ? v.lang : code + '-IN';
+    u.rate = rate; u.pitch = 0.95;
+    u.onend = after;
+    u.onerror = function(e){ if (e.error === 'interrupted' || e.error === 'canceled') return; after(); };
+    synth.speak(u);
+  }
+
+  function pauseSpeech(){
+    var player = $('ownPlayer'); if (state.hasRec && player && !player.paused){ player.pause(); return; }
+    token++; playing = false; cancelAll(); segI = 0; setPlayLabel(); setStatus('Paused at line ' + (idx + 1) + '. Press ▶ Play to continue.');
+  }
+  function stopSpeech(keepRecording){
+    token++; playing = false; idx = 0; segI = 0; cancelAll(); setPlayLabel(); highlight(-1);
+    var player = $('ownPlayer'); if (!keepRecording && player && !player.paused){ player.pause(); player.currentTime = 0; }
+    setStatus('Tap ▶ Play to listen. Tap any line to start from there.');
+  }
+
+  $('voiceSel').onchange = function(e){ voicePref = e.target.value; save('voice', voicePref); stopSpeech(); };
+  $('installVoice').onclick = function(){ if (bridge && bridge.installVoices) bridge.installVoices(); };
+  renderVoiceSelect();
+
+  $('playBtn').onclick = function(){ if (playing) pauseSpeech(); else startSpeech(idx); };
+  $('stopBtn').onclick = stopSpeech;
+
+  /* ---------- bell (synthesised, no audio file) ---------- */
+  var actx = null;
+  function ringBell(){
+    try{
+      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+      var now = actx.currentTime, base = 880;
+      [[1,0.5,2.6],[2.76,0.28,1.8],[5.4,0.14,1.1],[8.93,0.07,0.7]].forEach(function(p){
+        var o = actx.createOscillator(), g = actx.createGain();
+        o.type = 'sine'; o.frequency.value = base * p[0];
+        g.gain.setValueAtTime(0.0001, now); g.gain.exponentialRampToValueAtTime(p[1] * 0.4, now + 0.01);
+        g.gain.exponentialRampToValueAtTime(0.0001, now + p[2]);
+        o.connect(g); g.connect(actx.destination); o.start(now); o.stop(now + p[2] + 0.05);
+      });
+    }catch(e){}
+  }
+  $('bellBtn').onclick = ringBell;
+
+  /* ---------- theme ---------- */
+  var theme = load('theme', null);
+  if (theme) document.documentElement.setAttribute('data-theme', theme);
+  $('themeBtn').onclick = function(){
+    var cur = document.documentElement.getAttribute('data-theme') ||
+      (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next); save('theme', next);
+  };
+
+  /* ---------- quick access ---------- */
+  ['hanuman-chalisa','ganapati-atharvashirsha','gayatri-chalisa','jay-adhyashakti','jay-jagdish-hare'].forEach(function(id){
+    var a = DATA.find(function(x){ return x.id === id; }); if (!a) return;
+    var b = document.createElement('button'); b.type = 'button';
+    b.textContent = a.titleGu.replace('શ્રી ','');
+    var sm = document.createElement('small'); sm.textContent = a.en.replace(/\s*\(.*\)/,''); b.appendChild(sm);
+    b.onclick = function(){ location.hash = a.id; };
+    $('quick').appendChild(b);
+  });
+
+  /* ---------- install as app (PWA) ---------- */
+  var deferredInstall = null;
+  window.addEventListener('beforeinstallprompt', function(e){ e.preventDefault(); deferredInstall = e; $('installBtn').hidden = false; });
+  $('installBtn').onclick = function(){
+    if (!deferredInstall) return;
+    deferredInstall.prompt();
+    deferredInstall.userChoice.finally(function(){ deferredInstall = null; $('installBtn').hidden = true; });
+  };
+  if ('serviceWorker' in navigator && location.protocol === 'https:' && !window.AndroidTTS){
+    navigator.serviceWorker.register('sw.js').catch(function(){});
+  }
+
+  $('q').addEventListener('input', function(e){ state.q = e.target.value; renderList(); });
+  window.addEventListener('hashchange', route);
+  renderFilters(); route();
+})();
+</script>
+</body>
+</html>
