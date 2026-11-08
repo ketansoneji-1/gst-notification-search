@@ -1,0 +1,26 @@
+<resources>
+    <string name="app_name">ચોઘડિયા</string>
+    <string name="title">ગુજરાતી ચોઘડિયા · Choghadiya</string>
+    <string name="change">બદલો / Change</string>
+    <string name="today">આજે / Today</string>
+    <string name="prev">◀</string>
+    <string name="next">▶</string>
+    <string name="now_title">હાલનું ચોઘડિયું · Current Choghadiya</string>
+    <string name="day_title">☀ દિવસના ચોઘડિયા · Day Choghadiya</string>
+    <string name="night_title">☾ રાત્રિના ચોઘડિયા · Night Choghadiya</string>
+    <string name="menu_location">સ્થળ / Location</string>
+    <string name="menu_convention">સૂર્યોદય પદ્ધતિ / Sunrise method</string>
+    <string name="menu_time_format">12 / 24 કલાક / Time format</string>
+    <string name="menu_about">માહિતી / About</string>
+    <string name="custom_location">➕ અન્ય સ્થળ (અક્ષાંશ/રેખાંશ) / Custom location</string>
+    <string name="name_hint">સ્થળનું નામ / Place name</string>
+    <string name="lat_hint">અક્ષાંશ / Latitude (e.g. 23.0225)</string>
+    <string name="lon_hint">રેખાંશ / Longitude (e.g. 72.5714)</string>
+    <string name="ok">બરાબર / OK</string>
+    <string name="cancel">રદ / Cancel</string>
+    <string name="invalid_coords">અમાન્ય અક્ષાંશ/રેખાંશ · Invalid latitude/longitude</string>
+    <string name="polar">આ તારીખે આ સ્થળે સૂર્યોદય/સૂર્યાસ્ત થતો નથી · No sunrise/sunset at this place on this date</string>
+    <string name="legend">🟢 અમૃત, શુભ, લાભ — શુભ  ·  🔵 ચલ — સામાન્ય  ·  🔴 ઉદ્વેગ, કાળ, રોગ — અશુભ</string>
+    <string name="disclaimer">દિવસ (સૂર્યોદય–સૂર્યાસ્ત) અને રાત્રિ (સૂર્યાસ્ત–બીજા દિવસનો સૂર્યોદય) ને આઠ સરખા ભાગમાં વહેંચી ચોઘડિયા ગણવામાં આવે છે. સૂર્યોદય/સૂર્યાસ્ત સ્થાનિક અક્ષાંશ-રેખાંશ પરથી ગણાય છે; પંચાંગ સાથે ±1 મિનિટનો ફેર શક્ય છે.\nDay and night are each divided into eight equal parts. Timings are computed for the selected place and may differ from printed panchangs by about ±1 minute.</string>
+    <string name="about_text">ચોઘડિયા ગણતરીના નિયમો / Calculation rules:\n\n• દિવસ = સૂર્યોદય થી સૂર્યાસ્ત, રાત્રિ = સૂર્યાસ્ત થી બીજા દિવસનો સૂર્યોદય; દરેકના 8 સરખા ભાગ.\n• હિંદુ વાર સૂર્યોદયથી બદલાય છે — મધ્યરાત્રિ પછી સૂર્યોદય સુધી આગલા વારની રાત્રિ ચાલુ ગણાય.\n• દિવસનું પ્રથમ ચોઘડિયું વારના સ્વામીનું: રવિ-ઉદ્વેગ, સોમ-અમૃત, મંગળ-રોગ, બુધ-લાભ, ગુરુ-શુભ, શુક્ર-ચલ, શનિ-કાળ. પછીનો ક્રમ: ઉદ્વેગ→ચલ→લાભ→અમૃત→કાળ→શુભ→રોગ.\n• રાત્રિનું પ્રથમ ચોઘડિયું વારથી પાંચમા વારના સ્વામીનું; રાત્રિનો ક્રમ: ઉદ્વેગ→શુભ→અમૃત→ચલ→રોગ→કાળ→લાભ.\n• રાહુ કાળ: દિવસના આઠ ભાગમાંથી — રવિ 8મો, સોમ 2જો, મંગળ 7મો, બુધ 5મો, ગુરુ 6ઠ્ઠો, શુક્ર 4થો, શનિ 3જો.\n• સૂર્યોદય: સૂર્યબિંબની ઉપલી કિનાર ક્ષિતિજ પર (વાતાવરણીય વક્રીભવન સહિત) — NOAA/Meeus ગણિત.\n\nEnglish: Day (sunrise→sunset) and night (sunset→next sunrise) are each split into 8 equal Choghadiya. The Hindu day changes at sunrise. Sunrise uses the upper-limb + refraction convention (zenith 90°50′). Optionally the disc-centre convention can be chosen from the menu.\n\nThis app works fully offline and collects no data.</string>
+</resources>
