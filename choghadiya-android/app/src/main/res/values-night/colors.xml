@@ -1,0 +1,8 @@
+<resources>
+    <color name="best">#81C784</color>
+    <color name="good">#A5D6A7</color>
+    <color name="neutral">#90CAF9</color>
+    <color name="bad">#EF9A9A</color>
+    <color name="saffron_dark">#FFB74D</color>
+    <color name="cell_plain">#1FFFFFFF</color>
+</resources>

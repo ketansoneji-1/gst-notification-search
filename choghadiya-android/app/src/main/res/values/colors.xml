@@ -10,4 +10,8 @@
     <color name="neutral_bg">#2290CAF9</color>
     <color name="bad_bg">#22EF9A9A</color>
     <color name="current_stroke">#FF8F00</color>
+    <color name="cell_plain">#0F888888</color>
+    <color name="cell_full_new">#40FFB74D</color>
+    <color name="cell_ekadashi">#3381C784</color>
+    <color name="cell_special">#2264B5F6</color>
 </resources>

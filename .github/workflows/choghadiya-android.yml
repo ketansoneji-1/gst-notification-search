@@ -25,11 +25,11 @@ jobs:
       - uses: android-actions/setup-android@v3
         with:
           # Default list includes the removed legacy "tools" package; install only what the build needs.
-          packages: "platform-tools platforms;android-35 build-tools;35.0.0"
-      - name: Unit tests and debug APK
+          packages: "platform-tools platforms;android-36 build-tools;36.0.0"
+      - name: Unit tests, UI smoke tests, lint and debug APK
         run: |
           chmod +x gradlew
-          ./gradlew --no-daemon :app:testDebugUnitTest :app:assembleDebug
+          ./gradlew --no-daemon :app:testDebugUnitTest :app:lintDebug :app:assembleDebug
       - uses: actions/upload-artifact@v4
         with:
           name: choghadiya-debug-apk
