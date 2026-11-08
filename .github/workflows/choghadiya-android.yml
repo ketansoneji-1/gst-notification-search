@@ -23,6 +23,9 @@ jobs:
           distribution: temurin
           java-version: "17"
       - uses: android-actions/setup-android@v3
+        with:
+          # Default list includes the removed legacy "tools" package; install only what the build needs.
+          packages: "platform-tools platforms;android-35 build-tools;35.0.0"
       - name: Unit tests and debug APK
         run: |
           chmod +x gradlew
