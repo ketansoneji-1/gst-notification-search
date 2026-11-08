@@ -514,6 +514,185 @@ window.AARTIS = [
     meaning: 'Forty verses (chaupais) in praise of Hanuman, recited especially on Tuesdays and Saturdays. Having cleaned the mirror of the mind with the dust of the Guru\'s lotus feet, Tulsidas describes the pure glory of Ram. Knowing himself to be without wisdom, he remembers the Son of the Wind and asks for strength, intelligence and knowledge. The verses recount Hanuman\'s deeds: messenger of Ram, son of Anjani and Kesari, who showed Sita a tiny form and burnt Lanka in a huge one, brought Sanjivani to revive Lakshman, helped Sugriva and Vibhishan, and guards the door of Ram. Ghosts and evil spirits do not come near one who chants His name; He removes disease, pain and crisis, and grants the eight siddhis and nine treasures. The closing doha asks Hanuman to dwell in the heart along with Ram, Lakshman and Sita.'
   },
 
+  {
+    id: 'ganapati-atharvashirsha', type: 'stuti', deity: 'ganesh', tag: 'Ganapati Path', lang: 'sa', script: 'deva',
+    title: 'श्री गणपति अथर्वशीर्ष', en: 'Ganapati Atharvashirsha (Ganapati Path)', by: 'Atharva Veda (Ganapati Upanishad)',
+    text: `# शान्ति पाठ
+ॐ भद्रं कर्णेभिः शृणुयाम देवाः ।
+भद्रं पश्येमाक्षभिर्यजत्राः ।
+स्थिरैरङ्गैस्तुष्टुवांसस्तनूभिः ।
+व्यशेम देवहितं यदायुः ॥
+स्वस्ति न इन्द्रो वृद्धश्रवाः ।
+स्वस्ति नः पूषा विश्ववेदाः ।
+स्वस्ति नस्तार्क्ष्यो अरिष्टनेमिः ।
+स्वस्ति नो बृहस्पतिर्दधातु ॥
+ॐ शान्तिः शान्तिः शान्तिः ॥
+
+# उपनिषत्
+ॐ नमस्ते गणपतये ।
+त्वमेव प्रत्यक्षं तत्त्वमसि ।
+त्वमेव केवलं कर्ताऽसि ।
+त्वमेव केवलं धर्ताऽसि ।
+त्वमेव केवलं हर्ताऽसि ।
+त्वमेव सर्वं खल्विदं ब्रह्मासि ।
+त्वं साक्षादात्माऽसि नित्यम् ॥१॥
+
+ऋतं वच्मि । सत्यं वच्मि ॥२॥
+
+अव त्वं माम् । अव वक्तारम् ।
+अव श्रोतारम् । अव दातारम् ।
+अव धातारम् । अवानूचानमव शिष्यम् ।
+अव पश्चात्तात् । अव पुरस्तात् ।
+अवोत्तरात्तात् । अव दक्षिणात्तात् ।
+अव चोर्ध्वात्तात् । अवाधरात्तात् ।
+सर्वतो मां पाहि पाहि समन्तात् ॥३॥
+
+त्वं वाङ्मयस्त्वं चिन्मयः ।
+त्वमानन्दमयस्त्वं ब्रह्ममयः ।
+त्वं सच्चिदानन्दाद्वितीयोऽसि ।
+त्वं प्रत्यक्षं ब्रह्मासि ।
+त्वं ज्ञानमयो विज्ञानमयोऽसि ॥४॥
+
+सर्वं जगदिदं त्वत्तो जायते ।
+सर्वं जगदिदं त्वत्तस्तिष्ठति ।
+सर्वं जगदिदं त्वयि लयमेष्यति ।
+सर्वं जगदिदं त्वयि प्रत्येति ।
+त्वं भूमिरापोऽनलोऽनिलो नभः ।
+त्वं चत्वारि वाक्पदानि ॥५॥
+
+त्वं गुणत्रयातीतः । त्वं अवस्थात्रयातीतः ।
+त्वं देहत्रयातीतः । त्वं कालत्रयातीतः ।
+त्वं मूलाधारस्थितोऽसि नित्यम् ।
+त्वं शक्तित्रयात्मकः ।
+त्वां योगिनो ध्यायन्ति नित्यम् ।
+त्वं ब्रह्मा त्वं विष्णुस्त्वं रुद्रस्त्वमिन्द्रस्त्वमग्निस्त्वं वायुस्त्वं सूर्यस्त्वं चन्द्रमास्त्वं ब्रह्म भूर्भुवः स्वरोम् ॥६॥
+
+गणादिं पूर्वमुच्चार्य वर्णादींस्तदनन्तरम् ।
+अनुस्वारः परतरः । अर्धेन्दुलसितम् । तारेण ऋद्धम् ।
+एतत्तव मनुस्वरूपम् ।
+गकारः पूर्वरूपम् । अकारो मध्यमरूपम् ।
+अनुस्वारश्चान्त्यरूपम् । बिन्दुरुत्तररूपम् ।
+नादः सन्धानम् । संहिता सन्धिः ।
+सैषा गणेशविद्या । गणक ऋषिः ।
+निचृद्गायत्री छन्दः । गणपतिर्देवता ।
+ॐ गं गणपतये नमः ॥७॥
+
+# गणेश गायत्री
+एकदन्ताय विद्महे । वक्रतुण्डाय धीमहि ।
+तन्नो दन्तिः प्रचोदयात् ॥८॥
+
+# ध्यानम्
+एकदन्तं चतुर्हस्तं पाशमङ्कुशधारिणम् ।
+रदं च वरदं हस्तैर्बिभ्राणं मूषकध्वजम् ।
+रक्तं लम्बोदरं शूर्पकर्णकं रक्तवाससम् ।
+रक्तगन्धानुलिप्ताङ्गं रक्तपुष्पैः सुपूजितम् ।
+भक्तानुकम्पिनं देवं जगत्कारणमच्युतम् ।
+आविर्भूतं च सृष्ट्यादौ प्रकृतेः पुरुषात्परम् ।
+एवं ध्यायति यो नित्यं स योगी योगिनां वरः ॥९॥
+
+नमो व्रातपतये । नमो गणपतये ।
+नमः प्रमथपतये ।
+नमस्तेऽस्तु लम्बोदरायैकदन्ताय विघ्ननाशिने शिवसुताय वरदमूर्तये नमः ॥१०॥
+
+# फलश्रुति
+एतदथर्वशीर्षं योऽधीते । स ब्रह्मभूयाय कल्पते ।
+स सर्वविघ्नैर्न बाध्यते । स सर्वतः सुखमेधते ।
+स पञ्चमहापापात्प्रमुच्यते ।
+सायमधीयानो दिवसकृतं पापं नाशयति ।
+प्रातरधीयानो रात्रिकृतं पापं नाशयति ।
+सायं प्रातः प्रयुञ्जानो अपापो भवति ।
+सर्वत्राधीयानोऽपविघ्नो भवति ।
+धर्मार्थकाममोक्षं च विन्दति ॥११॥
+
+इदमथर्वशीर्षमशिष्याय न देयम् ।
+यो यदि मोहाद्दास्यति स पापीयान् भवति ।
+सहस्रावर्तनाद्यं यं काममधीते तं तमनेन साधयेत् ॥१२॥
+
+अनेन गणपतिमभिषिञ्चति स वाग्मी भवति ।
+चतुर्थ्यामनश्नन् जपति स विद्यावान् भवति ।
+इत्यथर्वणवाक्यम् ।
+ब्रह्माद्यावरणं विद्यात् । न बिभेति कदाचनेति ॥१३॥
+
+यो दूर्वाङ्कुरैर्यजति स वैश्रवणोपमो भवति ।
+यो लाजैर्यजति स यशोवान् भवति । स मेधावान् भवति ।
+यो मोदकसहस्रेण यजति स वाञ्छितफलमवाप्नोति ।
+यः साज्यसमिद्भिर्यजति स सर्वं लभते स सर्वं लभते ॥१४॥
+
+अष्टौ ब्राह्मणान् सम्यग्ग्राहयित्वा सूर्यवर्चस्वी भवति ।
+सूर्यग्रहे महानद्यां प्रतिमासंनिधौ वा जप्त्वा सिद्धमन्त्रो भवति ।
+महाविघ्नात्प्रमुच्यते । महादोषात्प्रमुच्यते । महापापात्प्रमुच्यते ।
+स सर्वविद्भवति स सर्वविद्भवति ।
+य एवं वेद । इत्युपनिषत् ॥१५॥
+
+# शान्ति पाठ
+ॐ भद्रं कर्णेभिः शृणुयाम देवाः ।
+भद्रं पश्येमाक्षभिर्यजत्राः ।
+स्थिरैरङ्गैस्तुष्टुवांसस्तनूभिः ।
+व्यशेम देवहितं यदायुः ॥
+स्वस्ति न इन्द्रो वृद्धश्रवाः ।
+स्वस्ति नः पूषा विश्ववेदाः ।
+स्वस्ति नस्तार्क्ष्यो अरिष्टनेमिः ।
+स्वस्ति नो बृहस्पतिर्दधातु ॥
+ॐ शान्तिः शान्तिः शान्तिः ॥`,
+    meaning: 'The Ganapati Atharvashirsha is a short Upanishad of the Atharva Veda and the standard "Ganapati path", recited on Sankashti and Vinayaka Chaturthi, during Ganeshotsav (often 21 times) and before new undertakings. It opens and closes with the Shanti Path "Bhadram karnebhih": may we hear and see only what is auspicious. The core text declares that Ganapati is the visible form of the ultimate truth: He alone creates, sustains and dissolves; He is Brahman and the eternal Self. The devotee asks for protection of the speaker, listener, giver, teacher and student from every direction. Ganapati is described as made of speech, consciousness and bliss; the whole universe arises from Him, rests in Him and dissolves into Him. He is beyond the three gunas, the three states, the three bodies and the three times, and resides in the Muladhara. Verse 7 explains His seed mantra "Om Gam Ganapataye Namah", verse 8 is the Ganesh Gayatri, and verse 9 is the meditation on His form: one tusk, four hands holding noose, goad, tusk and the boon-giving gesture, red in colour, big-bellied, with the mouse as His emblem. The phala-shruti (verses 11-15) says that one who studies it is freed from obstacles and sins, gains the four aims of life (dharma, artha, kama, moksha), and that offerings of durva grass, puffed rice and modaks bring prosperity, fame and fulfilment of wishes.'
+  },
+  {
+    id: 'gayatri-chalisa', type: 'stuti', deity: 'surya', tag: 'Chalisa', lang: 'hi', script: 'deva',
+    title: 'श्री गायत्री चालीसा', en: 'Shri Gayatri Chalisa',
+    text: `# दोहा
+ह्रीं श्रीं क्लीं मेधा प्रभा, जीवन ज्योति प्रचण्ड
+शान्ति कान्ति जागृत प्रगति, रचना शक्ति अखण्ड
+जगत जननि मङ्गल करनि, गायत्री सुखधाम
+प्रणवों सावित्री स्वधा, स्वाहा पूरन काम
+
+# चौपाई
+भूर्भुवः स्वः ॐ युत जननी, गायत्री नित कलिमल दहनी
+अक्षर चौविस परम पुनीता, इनमें बसें शास्त्र श्रुति गीता
+शाश्वत सतोगुणी सत रूपा, सत्य सनातन सुधा अनूपा
+हंसारूढ सितम्बर धारी, स्वर्ण कान्ति शुचि गगन बिहारी
+पुस्तक पुष्प कमण्डलु माला, शुभ्र वर्ण तनु नयन विशाला
+ध्यान धरत पुलकित हिय होई, सुख उपजत दुःख दुर्मति खोई
+कामधेनु तुम सुर तरु छाया, निराकार की अद्भुत माया
+तुम्हरी शरण गहै जो कोई, तरै सकल संकट सों सोई
+सरस्वती लक्ष्मी तुम काली, दिपै तुम्हारी ज्योति निराली
+तुम्हरी महिमा पार न पावैं, जो शारद शत मुख गुन गावैं
+चार वेद की मात पुनीता, तुम ब्रह्माणी गौरी सीता
+महामन्त्र जितने जग माहीं, कोउ गायत्री सम नाहीं
+सुमिरत हिय में ज्ञान प्रकासै, आलस पाप अविद्या नासै
+सृष्टि बीज जग जननि भवानी, कालरात्रि वरदा कल्याणी
+ब्रह्मा विष्णु रुद्र सुर जेते, तुम सों पावें सुरता तेते
+तुम भक्तन की भक्त तुम्हारे, जननिहिं पुत्र प्राण ते प्यारे
+महिमा अपरम्पार तुम्हारी, जय जय जय त्रिपदा भयहारी
+पूरित सकल ज्ञान विज्ञाना, तुम सम अधिक न जग में आना
+तुमहिं जानि कछु रहै न शेषा, तुमहिं पाय कछु रहै न क्लेसा
+जानत तुमहिं तुमहिं ह्वै जाई, पारस परसि कुधातु सुहाई
+तुम्हरी शक्ति दिपै सब ठाई, माता तुम सब ठौर समाई
+ग्रह नक्षत्र ब्रह्माण्ड घनेरे, सब गतिवान तुम्हारे प्रेरे
+सकल सृष्टि की प्राण विधाता, पालक पोषक नाशक त्राता
+मातेश्वरी दया व्रत धारी, तुम सन तरे पातकी भारी
+जापर कृपा तुम्हारी होई, तापर कृपा करें सब कोई
+मंद बुद्धि ते बुधि बल पावें, रोगी रोग रहित हो जावें
+दरिद्र मिटै कटै सब पीरा, नाशै दुःख हरै भव भीरा
+गृह क्लेश चित चिन्ता भारी, नासै गायत्री भय हारी
+सन्तति हीन सुसन्तति पावें, सुख संपति युत मोद मनावें
+भूत पिशाच सबै भय खावें, यम के दूत निकट नहिं आवें
+जो सधवा सुमिरें चित लाई, अछत सुहाग सदा सुखदाई
+घर वर सुख प्रद लहैं कुमारी, विधवा रहें सत्य व्रत धारी
+जयति जयति जगदंब भवानी, तुम सम और दयालु न दानी
+जो सतगुरु सो दीक्षा पावे, सो साधन को सफल बनावे
+सुमिरन करे सुरुचि बड़भागी, लहै मनोरथ गृही विरागी
+अष्ट सिद्धि नवनिधि की दाता, सब समर्थ गायत्री माता
+ऋषि मुनि यती तपस्वी योगी, आरत अर्थी चिन्तित भोगी
+जो जो शरण तुम्हारी आवें, सो सो मन वांछित फल पावें
+बल बुधि विद्या शील स्वभाउ, धन वैभव यश तेज उछाउ
+सकल बढ़ें उपजें सुख नाना, जे यह पाठ करै धरि ध्याना
+
+# दोहा
+यह चालीसा भक्ति युत, पाठ करै जो कोई
+तापर कृपा प्रसन्नता, गायत्री की होय`,
+    meaning: 'Forty verses in praise of Gayatri Mata, the goddess of the Gayatri Mantra and mother of the four Vedas. The opening doha invokes Her as intelligence, radiance, the blazing light of life, peace and unbroken creative power. The chaupais describe Her twenty-four sacred syllables, in which the scriptures, Vedas and Gita reside; Her form riding a swan, clothed in white, holding a book, flower, kamandalu and rosary; and Her identity with Saraswati, Lakshmi, Kali, Brahmani, Gauri and Sita. No mantra in the world equals the Gayatri: remembering it lights up knowledge and destroys laziness, sin and ignorance. She guides the planets and stars, and creates, sustains and dissolves all creation. Her grace gives intelligence to the dull, health to the sick, relief from poverty, household peace and good children, and keeps away fear and evil spirits. Sages, yogis, the suffering and the seekers who take refuge in Her receive what they desire. The closing doha says that whoever recites this Chalisa with devotion receives Gayatri Mata\'s grace.'
+  },
+
   /* ============================ BHAJAN ============================ */
   {
     id: 'vaishnav-jan-to', type: 'bhajan', deity: 'universal', lang: 'gu', script: 'gu',

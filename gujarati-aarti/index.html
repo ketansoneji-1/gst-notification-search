@@ -6,6 +6,11 @@
 <title>Aarti Sangrah</title>
 <meta name="claude:viewport-fit-sides" content="cover">
 <meta name="description" content="Gujarati Aarti, Stuti, Bhajan, Shlok and Mantra collection in Gujarati script with English transliteration, meanings and audio read-aloud.">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#1E1A38">
+<link rel="apple-touch-icon" href="icons/icon-192.png">
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+Bhai+2:wght@500;700&family=Hind+Vadodara:wght@400;500;600&family=Noto+Serif+Gujarati:wght@400;600&display=swap">
@@ -48,13 +53,16 @@ header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background
 
 .wrap{display:grid;grid-template-columns:340px minmax(0,1fr);max-width:1240px;margin:0 auto;min-height:calc(100vh - 70px)}
 aside.lib{border-right:1px solid var(--line);padding-block:14px;
-  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:16px;display:flex;flex-direction:column;gap:12px}
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:16px;display:flex;flex-direction:column;gap:12px;min-width:0}
 .search{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
 .tabs,.chips{display:flex;flex-wrap:wrap;gap:6px}
 .tab{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 12px;font-size:.88rem}
 .tab[aria-pressed="true"]{background:var(--brass);border-color:var(--brass);color:var(--brass-ink);font-weight:600}
 .chip{border:1px dashed var(--line);background:transparent;border-radius:6px;padding:2px 8px;font-size:.8rem;color:var(--muted)}
 .chip[aria-pressed="true"]{border-style:solid;border-color:var(--ink);color:var(--ink);background:var(--sel)}
+.quick{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px}
+.quick button{flex:none;border:1px solid var(--brass);background:var(--brass-soft);color:var(--ink);border-radius:8px;padding:6px 10px;font:600 .9rem/1.2 var(--f-verse)}
+.quick button small{display:block;font:500 .7rem/1.2 var(--f-ui);color:var(--muted)}
 .label{font-size:.72rem;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);font-weight:600}
 .count{font-size:.82rem;color:var(--muted)}
 ul.list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
@@ -110,7 +118,7 @@ p.title-en{margin:.15rem 0 0;font-size:1.05rem;color:var(--muted)}
 .player input[type=checkbox]{accent-color:var(--brass)}
 
 @media (max-width:860px){
-  .wrap{grid-template-columns:1fr}
+  .wrap{grid-template-columns:minmax(0,1fr)}
   aside.lib{border-right:0;padding-right:max(16px,env(safe-area-inset-right,0px))}
   main.reader{padding-left:max(16px,env(safe-area-inset-left,0px))}
   body.reading aside.lib{display:none}
@@ -133,6 +141,7 @@ p.title-en{margin:.15rem 0 0;font-size:1.05rem;color:var(--muted)}
       <h1>આરતી સંગ્રહ<small>Aarti · Stuti · Shlok · Mantra</small></h1>
     </div>
     <div class="top-actions">
+      <button class="icon-btn" id="installBtn" type="button" hidden>⬇ Install app</button>
       <button class="icon-btn" id="themeBtn" type="button" aria-label="Switch light or dark theme">Theme</button>
     </div>
   </div>
@@ -141,6 +150,10 @@ p.title-en{margin:.15rem 0 0;font-size:1.05rem;color:var(--muted)}
 <div class="wrap">
   <aside class="lib" aria-label="Library">
     <input class="search" id="q" type="search" placeholder="Search: Ambe, Ganesh, ગાયત્રી, Gita…" autocomplete="off">
+    <div>
+      <div class="label">Quick open · ઝટપટ</div>
+      <div class="quick" id="quick" style="margin-top:6px"></div>
+    </div>
     <div class="tabs" id="typeTabs" role="group" aria-label="Type"></div>
     <div>
       <div class="label">Deity / દેવતા</div>
@@ -446,6 +459,28 @@ p.title-en{margin:.15rem 0 0;font-size:1.05rem;color:var(--muted)}
     var next = cur === 'dark' ? 'light' : 'dark';
     document.documentElement.setAttribute('data-theme', next); save('theme', next);
   };
+
+  /* ---------- quick access ---------- */
+  ['hanuman-chalisa','ganapati-atharvashirsha','gayatri-chalisa','jay-adhyashakti','jay-jagdish-hare'].forEach(function(id){
+    var a = DATA.find(function(x){ return x.id === id; }); if (!a) return;
+    var b = document.createElement('button'); b.type = 'button';
+    b.textContent = a.titleGu.replace('શ્રી ','');
+    var sm = document.createElement('small'); sm.textContent = a.en.replace(/\s*\(.*\)/,''); b.appendChild(sm);
+    b.onclick = function(){ location.hash = a.id; };
+    $('quick').appendChild(b);
+  });
+
+  /* ---------- install as app (PWA) ---------- */
+  var deferredInstall = null;
+  window.addEventListener('beforeinstallprompt', function(e){ e.preventDefault(); deferredInstall = e; $('installBtn').hidden = false; });
+  $('installBtn').onclick = function(){
+    if (!deferredInstall) return;
+    deferredInstall.prompt();
+    deferredInstall.userChoice.finally(function(){ deferredInstall = null; $('installBtn').hidden = true; });
+  };
+  if ('serviceWorker' in navigator && location.protocol === 'https:'){
+    navigator.serviceWorker.register('sw.js').catch(function(){});
+  }
 
   $('q').addEventListener('input', function(e){ state.q = e.target.value; renderList(); });
   window.addEventListener('hashchange', route);
