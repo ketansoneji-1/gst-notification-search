@@ -69,7 +69,7 @@ class Prefs(context: Context) {
 class L(private val gu: Boolean, private val h24: Boolean) {
 
     fun t(guText: String, enText: String): String = if (gu) digits(guText) else enText
-    fun n(name: Name): String = if (gu) name.gu else name.en
+    fun n(name: Name): String = if (gu) digits(name.gu) else name.en
 
     /** Converts ASCII digits to Gujarati digits in Gujarati mode. */
     fun digits(s: String): String {

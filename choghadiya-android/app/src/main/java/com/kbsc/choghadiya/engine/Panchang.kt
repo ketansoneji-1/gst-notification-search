@@ -55,14 +55,16 @@ data class Panchang(
     val gulikaKaal: TimeRange,
     val yamaganda: TimeRange,
     val abhijit: TimeRange?,    // traditionally not applicable on Wednesday
-    val festivals: List<Name>,
+    val festivals: List<Festival>,
 )
 
 /**
  * Light-weight day summary for the month calendar. [kshayaTithi] is a tithi that begins and
  * ends between this sunrise and the next (it is "skipped" as an udaya tithi but observed today).
  */
-data class DaySummary(val date: LocalDate, val lunar: LunarDate, val kshayaTithi: Int?, val festivals: List<Name>)
+data class DaySummary(val date: LocalDate, val lunar: LunarDate, val kshayaTithi: Int?, val festivals: List<Festival>) {
+    val isMajor: Boolean get() = festivals.any { it.category == FestivalCategory.MAJOR }
+}
 
 object PanchangCalculator {
 
@@ -128,7 +130,7 @@ object PanchangCalculator {
             gulikaKaal = dayPart(day.sunrise, day.sunset, GULIKA_PART[w]),
             yamaganda = dayPart(day.sunrise, day.sunset, YAMAGANDA_PART[w]),
             abhijit = if (w == 3) null else abhijit(day.sunrise, day.sunset),
-            festivals = festivals(lunar, sankranti, kshaya(lunar.tithi, tithis)),
+            festivals = festivals(date, loc, zenith, lunar, kshaya(lunar.tithi, tithis)),
         )
     }
 
@@ -137,12 +139,9 @@ object PanchangCalculator {
         val riseJd = Astro.jdUT(day.sunrise.toInstant())
         val nextJd = Astro.jdUT(day.nextSunrise.toInstant())
         val lunar = lunarDate(riseJd, loc.zoneId)
-        val s0 = floor(Astro.sunSidereal(riseJd) / RASHI).toInt()
-        val s1 = floor(Astro.sunSidereal(nextJd) / RASHI).toInt()
-        val sankranti = if (s0 != s1) Period((s0 + 1) % 12, Names.rashi[(s0 + 1) % 12], day.sunrise) else null
         val nextTithi = floor(Astro.elongation(nextJd) / TITHI).toInt().coerceIn(0, 29)
         val ksh = if ((nextTithi - lunar.tithi + 30) % 30 == 2) (lunar.tithi + 1) % 30 else null
-        return DaySummary(date, lunar, ksh, festivals(lunar, sankranti, ksh))
+        return DaySummary(date, lunar, ksh, festivals(date, loc, zenith, lunar, ksh))
     }
 
     /** Lunar month and year for the Hindu day whose sunrise is [riseJd]. */
@@ -217,22 +216,21 @@ object PanchangCalculator {
     private fun kshaya(udaya: Int, tithis: List<Period>): Int? =
         if (tithis.size >= 3) tithis[1].index.takeIf { it != udaya } else null
 
-    private fun festivals(l: LunarDate, sankranti: Period?, kshaya: Int? = null): List<Name> {
-        val out = mutableListOf<Name>()
-        if (kshaya != null) tithiFestival(kshaya, out)
-        tithiFestival(l.tithi, out)
-        if (sankranti != null) {
-            out += if (sankranti.index == 9) Name("મકર સંક્રાંતિ (ઉત્તરાયણ)", "Makar Sankranti (Uttarayan)")
-            else Name("${sankranti.name.gu} સંક્રાંતિ", "${sankranti.name.en.substringBefore(" (")} Sankranti")
-        }
-        if (l.monthIndex == 8 && (l.tithi == 0 || kshaya == 0) && !l.isAdhik) out += Name("નૂતન વર્ષ (બેસતું વર્ષ)", "Gujarati New Year")
-        if (l.isAdhik) out += Name("અધિક માસ (પુરુષોત્તમ માસ)", "Adhik Maas (Purushottam Maas)")
-        return out.distinct()
+    /**
+     * Festivals of the day from [FestivalCalculator] plus the monthly observances
+     * (Purnima, Amas, Chaturthi, Pradosh) of the udaya tithi and of a kshaya tithi.
+     */
+    private fun festivals(date: LocalDate, loc: Location, zenith: Double, l: LunarDate, kshaya: Int?): List<Festival> {
+        val names = mutableListOf<Name>()
+        if (kshaya != null) tithiFestival(kshaya, names)
+        tithiFestival(l.tithi, names)
+        val year = FestivalCalculator.on(date, loc, zenith)
+        val monthly = names.distinct().map { Festival(date, it, FestivalCategory.MONTHLY) }
+        return year + monthly
     }
 
     private fun tithiFestival(tithi: Int, out: MutableList<Name>) {
         when (tithi) {
-            10, 25 -> out += Name("એકાદશી", "Ekadashi")
             14 -> out += Name("પૂનમ", "Purnima")
             29 -> out += Name("અમાસ", "Amavasya")
             3 -> out += Name("વિનાયક ચોથ", "Vinayaka Chaturthi")

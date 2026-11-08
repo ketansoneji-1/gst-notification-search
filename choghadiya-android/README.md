@@ -7,6 +7,7 @@ An offline Android app for the Gujarati **Choghadiya** (ચોઘડિયા) a
 |---|---|
 | **Choghadiya** (home) | 8 day + 8 night Choghadiya with colour coding, the running one highlighted, time left, next auspicious Choghadiya, sunrise, sunset, Rahu Kaal, and the Gujarati date |
 | **📖 Full Panchang** | Gujarati date (month, paksha, tithi), English date, Vikram Samvat (Kartik-based), Shaka Samvat, Ritu, Ayana, special days; the five limbs (Vaar, Tithi, Nakshatra, Yoga, Karana) with end times; sunrise, sunset, moonrise, moonset, day and night length, Sun and Moon rashi, Sankranti; Abhijit Muhurat, Rahu Kaal, Yamaganda, Gulika Kaal |
+| **🪔 Festivals** | All festivals and important days of any year, month by month, with filters Main / Vrat-Ekadashi / All; tap a day for its Panchang |
 | **📅 Calendar** | Month grid: English date + Gujarati tithi; Purnima/Amavasya, Ekadashi and other special days in colour; list of the month's special days; tap a date to open its Panchang |
 
 Menu: **English / ગુજરાતી** switch (Gujarati mode also uses Gujarati digits), place (51 presets or custom latitude/longitude), 12/24-hour time, sunrise method, About.
@@ -49,7 +50,26 @@ Night:
 | Fri | Rog | Kaal | Labh | Udveg | Shubh | Amrut | Char | Rog |
 | Sat | Labh | Udveg | Shubh | Amrut | Char | Rog | Kaal | Labh |
 
+## Festivals and important days
+Calculated every year by rule, using the Gujarati (Amanta) month and tithi together with the classical observance time (Nirnayasindhu / Dharmasindhu). No year tables are used.
+
+| Rule | Festivals |
+|---|---|
+| Tithi at sunrise (Udaya) | Chaitra Navratri / Gudi Padwa / Cheti Chand, Mahavir & Hanuman Jayanti, Akshaya Tritiya, Ganga Dussehra, Vat Purnima, Ashadhi Bij (Rath Yatra), Gauri Vrat, Jaya Parvati, Guru Purnima, Divaso, Raksha Bandhan, Bol Choth, Nag Pancham, Randhan Chhath, Shitala Satam, Janmashtami (Gujarat Vaishnav practice), Rishi Panchami, Anant Chaturdashi, Shraddha, Sarva Pitru Amas, Sharad Navratri, Durga Ashtami, Maha Navami, Karva Chauth, Gujarati New Year, Labh Pancham, Tulsi Vivah, Dev Diwali, Gita & Datta Jayanti, Vasant Panchami, all 24 (+2 Adhik) named Ekadashis |
+| Midday (Madhyahna) | Ram Navami, Ganesh Chaturthi |
+| Afternoon (Aparahna) | Dussehra, Bhai Bij |
+| Evening (Pradosh) | Vagh Baras, Dhanteras, Diwali (Lakshmi Puja), Sharad Purnima, Narasimha Jayanti, Holika Dahan (moves to the next day when Purnima lasts beyond 3 prahars) |
+| Midnight (Nishita) | Kali Chaudas, Maha Shivratri |
+| Derived | Dhuleti (day after Holika Dahan), Navratri day 1–9, Vasi Uttarayan, Shravan month and Adhik Maas start |
+| Solar | Makar Sankranti / Uttarayan and the other 11 Sankrantis |
+| Fixed dates | New Year's Day, Republic Day, Ambedkar Jayanti, Gujarat Day, Independence Day, Gandhi Jayanti, Sardar Patel Jayanti, Christmas; Good Friday (Easter rule) |
+| Monthly | Purnima, Amas, Vinayaka & Sankashti Chaturthi, Pradosh |
+
+For windowed rules the day on which the tithi covers more of the window is chosen; a tithi that touches no sunrise (kshaya) is observed on the day it occurs.
+Not included: festivals fixed by moon sighting (Eid, Muharram), Jain Paryushan/Samvatsari (Jain tithi rules), and state holiday lists. Check these with local announcements.
+
 ## Accuracy (tested)
+- **Festival dates:** 41 published dates for 2025–2026 match, including Holi, Navratri, Dussehra, Dhanteras, Diwali, New Year, Bhai Bij, Janmashtami, Ganesh Chaturthi, Rakhi, Rath Yatra and Shivratri. For every year from 2026 to 2046, each major festival occurs exactly once and in the right order, Dussehra falls 8–11 days after Navratri starts, and Makar Sankranti falls on 13–16 January.
 - **Swiss Ephemeris cross-check, 2026–2046:** 208 dates for Ahmedabad (one every 37 days). Worst difference: tithi end 17 s, nakshatra end 15 s, moonrise 15 s; sunrise and sunset within 60 s. The tithi, nakshatra and yoga index matches on every date.
 - **Known dates:** Gujarati New Year 22 Oct 2025 (VS 2082) and 10 Nov 2026 (VS 2083); Diwali 8 Nov 2026 (Chaturdashi at sunrise, Amavasya begins that day); Adhik Jyeshtha 2026; Makar Sankranti in mid January.
 - **Every day 2026–2046:** the tithi never jumps by more than one skipped tithi, the samvat never goes backwards, 7–8 Adhik months occur in the 21 years, and every fortnight's Ekadashi is marked.

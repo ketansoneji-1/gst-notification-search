@@ -62,6 +62,9 @@ class MainActivity : BaseActivity() {
         b.calendarButton.setOnClickListener {
             startActivity(Intent(this, CalendarActivity::class.java).putExtra(EXTRA_EPOCH_DAY, selectedDate.toEpochDay()))
         }
+        b.festivalsButton.setOnClickListener {
+            startActivity(Intent(this, FestivalsActivity::class.java).putExtra(EXTRA_EPOCH_DAY, selectedDate.toEpochDay()))
+        }
     }
 
     override fun onNewIntent(intent: Intent) {
@@ -94,6 +97,7 @@ class MainActivity : BaseActivity() {
         b.todayButton.text = l.t("આજે", "Today")
         b.panchangButton.text = l.t("📖 સંપૂર્ણ પંચાંગ", "📖 Full Panchang")
         b.calendarButton.text = l.t("📅 કેલેન્ડર", "📅 Calendar")
+        b.festivalsButton.text = l.t("🪔 તહેવારો", "🪔 Festivals")
         b.nowTitle.text = l.t("હાલનું ચોઘડિયું", "Current Choghadiya")
         b.dayTitle.text = l.t("☀ દિવસના ચોઘડિયા", "☀ Day Choghadiya")
         b.nightTitle.text = l.t("☾ રાત્રિના ચોઘડિયા", "☾ Night Choghadiya")
@@ -115,6 +119,8 @@ class MainActivity : BaseActivity() {
                 val ln = summary.lunar
                 append("\n")
                 append(if (prefs.gujarati) l.digits("${ln.longGu()}, વિ.સં. ${ln.vikramSamvat}") else "${ln.longEn()}, VS ${ln.vikramSamvat}")
+                val main = summary.festivals.filter { it.category != com.kbsc.choghadiya.engine.FestivalCategory.MONTHLY }
+                if (main.isNotEmpty()) append("\n🪔 ").append(main.joinToString(", ") { l.n(it.name) })
             }
         }
 

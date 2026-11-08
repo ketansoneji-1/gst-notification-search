@@ -35,6 +35,10 @@
             android:exported="false"
             android:parentActivityName=".ui.MainActivity" />
         <activity
+            android:name=".ui.FestivalsActivity"
+            android:exported="false"
+            android:parentActivityName=".ui.MainActivity" />
+        <activity
             android:name=".ui.CalendarActivity"
             android:exported="false"
             android:parentActivityName=".ui.MainActivity" />

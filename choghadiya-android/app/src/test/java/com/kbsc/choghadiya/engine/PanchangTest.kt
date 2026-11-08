@@ -87,7 +87,7 @@ class PanchangTest {
         assertEquals(8, ny.lunar.monthIndex)
         assertEquals(0, ny.lunar.tithi)
         assertEquals(2083, ny.lunar.vikramSamvat)
-        assertTrue(ny.festivals.any { it.en == "Gujarati New Year" })
+        assertTrue(ny.festivals.any { it.name.en.startsWith("Gujarati New Year") })
     }
 
     @Test
@@ -119,8 +119,8 @@ class PanchangTest {
         val s = PanchangCalculator.summary(LocalDate.of(2026, 11, 20), ahmedabad)!!
         assertEquals(9, s.lunar.tithi)
         assertEquals(10, s.kshayaTithi)
-        assertTrue(s.festivals.any { it.en == "Ekadashi" })
-        assertTrue(p(2026, 11, 20).festivals.any { it.en == "Ekadashi" })
+        assertTrue(s.festivals.any { it.name.en.endsWith("Ekadashi") })
+        assertTrue(p(2026, 11, 20).festivals.any { it.name.en.endsWith("Ekadashi") })
     }
 
     @Test
@@ -129,7 +129,7 @@ class PanchangTest {
         var date = LocalDate.of(2026, 1, 1)
         var flagged = 0
         while (date.isBefore(LocalDate.of(2047, 1, 1))) {
-            if (PanchangCalculator.summary(date, ahmedabad)!!.festivals.any { it.en == "Ekadashi" }) flagged++
+            if (PanchangCalculator.summary(date, ahmedabad)!!.festivals.any { it.name.en.endsWith("Ekadashi") }) flagged++
             date = date.plusDays(1)
         }
         val fortnights = 21 * 365.25 / 14.765

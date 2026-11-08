@@ -83,7 +83,7 @@ class PanchangActivity : BaseActivity() {
         head.add(l.t("પક્ષ", "Paksha"), l.n(ln.paksha) + l.t(" પક્ષ", " Paksha"))
         head.add(l.t("ઋતુ", "Ritu"), l.n(ln.ritu))
         head.add(l.t("અયન", "Ayana"), l.n(p.ayana))
-        if (p.festivals.isNotEmpty()) head.add(l.t("વિશેષ", "Special"), p.festivals.joinToString(", ") { l.n(it) }, R.color.saffron_dark)
+        if (p.festivals.isNotEmpty()) head.add(l.t("વિશેષ", "Special"), p.festivals.joinToString("\n") { "• " + l.n(it.name) }, R.color.saffron_dark)
 
         // ---- Five limbs
         val pa = card(l.t("પંચાંગના પાંચ અંગ", "Five limbs of the Panchang"))

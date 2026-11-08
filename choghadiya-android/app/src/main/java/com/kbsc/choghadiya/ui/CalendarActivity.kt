@@ -79,8 +79,8 @@ class CalendarActivity : BaseActivity() {
         }
 
         b.legend.text = l.t(
-            "ખાનામાં: અંગ્રેજી તારીખ અને સૂર્યોદય સમયની ગુજરાતી તિથિ. 🟠 પૂનમ/અમાસ  🟢 એકાદશી  🔵 સંક્રાંતિ/અન્ય. તારીખ પર ટૅપ કરી સંપૂર્ણ પંચાંગ જુઓ.",
-            "Each box: English date and the Gujarati tithi at sunrise. 🟠 Purnima/Amavasya  🟢 Ekadashi  🔵 Sankranti/other. Tap a date for the full Panchang.",
+            "ખાનામાં: અંગ્રેજી તારીખ અને સૂર્યોદય સમયની ગુજરાતી તિથિ. 🟧 મુખ્ય તહેવાર  🟠 પૂનમ/અમાસ  🟢 એકાદશી  🔵 વ્રત/સંક્રાંતિ/અન્ય. તારીખ પર ટૅપ કરી સંપૂર્ણ પંચાંગ જુઓ.",
+            "Each box: English date and the Gujarati tithi at sunrise. 🟧 Major festival  🟠 Purnima/Amavasya  🟢 Ekadashi  🔵 Vrat/Sankranti/other. Tap a date for the full Panchang.",
         )
 
         // List of special days in the month
@@ -88,7 +88,9 @@ class CalendarActivity : BaseActivity() {
         sums.filterNotNull().filter { it.festivals.isNotEmpty() }.forEach { s ->
             b.specialList.addView(TextView(this).apply {
                 text = l.digits("${s.date.dayOfMonth}") + "  " + (if (prefs.gujarati) s.lunar.longGu() else s.lunar.longEn()) +
-                    " — " + s.festivals.joinToString(", ") { l.n(it) }
+                    " — " + s.festivals.filter { it.category != com.kbsc.choghadiya.engine.FestivalCategory.PERIOD || !it.name.en.contains("– Day") }
+                        .joinToString(", ") { l.n(it.name) }
+                if (s.isMajor) setTypeface(typeface, Typeface.BOLD)
                 textSize = 13f
                 setPadding(0, dp(3), 0, dp(3))
                 setOnClickListener { openPanchang(s.date) }
@@ -138,7 +140,8 @@ class CalendarActivity : BaseActivity() {
         val t = s?.lunar?.tithi ?: return R.color.cell_plain
         return when {
             t == 14 || t == 29 -> R.color.cell_full_new
-            t == 10 || t == 25 || s.kshayaTithi == 10 || s.kshayaTithi == 25 -> R.color.cell_ekadashi
+            s.isMajor -> R.color.cell_festival
+            s.festivals.any { it.category == com.kbsc.choghadiya.engine.FestivalCategory.EKADASHI } -> R.color.cell_ekadashi
             s.festivals.isNotEmpty() -> R.color.cell_special
             else -> R.color.cell_plain
         }

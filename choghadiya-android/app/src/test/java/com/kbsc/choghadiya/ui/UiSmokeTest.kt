@@ -65,6 +65,9 @@ class UiSmokeTest {
     @Test fun calendarGujarati() { setLang(true); shoot(CalendarActivity::class.java, "calendar_gu") }
     @Test fun calendarEnglish() { setLang(false); shoot(CalendarActivity::class.java, "calendar_en") }
 
+    @Test fun festivalsGujarati() { setLang(true); shoot(FestivalsActivity::class.java, "festivals_gu") }
+    @Test fun festivalsEnglish() { setLang(false); shoot(FestivalsActivity::class.java, "festivals_en") }
+
     @Test fun malformedIntentExtraDoesNotCrash() {
         val intent = Intent(ctx, MainActivity::class.java).putExtra(MainActivity.EXTRA_EPOCH_DAY, Long.MAX_VALUE)
         Robolectric.buildActivity(MainActivity::class.java, intent).setup()
