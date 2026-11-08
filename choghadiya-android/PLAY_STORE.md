@@ -5,7 +5,7 @@ Everything the app side needs is prepared in this folder. Only the account, paym
 ## 1. What is ready
 | Item | File / value |
 |---|---|
-| App bundle to upload | `app-release.aab`, version 2.1.0 (code 3), target API 36, signed with your key (`choghadiya-release.jks`) |
+| App bundle to upload | `app-release.aab`, version 2.1.1 (code 4), target API 36, signed with your key (`choghadiya-release.jks`) |
 | App icon 512 × 512 | `play-store/icon-512.png` |
 | Feature graphic 1024 × 500 | `play-store/feature-graphic-1024x500.png` |
 | Phone screenshots 1080 × 1920 | `play-store/screenshots/1_…png` to `6_…png` |
@@ -50,7 +50,7 @@ Everything the app side needs is prepared in this folder. Only the account, paym
 
 **Organisation account:** you can go directly to *Production → Create new release*.
 
-In both cases: upload the AAB, release name `2.1.0`, release notes (below), *Review release → Start rollout*. Google's review usually takes from a few days to a week.
+In both cases: upload the AAB, release name `2.1.1`, release notes (below), *Review release → Start rollout*. Google's review usually takes from a few days to a week.
 
 ## 6. Store listing text (copy-paste)
 **Short description, English (max 80 characters):**
@@ -84,8 +84,8 @@ Choghadiya Panchang gives you the day's auspicious times and the full Gujarati P
 • એક ટૅપથી ગુજરાતી / English
 • ઇન્ટરનેટ નહીં, પરવાનગી નહીં, જાહેરાત નહીં, કોઈ માહિતી એકત્ર નહીં
 
-**Release notes (2.1.0):**
-First release: Choghadiya, full Gujarati Panchang, festival calendar, Gujarati and English.
+**Release notes (2.1.1):**
+First release: Choghadiya, full Gujarati Panchang, festival calendar, Gujarati and English. Search the app in English too (Choghadiya, Panchang, Calendar, Festivals).
 
 **Category:** Lifestyle · **Tags:** Calendar, Astrology, Religion
 

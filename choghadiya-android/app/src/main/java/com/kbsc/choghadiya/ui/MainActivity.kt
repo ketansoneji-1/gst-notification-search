@@ -50,6 +50,8 @@ class MainActivity : BaseActivity() {
             selectedDate = safeDate(it); followToday = false
         }
 
+        if (savedInstanceState == null) openFromShortcut(intent)
+
         b.changeLocation.setOnClickListener { chooseLocation() }
         b.locationText.setOnClickListener { chooseLocation() }
         b.prevDay.setOnClickListener { followToday = false; selectedDate = selectedDate.minusDays(1); scrollPending = true; render() }
@@ -67,8 +69,20 @@ class MainActivity : BaseActivity() {
         }
     }
 
+    /** Launcher shortcuts pass a fixed screen name; anything else is ignored. */
+    private fun openFromShortcut(i: Intent) {
+        val target = when (i.getStringExtra(EXTRA_OPEN)) {
+            "panchang" -> PanchangActivity::class.java
+            "calendar" -> CalendarActivity::class.java
+            "festivals" -> FestivalsActivity::class.java
+            else -> return
+        }
+        startActivity(Intent(this, target).putExtra(EXTRA_EPOCH_DAY, LocalDate.now().toEpochDay()))
+    }
+
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
+        openFromShortcut(intent)
         intent.getLongExtra(EXTRA_EPOCH_DAY, Long.MIN_VALUE).takeIf { it != Long.MIN_VALUE }?.let {
             selectedDate = safeDate(it); followToday = false; scrollPending = true
         }
@@ -230,6 +244,7 @@ class MainActivity : BaseActivity() {
 
     companion object {
         const val EXTRA_EPOCH_DAY = "epoch_day"
+        const val EXTRA_OPEN = "open"
 
         /** Accepts only dates in 1900-2200 so a malformed intent extra cannot crash the app. */
         fun safeDate(epochDay: Long): LocalDate {

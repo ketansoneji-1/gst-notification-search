@@ -68,6 +68,21 @@ class UiSmokeTest {
     @Test fun festivalsGujarati() { setLang(true); shoot(FestivalsActivity::class.java, "festivals_gu") }
     @Test fun festivalsEnglish() { setLang(false); shoot(FestivalsActivity::class.java, "festivals_en") }
 
+    @Test fun launcherShortcutsOpenTheirScreens() {
+        val expected = mapOf("panchang" to PanchangActivity::class.java, "calendar" to CalendarActivity::class.java,
+            "festivals" to FestivalsActivity::class.java)
+        for ((key, cls) in expected) {
+            val a = Robolectric.buildActivity(MainActivity::class.java,
+                Intent(ctx, MainActivity::class.java).putExtra(MainActivity.EXTRA_OPEN, key)).setup().get()
+            val next = org.robolectric.Shadows.shadowOf(a).nextStartedActivity
+            org.junit.Assert.assertEquals(key, cls.name, next?.component?.className)
+        }
+        // Unknown or malicious values are ignored.
+        val a = Robolectric.buildActivity(MainActivity::class.java,
+            Intent(ctx, MainActivity::class.java).putExtra(MainActivity.EXTRA_OPEN, "../../evil")).setup().get()
+        org.junit.Assert.assertNull(org.robolectric.Shadows.shadowOf(a).nextStartedActivity)
+    }
+
     @Test fun malformedIntentExtraDoesNotCrash() {
         val intent = Intent(ctx, MainActivity::class.java).putExtra(MainActivity.EXTRA_EPOCH_DAY, Long.MAX_VALUE)
         Robolectric.buildActivity(MainActivity::class.java, intent).setup()

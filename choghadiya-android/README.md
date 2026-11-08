@@ -114,7 +114,7 @@ GitHub Actions (`.github/workflows/choghadiya-android.yml`) runs the tests and l
 ## Install on a phone
 1. Uninstall any earlier test build of the app (it was signed with a different key).
 2. Copy `app-release.apk` to the phone, open it, and allow "Install unknown apps" for your file manager when asked.
-3. Open **ચોઘડિયા પંચાંગ**.
+3. Open **ચોઘડિયા પંચાંગ**. In the phone's app search you can also type **Choghadiya**, **Panchang**, **Calendar** or **Festivals** (English launcher shortcuts; long-press the icon to see them).
 
 ## Project layout
 - `engine/Astro.kt`: Sun, Moon, ayanamsa, ΔT, moonrise, crossing solver.

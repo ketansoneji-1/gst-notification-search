@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Static launcher shortcuts. Their English labels let launcher search find the app by typing
+     "Choghadiya", "Panchang", "Calendar" or "Festivals" while the app name stays in Gujarati.
+     All shortcuts open the exported launcher activity, which only accepts these fixed values. -->
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="choghadiya"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/sc_choghadiya_short"
+        android:shortcutLongLabel="@string/sc_choghadiya_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.kbsc.choghadiya"
+            android:targetClass="com.kbsc.choghadiya.ui.MainActivity" />
+    </shortcut>
+    <shortcut
+        android:shortcutId="panchang"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/sc_panchang_short"
+        android:shortcutLongLabel="@string/sc_panchang_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.kbsc.choghadiya"
+            android:targetClass="com.kbsc.choghadiya.ui.MainActivity">
+            <extra android:name="open" android:value="panchang" />
+        </intent>
+    </shortcut>
+    <shortcut
+        android:shortcutId="calendar"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/sc_calendar_short"
+        android:shortcutLongLabel="@string/sc_calendar_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.kbsc.choghadiya"
+            android:targetClass="com.kbsc.choghadiya.ui.MainActivity">
+            <extra android:name="open" android:value="calendar" />
+        </intent>
+    </shortcut>
+    <shortcut
+        android:shortcutId="festivals"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/sc_festivals_short"
+        android:shortcutLongLabel="@string/sc_festivals_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="com.kbsc.choghadiya"
+            android:targetClass="com.kbsc.choghadiya.ui.MainActivity">
+            <extra android:name="open" android:value="festivals" />
+        </intent>
+    </shortcut>
+</shortcuts>
