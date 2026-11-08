@@ -164,3 +164,9 @@ Contributions are welcome! The most helpful contribution is adding new notificat
 ---
 
 Built with care for the Indian CA & Tax Professional Community.
+
+---
+
+## Also in this repository: Gujarati Choghadiya Android app
+
+The `choghadiya-android/` folder holds an offline Android app for the Gujarati Choghadiya (ચોઘડિયા) muhurat. See [choghadiya-android/README.md](choghadiya-android/README.md).

@@ -1,0 +1,18 @@
+<resources>
+    <color name="saffron">#E65100</color>
+    <color name="saffron_dark">#BF360C</color>
+    <color name="best">#1B5E20</color>
+    <color name="good">#2E7D32</color>
+    <color name="neutral">#1565C0</color>
+    <color name="bad">#C62828</color>
+    <color name="best_bg">#33A5D6A7</color>
+    <color name="good_bg">#22A5D6A7</color>
+    <color name="neutral_bg">#2290CAF9</color>
+    <color name="bad_bg">#22EF9A9A</color>
+    <color name="current_stroke">#FF8F00</color>
+    <color name="cell_plain">#0F888888</color>
+    <color name="cell_full_new">#40FFB74D</color>
+    <color name="cell_ekadashi">#3381C784</color>
+    <color name="cell_special">#2264B5F6</color>
+    <color name="cell_festival">#66FF8A3D</color>
+</resources>

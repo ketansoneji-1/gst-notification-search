@@ -1,0 +1,16 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp" android:height="108dp"
+    android:viewportWidth="108" android:viewportHeight="108">
+    <!-- Sun disc -->
+    <path android:fillColor="#FFFFFF"
+        android:pathData="M54,54m-16,0a16,16 0,1 1,32 0a16,16 0,1 1,-32 0"/>
+    <!-- Eight rays = eight choghadiya -->
+    <path android:fillColor="#FFFFFF" android:pathData="M52,22h4v10h-4z"/>
+    <path android:fillColor="#FFFFFF" android:pathData="M52,76h4v10h-4z"/>
+    <path android:fillColor="#FFFFFF" android:pathData="M22,52h10v4h-10z"/>
+    <path android:fillColor="#FFFFFF" android:pathData="M76,52h10v4h-10z"/>
+    <path android:fillColor="#FFFFFF" android:pathData="M31.4,34.2l2.8,-2.8l7.1,7.1l-2.8,2.8z"/>
+    <path android:fillColor="#FFFFFF" android:pathData="M66.7,69.5l2.8,-2.8l7.1,7.1l-2.8,2.8z"/>
+    <path android:fillColor="#FFFFFF" android:pathData="M73.8,31.4l2.8,2.8l-7.1,7.1l-2.8,-2.8z"/>
+    <path android:fillColor="#FFFFFF" android:pathData="M38.5,66.7l2.8,2.8l-7.1,7.1l-2.8,-2.8z"/>
+</vector>
