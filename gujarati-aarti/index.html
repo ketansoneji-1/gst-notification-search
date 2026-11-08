@@ -399,11 +399,34 @@ p.title-en{margin:.15rem 0 0;font-size:1.05rem;color:var(--muted)}
   function setStatus(t){ $('status').textContent = t; }
   function setPlayLabel(){ $('playBtn').textContent = playing ? '❚❚ Pause' : '▶ Play'; }
 
+  /* Android app: native TextToSpeech exposed by the APK wrapper as window.AndroidTTS */
+  var bridge = window.AndroidTTS || null;
+  function cancelAll(){ if (bridge) { try{ bridge.stop(); }catch(e){} } else if (synth) synth.cancel(); }
+  function pickAndroidLang(lang){
+    var avail = (bridge.langs() || '').split(',').filter(Boolean);
+    var order = lang === 'gu' ? ['gu-IN','hi-IN','mr-IN'] : lang === 'mr' ? ['mr-IN','hi-IN','gu-IN'] : ['hi-IN','mr-IN','gu-IN'];
+    for (var i = 0; i < order.length; i++) if (avail.indexOf(order[i]) >= 0) return order[i];
+    return avail.indexOf('en-IN') >= 0 ? 'en-IN' : '';
+  }
+  function speakNextAndroid(t, a, l, lines){
+    var tag = pickAndroidLang(a.lang), p = tag.slice(0,2);
+    var text = p === 'gu' ? l.gu : (p === 'hi' || p === 'mr') ? l.deva : T.guToRoman(l.gu, a.lang, 'simple');
+    var id = 'u' + t + '_' + idx;
+    window.__ttsEvent = function(type, uid){
+      if (uid !== id || t !== token) return;
+      idx++; speakNext(t);
+    };
+    highlight(idx);
+    setStatus('Reading line ' + (idx + 1) + ' of ' + lines.length + (tag ? ' · voice: ' + tag : ' · no Indian voice installed, using default'));
+    bridge.speak(text, tag, +$('rate').value, id);
+  }
+
   function startSpeech(from){
     var a = state.current; if (!a) return;
-    if (!synth){ setStatus('This browser cannot read text aloud. Use the YouTube link or your own audio file below.'); return; }
-    if (!voices.length) loadVoices();
-    synth.cancel(); token++;
+    if (!synth && !bridge){ setStatus('This browser cannot read text aloud. Use the YouTube link or your own audio file below.'); return; }
+    if (bridge && !bridge.ready()){ setStatus('Voice engine is starting. Please press ▶ Play again in a moment.'); return; }
+    if (!bridge && !voices.length) loadVoices();
+    cancelAll(); token++;
     idx = from || 0; playing = true; setPlayLabel();
     if ($('bellChk').checked && idx === 0){ ringBell(); setTimeout(function(t){ return function(){ if (t === token) speakNext(t); }; }(token), 1400); }
     else speakNext(token);
@@ -413,6 +436,7 @@ p.title-en{margin:.15rem 0 0;font-size:1.05rem;color:var(--muted)}
     var a = state.current, lines = spokenLines(a);
     if (t !== token || !playing) return;
     if (idx >= lines.length){ playing = false; setPlayLabel(); highlight(-1); setStatus('Finished. Jay Shri Krishna 🙏'); if ($('bellChk').checked) ringBell(); return; }
+    if (bridge) { speakNextAndroid(t, a, lines[idx], lines); return; }
     var l = lines[idx], v = pickVoice(a.lang), u;
     var vl = v ? v.lang.toLowerCase().slice(0,2) : '';
     if (vl === 'gu') u = new SpeechSynthesisUtterance(l.gu);
@@ -427,8 +451,8 @@ p.title-en{margin:.15rem 0 0;font-size:1.05rem;color:var(--muted)}
     synth.speak(u);
   }
 
-  function pauseSpeech(){ token++; playing = false; if (synth) synth.cancel(); setPlayLabel(); setStatus('Paused at line ' + (idx + 1) + '. Press ▶ Play to continue.'); }
-  function stopSpeech(){ token++; playing = false; idx = 0; if (synth) synth.cancel(); setPlayLabel(); highlight(-1); setStatus('Tap ▶ Play to listen. Tap any line to start from there.'); }
+  function pauseSpeech(){ token++; playing = false; cancelAll(); setPlayLabel(); setStatus('Paused at line ' + (idx + 1) + '. Press ▶ Play to continue.'); }
+  function stopSpeech(){ token++; playing = false; idx = 0; cancelAll(); setPlayLabel(); highlight(-1); setStatus('Tap ▶ Play to listen. Tap any line to start from there.'); }
 
   $('playBtn').onclick = function(){ if (playing) pauseSpeech(); else startSpeech(idx); };
   $('stopBtn').onclick = stopSpeech;
