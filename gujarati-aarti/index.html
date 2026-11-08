@@ -1,0 +1,456 @@
+<!DOCTYPE html>
+<html lang="gu">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Aarti Sangrah</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<meta name="description" content="Gujarati Aarti, Stuti, Bhajan, Shlok and Mantra collection in Gujarati script with English transliteration, meanings and audio read-aloud.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+Bhai+2:wght@500;700&family=Hind+Vadodara:wght@400;500;600&family=Noto+Serif+Gujarati:wght@400;600&display=swap">
+<style>
+/* Layout: evening-sky shell; library rail on the left, the open aarti as a "pothi" page on the right. */
+:root{
+  --bg:#F5F3FA; --surface:#FFFFFF; --ink:#1E1A38; --muted:#5D5878; --line:#E2DDEE;
+  --brass:#B86E00; --brass-ink:#1E1A38; --brass-soft:#FCEBCB; --kumkum:#A3122A; --sel:#ECE7F8;
+  --f-display:"Baloo Bhai 2","Hind Vadodara",system-ui,sans-serif;
+  --f-verse:"Noto Serif Gujarati","Noto Serif",Georgia,serif;
+  --f-ui:"Hind Vadodara",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --verse-size:1.18rem;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#121027; --surface:#1B1838; --ink:#EEEAF8; --muted:#A7A2C3; --line:#2D2952;
+  --brass:#F2A93B; --brass-ink:#1A1405; --brass-soft:#3A2D12; --kumkum:#FF7A8A; --sel:#272250; color-scheme:dark;
+}}
+:root[data-theme="dark"]{
+  --bg:#121027; --surface:#1B1838; --ink:#EEEAF8; --muted:#A7A2C3; --line:#2D2952;
+  --brass:#F2A93B; --brass-ink:#1A1405; --brass-soft:#3A2D12; --kumkum:#FF7A8A; --sel:#272250; color-scheme:dark;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font:16px/1.5 var(--f-ui);-webkit-text-size-adjust:100%}
+button,input,select{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--surface)}
+
+header.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--surface);border-bottom:1px solid var(--line);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:10px}
+.brand{display:flex;align-items:center;gap:12px;justify-content:space-between;flex-wrap:wrap}
+.brand h1{margin:0;font:700 1.5rem/1.1 var(--f-display);letter-spacing:.2px}
+.brand h1 small{display:block;font:500 .78rem/1.2 var(--f-ui);color:var(--muted);letter-spacing:.6px;text-transform:uppercase}
+.diya{width:30px;height:30px;flex:none}
+.brand-left{display:flex;align-items:center;gap:10px}
+.top-actions{display:flex;gap:6px}
+.icon-btn{border:1px solid var(--line);background:transparent;border-radius:8px;padding:6px 10px;font-size:.9rem;min-height:36px}
+.icon-btn:hover{background:var(--sel)}
+
+.wrap{display:grid;grid-template-columns:340px minmax(0,1fr);max-width:1240px;margin:0 auto;min-height:calc(100vh - 70px)}
+aside.lib{border-right:1px solid var(--line);padding-block:14px;
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:16px;display:flex;flex-direction:column;gap:12px}
+.search{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}
+.tabs,.chips{display:flex;flex-wrap:wrap;gap:6px}
+.tab{border:1px solid var(--line);background:var(--surface);border-radius:999px;padding:4px 12px;font-size:.88rem}
+.tab[aria-pressed="true"]{background:var(--brass);border-color:var(--brass);color:var(--brass-ink);font-weight:600}
+.chip{border:1px dashed var(--line);background:transparent;border-radius:6px;padding:2px 8px;font-size:.8rem;color:var(--muted)}
+.chip[aria-pressed="true"]{border-style:solid;border-color:var(--ink);color:var(--ink);background:var(--sel)}
+.label{font-size:.72rem;letter-spacing:.8px;text-transform:uppercase;color:var(--muted);font-weight:600}
+.count{font-size:.82rem;color:var(--muted)}
+ul.list{list-style:none;margin:0;padding:0;display:flex;flex-direction:column}
+ul.list li button{width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);background:transparent;padding:10px 6px;display:grid;grid-template-columns:1fr auto;gap:2px 8px;border-radius:0}
+ul.list li button:hover{background:var(--sel)}
+ul.list li button[aria-current="true"]{background:var(--sel);box-shadow:inset 3px 0 0 var(--brass)}
+.li-gu{font:600 1.05rem/1.3 var(--f-verse)}
+.li-en{font-size:.84rem;color:var(--muted);grid-column:1}
+.li-type{grid-row:1/span 2;grid-column:2;align-self:center;font-size:.7rem;text-transform:uppercase;letter-spacing:.6px;color:var(--brass);font-weight:600}
+.li-fav{color:var(--kumkum)}
+.empty{color:var(--muted);padding:16px 0}
+
+main.reader{padding-block:20px 120px;padding-left:24px;padding-right:max(16px,env(safe-area-inset-right,0px));min-width:0}
+.back{display:none}
+.meta{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;font-size:.85rem;color:var(--muted)}
+.pill{background:var(--brass-soft);color:var(--ink);border-radius:999px;padding:1px 10px;font-weight:600;font-size:.78rem}
+h2.title-gu{font:700 2.1rem/1.15 var(--f-display);margin:.4rem 0 0;text-wrap:balance}
+p.title-en{margin:.15rem 0 0;font-size:1.05rem;color:var(--muted)}
+.toolbar{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:16px 0 6px;padding:8px 0;border-block:1px solid var(--line)}
+.seg{display:inline-flex;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.seg button{border:0;background:transparent;padding:5px 10px;font-size:.85rem;min-height:34px}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg)}
+.tool-gap{flex:1}
+.verses{max-width:46rem;margin-top:14px}
+.stanza{margin:0 0 1.1rem}
+.v{display:block;padding:3px 8px;margin:0 -8px;border-radius:6px;cursor:pointer}
+.v:hover{background:var(--sel)}
+.v.now{background:var(--brass-soft);box-shadow:inset 3px 0 0 var(--brass)}
+.v-gu{display:block;font:400 var(--verse-size)/1.75 var(--f-verse)}
+.v-ro{display:block;font:italic 400 calc(var(--verse-size)*.86)/1.55 var(--f-verse);color:var(--muted)}
+.mode-ro .v-ro{font-style:normal;color:var(--ink);font-size:var(--verse-size)}
+.mode-gu .v-ro,.mode-ro .v-gu{display:none}
+.sec{font:600 .78rem/1 var(--f-ui);text-transform:uppercase;letter-spacing:1px;color:var(--kumkum);margin:1.2rem 0 .5rem}
+.meaning{max-width:46rem;margin-top:26px;padding-top:16px;border-top:1px solid var(--line)}
+.meaning h3,.listen h3{margin:0 0 6px;font:700 1.15rem/1.2 var(--f-display)}
+.meaning p{margin:0;max-width:65ch}
+.listen{max-width:46rem;margin-top:22px;display:flex;flex-direction:column;gap:8px}
+.listen p{margin:0;color:var(--muted);font-size:.9rem;max-width:65ch}
+.listen a{color:var(--brass);font-weight:600}
+.listen audio{width:100%;max-width:30rem}
+.file-btn{display:inline-flex;align-items:center;gap:8px}
+.note{font-size:.8rem;color:var(--muted);max-width:65ch;margin-top:22px}
+
+.player{position:fixed;left:0;right:0;bottom:0;z-index:6;background:var(--surface);border-top:1px solid var(--line);
+  padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));
+  padding-top:10px;padding-bottom:calc(10px + env(safe-area-inset-bottom,0px))}
+.player-in{max-width:1240px;margin:0 auto;display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center}
+.play{background:var(--brass);color:var(--brass-ink);border:0;border-radius:999px;padding:8px 18px;font-weight:600;min-height:40px}
+.ctl{border:1px solid var(--line);background:transparent;border-radius:999px;padding:7px 14px;min-height:40px}
+.player label{display:flex;align-items:center;gap:6px;font-size:.85rem;color:var(--muted)}
+.player input[type=range]{width:100px;accent-color:var(--brass)}
+.status{font-size:.8rem;color:var(--muted);flex:1 1 220px;min-width:0}
+.player input[type=checkbox]{accent-color:var(--brass)}
+
+@media (max-width:860px){
+  .wrap{grid-template-columns:1fr}
+  aside.lib{border-right:0;padding-right:max(16px,env(safe-area-inset-right,0px))}
+  main.reader{padding-left:max(16px,env(safe-area-inset-left,0px))}
+  body.reading aside.lib{display:none}
+  body:not(.reading) main.reader{display:none}
+  .back{display:inline-flex}
+  h2.title-gu{font-size:1.7rem}
+}
+@media (max-width:480px){ .player input[type=range]{width:70px} .status{flex-basis:100%;font-size:.75rem} main.reader{padding-bottom:190px} }
+@media (prefers-reduced-motion:reduce){ *{scroll-behavior:auto!important} }
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <div class="brand-left">
+      <svg class="diya" viewBox="0 0 32 32" aria-hidden="true">
+        <path d="M16 3c3 5 4 8 0 13-4-5-3-8 0-13z" fill="var(--brass)"/>
+        <path d="M3 18h26c-1 6-6 10-13 10S4 24 3 18z" fill="var(--kumkum)"/>
+      </svg>
+      <h1>આરતી સંગ્રહ<small>Aarti · Stuti · Shlok · Mantra</small></h1>
+    </div>
+    <div class="top-actions">
+      <button class="icon-btn" id="themeBtn" type="button" aria-label="Switch light or dark theme">Theme</button>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <aside class="lib" aria-label="Library">
+    <input class="search" id="q" type="search" placeholder="Search: Ambe, Ganesh, ગાયત્રી, Gita…" autocomplete="off">
+    <div class="tabs" id="typeTabs" role="group" aria-label="Type"></div>
+    <div>
+      <div class="label">Deity / દેવતા</div>
+      <div class="chips" id="deityChips" role="group" aria-label="Deity" style="margin-top:6px"></div>
+    </div>
+    <div class="count" id="count"></div>
+    <ul class="list" id="list"></ul>
+  </aside>
+
+  <main class="reader" id="reader" aria-live="polite"></main>
+</div>
+
+<div class="player" role="region" aria-label="Audio player">
+  <div class="player-in">
+    <button class="play" id="playBtn" type="button">▶ Play</button>
+    <button class="ctl" id="stopBtn" type="button">■ Stop</button>
+    <label for="rate">Speed <input id="rate" type="range" min="0.5" max="1.3" step="0.05" value="0.85"></label>
+    <label for="bellChk"><input id="bellChk" type="checkbox" checked> Bell</label>
+    <button class="ctl" id="bellBtn" type="button" aria-label="Ring the aarti bell">🔔 Ghanti</button>
+    <div class="status" id="status">Tap ▶ Play to listen. Tap any line to start from there.</div>
+  </div>
+</div>
+
+<script src="translit.js"></script>
+<script src="data.js"></script>
+<script>
+(function(){
+  'use strict';
+  var T = window.Translit, DATA = window.AARTIS, DEITIES = window.DEITIES, TYPES = window.TYPES;
+  var $ = function(id){ return document.getElementById(id); };
+
+  /* ---------- storage (per-viewer conveniences only) ---------- */
+  function load(k, d){ try{ var v = localStorage.getItem('aarti.'+k); return v === null ? d : JSON.parse(v); }catch(e){ return d; } }
+  function save(k, v){ try{ localStorage.setItem('aarti.'+k, JSON.stringify(v)); }catch(e){} }
+
+  var state = {
+    type: 'all', deity: 'all', q: '',
+    mode: load('mode','both'),          // both | gu | ro
+    style: load('style','simple'),      // simple | iast
+    size: load('size', 1.18),
+    favs: load('favs', []),
+    current: null
+  };
+
+  /* ---------- prepare data ---------- */
+  DATA.forEach(function(a){
+    a.titleGu = a.script === 'deva' ? T.devaToGu(a.title) : a.title;
+    a.lines = a.text.split('\n').map(function(raw){
+      raw = raw.trim();
+      if (!raw) return { kind:'blank' };
+      var isSec = raw.charAt(0) === '#';
+      var src = isSec ? raw.slice(1).trim() : raw;
+      var gu = a.script === 'deva' ? T.devaToGu(src) : src;
+      return { kind: isSec ? 'sec' : 'v', gu: gu, deva: a.script === 'deva' ? src : T.guToDeva(src) };
+    });
+    a.searchBlob = [a.en, a.titleGu, a.by||'', a.tag||'', DEITIES[a.deity].en, DEITIES[a.deity].gu, TYPES[a.type].en,
+      a.lines.filter(function(l){return l.gu;}).map(function(l){ return l.gu + ' ' + T.guToRoman(l.gu, a.lang, 'simple'); }).join(' ')
+    ].join(' ').toLowerCase();
+  });
+
+  /* ---------- filters ---------- */
+  function renderFilters(){
+    var tt = $('typeTabs'); tt.innerHTML = '';
+    [['all','All · બધું']].concat(Object.keys(TYPES).map(function(k){ return [k, TYPES[k].en + ' · ' + TYPES[k].gu]; }))
+      .forEach(function(p){
+        var b = document.createElement('button'); b.type='button'; b.className='tab'; b.textContent=p[1];
+        b.setAttribute('aria-pressed', state.type === p[0]);
+        b.onclick = function(){ state.type = p[0]; renderFilters(); renderList(); };
+        tt.appendChild(b);
+      });
+    var fav = document.createElement('button'); fav.type='button'; fav.className='tab'; fav.textContent='♥ Favourites';
+    fav.setAttribute('aria-pressed', state.type === 'fav');
+    fav.onclick = function(){ state.type = 'fav'; renderFilters(); renderList(); };
+    tt.appendChild(fav);
+
+    var dc = $('deityChips'); dc.innerHTML = '';
+    [['all','All']].concat(Object.keys(DEITIES).map(function(k){ return [k, DEITIES[k].en]; }))
+      .forEach(function(p){
+        var b = document.createElement('button'); b.type='button'; b.className='chip'; b.textContent=p[1];
+        b.setAttribute('aria-pressed', state.deity === p[0]);
+        b.onclick = function(){ state.deity = p[0]; renderFilters(); renderList(); };
+        dc.appendChild(b);
+      });
+  }
+
+  function filtered(){
+    var q = state.q.trim().toLowerCase();
+    return DATA.filter(function(a){
+      if (state.type === 'fav') { if (state.favs.indexOf(a.id) < 0) return false; }
+      else if (state.type !== 'all' && a.type !== state.type) return false;
+      if (state.deity !== 'all' && a.deity !== state.deity) return false;
+      if (q && a.searchBlob.indexOf(q) < 0) return false;
+      return true;
+    });
+  }
+
+  function renderList(){
+    var items = filtered(), ul = $('list'); ul.innerHTML = '';
+    $('count').textContent = items.length + ' of ' + DATA.length + ' prayers';
+    if (!items.length){ ul.innerHTML = '<li class="empty">Nothing matches. Clear the search or choose "All".</li>'; return; }
+    items.forEach(function(a){
+      var li = document.createElement('li'), b = document.createElement('button'); b.type = 'button';
+      if (state.current && state.current.id === a.id) b.setAttribute('aria-current','true');
+      var fav = state.favs.indexOf(a.id) >= 0 ? ' <span class="li-fav" aria-label="favourite">♥</span>' : '';
+      b.innerHTML = '<span class="li-gu"></span><span class="li-type"></span><span class="li-en"></span>';
+      b.querySelector('.li-gu').textContent = a.titleGu; b.querySelector('.li-gu').insertAdjacentHTML('beforeend', fav);
+      b.querySelector('.li-en').textContent = a.en + (a.tag ? ' · ' + a.tag : '');
+      b.querySelector('.li-type').textContent = TYPES[a.type].en.split(' ')[0];
+      b.onclick = function(){ location.hash = a.id; };
+      li.appendChild(b); ul.appendChild(li);
+    });
+  }
+
+  /* ---------- reader ---------- */
+  var LANG_NAME = { gu:'Gujarati', hi:'Hindi', sa:'Sanskrit', mr:'Marathi' };
+
+  function seg(name, opts, cur, onPick){
+    var s = document.createElement('div'); s.className = 'seg'; s.setAttribute('role','group'); s.setAttribute('aria-label', name);
+    opts.forEach(function(o){
+      var b = document.createElement('button'); b.type='button'; b.textContent = o[1];
+      b.setAttribute('aria-pressed', cur === o[0]); b.onclick = function(){ onPick(o[0]); };
+      s.appendChild(b);
+    });
+    return s;
+  }
+
+  function renderReader(){
+    var a = state.current, r = $('reader'); r.innerHTML = '';
+    document.documentElement.style.setProperty('--verse-size', state.size + 'rem');
+    if (!a) return;
+    var isFav = state.favs.indexOf(a.id) >= 0;
+
+    var back = document.createElement('button'); back.type='button'; back.className='icon-btn back'; back.textContent='← All prayers';
+    back.onclick = function(){ stopSpeech(); history.pushState('', document.title, location.pathname + location.search); route(); };
+    r.appendChild(back);
+
+    var meta = document.createElement('div'); meta.className='meta'; meta.style.marginTop='8px';
+    meta.innerHTML = '<span class="pill"></span><span class="m-d"></span><span class="m-l"></span>';
+    meta.querySelector('.pill').textContent = TYPES[a.type].en;
+    meta.querySelector('.m-d').textContent = DEITIES[a.deity].en + ' · ' + DEITIES[a.deity].gu;
+    meta.querySelector('.m-l').textContent = 'Language: ' + LANG_NAME[a.lang] + (a.by ? ' · ' + a.by : '') + (a.tag ? ' · ' + a.tag : '');
+    r.appendChild(meta);
+
+    var h = document.createElement('h2'); h.className='title-gu'; h.textContent = a.titleGu; r.appendChild(h);
+    var pe = document.createElement('p'); pe.className='title-en'; pe.textContent = a.en; r.appendChild(pe);
+
+    var tb = document.createElement('div'); tb.className='toolbar';
+    tb.appendChild(seg('Script', [['both','ગુજરાતી + English'],['gu','ગુજરાતી'],['ro','English']], state.mode,
+      function(v){ state.mode = v; save('mode', v); renderReader(); }));
+    tb.appendChild(seg('English style', [['simple','Easy'],['iast','IAST']], state.style,
+      function(v){ state.style = v; save('style', v); renderReader(); }));
+    tb.appendChild(seg('Text size', [['-','A−'],['+','A+']], null, function(v){
+      state.size = Math.max(0.9, Math.min(2, +(state.size + (v === '+' ? 0.1 : -0.1)).toFixed(2))); save('size', state.size); renderReader(); }));
+    var sp = document.createElement('span'); sp.className='tool-gap'; tb.appendChild(sp);
+    var fb = document.createElement('button'); fb.type='button'; fb.className='icon-btn';
+    fb.textContent = isFav ? '♥ Saved' : '♡ Save'; fb.setAttribute('aria-pressed', isFav);
+    fb.onclick = function(){
+      var i = state.favs.indexOf(a.id); if (i >= 0) state.favs.splice(i,1); else state.favs.push(a.id);
+      save('favs', state.favs); renderReader(); renderList(); };
+    tb.appendChild(fb);
+    r.appendChild(tb);
+
+    var vs = document.createElement('div'); vs.className = 'verses mode-' + state.mode;
+    var stanza = document.createElement('p'); stanza.className='stanza';
+    var speakIdx = 0;
+    a.lines.forEach(function(l){
+      if (l.kind === 'blank'){ if (stanza.childNodes.length){ vs.appendChild(stanza); stanza = document.createElement('p'); stanza.className='stanza'; } return; }
+      if (l.kind === 'sec'){
+        if (stanza.childNodes.length){ vs.appendChild(stanza); stanza = document.createElement('p'); stanza.className='stanza'; }
+        var sec = document.createElement('div'); sec.className='sec'; sec.textContent = l.gu + ' · ' + T.guToRoman(l.gu, a.lang, 'simple'); vs.appendChild(sec); return;
+      }
+      var s = document.createElement('span'); s.className='v'; s.dataset.i = speakIdx++;
+      var g = document.createElement('span'); g.className='v-gu'; g.textContent = l.gu;
+      var ro = document.createElement('span'); ro.className='v-ro'; ro.textContent = T.guToRoman(l.gu, a.lang, state.style);
+      s.appendChild(g); s.appendChild(ro);
+      s.onclick = function(){ startSpeech(+s.dataset.i); };
+      stanza.appendChild(s);
+    });
+    if (stanza.childNodes.length) vs.appendChild(stanza);
+    r.appendChild(vs);
+
+    var m = document.createElement('section'); m.className='meaning';
+    m.innerHTML = '<h3>Meaning · ભાવાર્થ</h3><p></p>'; m.querySelector('p').textContent = a.meaning; r.appendChild(m);
+
+    var L = document.createElement('section'); L.className='listen';
+    var yt = 'https://www.youtube.com/results?search_query=' + encodeURIComponent(a.en.replace(/\(.*?\)/g,'') + ' ' + TYPES[a.type].en + ' ' + (a.lang === 'gu' ? 'Gujarati' : ''));
+    L.innerHTML = '<h3>Listen · સાંભળો</h3>' +
+      '<p>▶ Play reads the text aloud with your device\'s Indian voice, line by line. For the sung version with music:</p>' +
+      '<p><a target="_blank" rel="noopener" href="' + yt + '">Find sung versions on YouTube ↗</a></p>' +
+      '<p>Have your own recording (MP3 / M4A)? Play it here alongside the text:</p>' +
+      '<label class="file-btn icon-btn" for="ownAudio">🎵 Choose audio file<input id="ownAudio" type="file" accept="audio/*" hidden></label>' +
+      '<audio id="ownPlayer" controls hidden></audio>';
+    r.appendChild(L);
+    L.querySelector('#ownAudio').onchange = function(e){
+      var f = e.target.files && e.target.files[0]; if (!f) return;
+      var p = L.querySelector('#ownPlayer'); p.src = URL.createObjectURL(f); p.hidden = false; p.play().catch(function(){});
+    };
+
+    var n = document.createElement('p'); n.className='note';
+    n.textContent = 'Wording follows commonly printed versions and can differ slightly between families and sampradayas. ' +
+      (a.script === 'deva' ? 'This ' + LANG_NAME[a.lang] + ' text is shown in Gujarati script, as printed in Gujarati aarti books.' : '');
+    r.appendChild(n);
+    highlight(-1);
+  }
+
+  /* ---------- routing ---------- */
+  function route(){
+    var id = decodeURIComponent(location.hash.slice(1));
+    var a = DATA.find(function(x){ return x.id === id; }) || null;
+    if (a !== state.current) stopSpeech();
+    state.current = a || (window.innerWidth > 860 ? DATA[0] : null);
+    document.body.classList.toggle('reading', !!a);
+    renderReader(); renderList();
+    if (a) { window.scrollTo(0,0); document.title = a.en + ' · Aarti Sangrah'; } else document.title = 'Aarti Sangrah';
+  }
+
+  /* ---------- speech (Web Speech API) ---------- */
+  var synth = window.speechSynthesis, voices = [], playing = false, idx = 0, token = 0;
+  function loadVoices(){ voices = synth ? synth.getVoices() : []; }
+  if (synth){ loadVoices(); if ('onvoiceschanged' in synth) synth.onvoiceschanged = loadVoices; }
+
+  function pickVoice(lang){
+    var order = lang === 'gu' ? ['gu','hi','mr'] : lang === 'mr' ? ['mr','hi','gu'] : ['hi','mr','gu'];
+    for (var i = 0; i < order.length; i++){
+      var v = voices.find(function(x){ return x.lang && x.lang.toLowerCase().indexOf(order[i]) === 0; });
+      if (v) return v;
+    }
+    return voices.find(function(x){ return /en[-_]IN/i.test(x.lang); }) || null;
+  }
+
+  function spokenLines(a){ return a.lines.filter(function(l){ return l.kind === 'v'; }); }
+
+  function highlight(i){
+    var els = document.querySelectorAll('.v');
+    els.forEach(function(e){ e.classList.toggle('now', +e.dataset.i === i); });
+    var cur = document.querySelector('.v.now');
+    if (cur && cur.scrollIntoView){
+      var rm = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      cur.scrollIntoView({ block:'center', behavior: rm ? 'auto' : 'smooth' });
+    }
+  }
+
+  function setStatus(t){ $('status').textContent = t; }
+  function setPlayLabel(){ $('playBtn').textContent = playing ? '❚❚ Pause' : '▶ Play'; }
+
+  function startSpeech(from){
+    var a = state.current; if (!a) return;
+    if (!synth){ setStatus('This browser cannot read text aloud. Use the YouTube link or your own audio file below.'); return; }
+    if (!voices.length) loadVoices();
+    synth.cancel(); token++;
+    idx = from || 0; playing = true; setPlayLabel();
+    if ($('bellChk').checked && idx === 0){ ringBell(); setTimeout(function(t){ return function(){ if (t === token) speakNext(t); }; }(token), 1400); }
+    else speakNext(token);
+  }
+
+  function speakNext(t){
+    var a = state.current, lines = spokenLines(a);
+    if (t !== token || !playing) return;
+    if (idx >= lines.length){ playing = false; setPlayLabel(); highlight(-1); setStatus('Finished. Jay Shri Krishna 🙏'); if ($('bellChk').checked) ringBell(); return; }
+    var l = lines[idx], v = pickVoice(a.lang), u;
+    var vl = v ? v.lang.toLowerCase().slice(0,2) : '';
+    if (vl === 'gu') u = new SpeechSynthesisUtterance(l.gu);
+    else if (vl === 'hi' || vl === 'mr') u = new SpeechSynthesisUtterance(l.deva);
+    else u = new SpeechSynthesisUtterance(T.guToRoman(l.gu, a.lang, 'simple'));
+    if (v){ u.voice = v; u.lang = v.lang; } else u.lang = 'hi-IN';
+    u.rate = +$('rate').value; u.pitch = 1;
+    highlight(idx);
+    setStatus('Reading line ' + (idx + 1) + ' of ' + lines.length + (v ? ' · voice: ' + v.name : ' · no Indian voice found, using default'));
+    u.onend = function(){ if (t !== token) return; idx++; speakNext(t); };
+    u.onerror = function(e){ if (t !== token || e.error === 'interrupted' || e.error === 'canceled') return; idx++; speakNext(t); };
+    synth.speak(u);
+  }
+
+  function pauseSpeech(){ token++; playing = false; if (synth) synth.cancel(); setPlayLabel(); setStatus('Paused at line ' + (idx + 1) + '. Press ▶ Play to continue.'); }
+  function stopSpeech(){ token++; playing = false; idx = 0; if (synth) synth.cancel(); setPlayLabel(); highlight(-1); setStatus('Tap ▶ Play to listen. Tap any line to start from there.'); }
+
+  $('playBtn').onclick = function(){ if (playing) pauseSpeech(); else startSpeech(idx); };
+  $('stopBtn').onclick = stopSpeech;
+
+  /* ---------- bell (synthesised, no audio file) ---------- */
+  var actx = null;
+  function ringBell(){
+    try{
+      actx = actx || new (window.AudioContext || window.webkitAudioContext)();
+      var now = actx.currentTime, base = 880;
+      [[1,0.5,2.6],[2.76,0.28,1.8],[5.4,0.14,1.1],[8.93,0.07,0.7]].forEach(function(p){
+        var o = actx.createOscillator(), g = actx.createGain();
+        o.type = 'sine'; o.frequency.value = base * p[0];
+        g.gain.setValueAtTime(0.0001, now); g.gain.exponentialRampToValueAtTime(p[1] * 0.4, now + 0.01);
+        g.gain.exponentialRampToValueAtTime(0.0001, now + p[2]);
+        o.connect(g); g.connect(actx.destination); o.start(now); o.stop(now + p[2] + 0.05);
+      });
+    }catch(e){}
+  }
+  $('bellBtn').onclick = ringBell;
+
+  /* ---------- theme ---------- */
+  var theme = load('theme', null);
+  if (theme) document.documentElement.setAttribute('data-theme', theme);
+  $('themeBtn').onclick = function(){
+    var cur = document.documentElement.getAttribute('data-theme') ||
+      (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next); save('theme', next);
+  };
+
+  $('q').addEventListener('input', function(e){ state.q = e.target.value; renderList(); });
+  window.addEventListener('hashchange', route);
+  renderFilters(); route();
+})();
+</script>
+</body>
+</html>
