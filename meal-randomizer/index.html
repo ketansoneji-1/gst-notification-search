@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Meal Randomizer</title>
+<meta name="description" content="Randomly pick lunch and dinner dishes with a minimum gap before any dish repeats.">
+<style>
+  :root {
+    --bg: #f6f5f1; --surface: #ffffff; --surface-2: #f0eee8; --text: #1f2328; --muted: #5f6670;
+    --border: #dedad0; --accent: #c2410c; --accent-soft: #fde8dc; --ok: #15803d; --ok-soft: #dcfce7;
+    --warn: #a16207; --warn-soft: #fef3c7; --danger: #b91c1c; --shadow: 0 1px 3px rgba(0,0,0,.08);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #15171a; --surface: #1e2125; --surface-2: #272b30; --text: #e8e6e1; --muted: #9aa1aa;
+      --border: #343a41; --accent: #fb923c; --accent-soft: #3b2417; --ok: #4ade80; --ok-soft: #14301f;
+      --warn: #facc15; --warn-soft: #36300f; --danger: #f87171; --shadow: none;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #15171a; --surface: #1e2125; --surface-2: #272b30; --text: #e8e6e1; --muted: #9aa1aa;
+    --border: #343a41; --accent: #fb923c; --accent-soft: #3b2417; --ok: #4ade80; --ok-soft: #14301f;
+    --warn: #facc15; --warn-soft: #36300f; --danger: #f87171; --shadow: none;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  header { background: var(--surface); border-bottom: 1px solid var(--border); }
+  .wrap { max-width: 960px; margin: 0 auto; padding: 0 16px; }
+  .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 0 6px; }
+  h1 { font-size: 20px; margin: 0; }
+  h1 span { color: var(--accent); }
+  h2 { font-size: 17px; margin: 0 0 12px; }
+  nav { display: flex; gap: 4px; overflow-x: auto; }
+  nav button { background: none; border: 0; border-bottom: 3px solid transparent; padding: 10px 12px; color: var(--muted); font: inherit; font-weight: 600; cursor: pointer; white-space: nowrap; }
+  nav button.active { color: var(--accent); border-bottom-color: var(--accent); }
+  main { padding: 20px 0 48px; }
+  section[hidden] { display: none; }
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; box-shadow: var(--shadow); margin-bottom: 16px; }
+  .grid2 { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px; }
+  .row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+  label { font-size: 13px; color: var(--muted); font-weight: 600; }
+  input, select { font: inherit; color: var(--text); background: var(--surface); border: 1px solid var(--border); border-radius: 8px; padding: 7px 10px; }
+  input[type=number] { width: 80px; }
+  input::placeholder { color: var(--muted); opacity: .6; }
+  input[type=checkbox] { width: 16px; height: 16px; accent-color: var(--accent); }
+  .btn { font: inherit; font-weight: 600; border-radius: 8px; padding: 8px 14px; cursor: pointer; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); }
+  .btn:hover { filter: brightness(.97); }
+  .btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .btn.ok { background: var(--ok); border-color: var(--ok); color: #fff; }
+  .btn.ghost { background: none; }
+  .btn.small { padding: 4px 10px; font-size: 13px; }
+  .btn.danger { color: var(--danger); }
+  .btn:disabled { opacity: .5; cursor: not-allowed; }
+  .meal-card .meal-name { font-size: 13px; text-transform: uppercase; letter-spacing: .06em; color: var(--muted); font-weight: 700; }
+  .pick { font-size: 26px; font-weight: 700; margin: 10px 0 4px; min-height: 40px; word-break: break-word; }
+  .pick.empty { color: var(--muted); font-weight: 500; font-size: 17px; }
+  .pick.spin { animation: pop .35s ease; }
+  @keyframes pop { 0% { transform: scale(.9); opacity: .3; } 100% { transform: scale(1); opacity: 1; } }
+  .sub { color: var(--muted); font-size: 13px; }
+  .pill { display: inline-block; padding: 2px 8px; border-radius: 999px; font-size: 12px; font-weight: 600; }
+  .pill.ok { background: var(--ok-soft); color: var(--ok); }
+  .pill.warn { background: var(--warn-soft); color: var(--warn); }
+  .pill.saved { background: var(--accent-soft); color: var(--accent); }
+  .notice { background: var(--warn-soft); color: var(--text); border-radius: 8px; padding: 10px 12px; font-size: 14px; margin-top: 10px; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+  th { font-size: 12px; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); }
+  .tablewrap { overflow-x: auto; }
+  .actions { display: flex; gap: 6px; justify-content: flex-end; flex-wrap: wrap; }
+  .muted { color: var(--muted); }
+  .hint { font-size: 13px; color: var(--muted); margin: 6px 0 0; }
+  .stack > * + * { margin-top: 12px; }
+  .toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: var(--text); color: var(--bg); padding: 10px 16px; border-radius: 8px; font-weight: 600; opacity: 0; pointer-events: none; transition: opacity .2s; max-width: calc(100% - 32px); }
+  .toast.show { opacity: 1; }
+  @media (max-width: 600px) {
+    .hide-sm { display: none; }
+    .pick { font-size: 22px; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="wrap">
+    <div class="top">
+      <h1>🍛 Meal <span>Randomizer</span></h1>
+      <button class="btn ghost small" id="themeBtn" title="Toggle theme">◐ Theme</button>
+    </div>
+    <nav id="tabs">
+      <button data-tab="today" class="active">Today</button>
+      <button data-tab="plan">Week Planner</button>
+      <button data-tab="dishes">Dishes</button>
+      <button data-tab="history">History</button>
+      <button data-tab="settings">Settings</button>
+    </nav>
+  </div>
+</header>
+
+<main class="wrap">
+  <!-- TODAY -->
+  <section id="tab-today">
+    <div class="card row">
+      <label for="todayDate">Date</label>
+      <input type="date" id="todayDate">
+      <button class="btn primary" id="spinBoth">🎲 Randomize both</button>
+      <span class="sub" id="gapInfo"></span>
+    </div>
+    <div class="grid2" id="mealCards"></div>
+  </section>
+
+  <!-- PLANNER -->
+  <section id="tab-plan" hidden>
+    <div class="card">
+      <h2>Plan several days at once</h2>
+      <div class="row">
+        <label for="planStart">Start</label><input type="date" id="planStart">
+        <label for="planDays">Days</label><input type="number" id="planDays" min="1" max="31" value="7">
+        <label><input type="checkbox" id="planLunch" checked> Lunch</label>
+        <label><input type="checkbox" id="planDinner" checked> Dinner</label>
+        <button class="btn primary" id="planGen">🎲 Generate plan</button>
+      </div>
+      <p class="hint">Meals already in your log are kept as they are. New picks respect the minimum gap against your log and against each other.</p>
+    </div>
+    <div class="card" id="planOut" hidden>
+      <div class="tablewrap"><table id="planTable"></table></div>
+      <div class="row" style="margin-top:12px; justify-content:flex-end">
+        <button class="btn" id="planRegen">Reshuffle all</button>
+        <button class="btn ok" id="planSave">✔ Save plan to log</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- DISHES -->
+  <section id="tab-dishes" hidden>
+    <div class="card">
+      <h2>Add a dish</h2>
+      <form id="addForm" class="row">
+        <input id="newName" placeholder="Dish name, e.g. Rajma Chawal" required style="flex:1; min-width:200px">
+        <select id="newMeals">
+          <option value="both">Lunch &amp; Dinner</option>
+          <option value="lunch">Lunch only</option>
+          <option value="dinner">Dinner only</option>
+        </select>
+        <input type="number" id="newGap" min="0" max="365" placeholder="Gap">
+        <button class="btn primary" type="submit">Add</button>
+      </form>
+      <p class="hint">“Gap” is optional: the minimum number of days before this dish can repeat. Leave it blank to use the default gap from Settings.</p>
+    </div>
+    <div class="card">
+      <div class="row" style="justify-content:space-between; margin-bottom:8px">
+        <h2 style="margin:0">Your dishes <span class="sub" id="dishCount"></span></h2>
+        <input id="dishFilter" placeholder="Search…" style="max-width:200px">
+      </div>
+      <div class="tablewrap"><table id="dishTable"></table></div>
+    </div>
+  </section>
+
+  <!-- HISTORY -->
+  <section id="tab-history" hidden>
+    <div class="card">
+      <h2>Log a meal manually</h2>
+      <form id="logForm" class="row">
+        <input type="date" id="logDate" required>
+        <select id="logMeal"><option value="lunch">Lunch</option><option value="dinner">Dinner</option></select>
+        <select id="logDish" required style="flex:1; min-width:180px"></select>
+        <button class="btn primary" type="submit">Log</button>
+      </form>
+      <p class="hint">Use this for meals you cooked without the randomizer, so the gap rule still counts them. A gap warning appears if the dish breaks the rule, but you can still log it.</p>
+    </div>
+    <div class="card">
+      <div class="row" style="justify-content:space-between; margin-bottom:8px">
+        <h2 style="margin:0">Meal log</h2>
+        <button class="btn small danger" id="clearHistory">Clear log</button>
+      </div>
+      <div class="tablewrap"><table id="historyTable"></table></div>
+    </div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section id="tab-settings" hidden>
+    <div class="card stack">
+      <h2>Repeat rules</h2>
+      <div class="row">
+        <label for="setGap">Default minimum gap before a dish repeats</label>
+        <input type="number" id="setGap" min="0" max="365"> <span class="muted">days</span>
+      </div>
+      <p class="hint">Example: gap 7 means a dish cooked on Monday can come up again from next Monday. The gap applies across lunch and dinner, so the same dish never fills both meals on one day. Set 0 to switch off the rule.</p>
+      <label><input type="checkbox" id="setWeighted"> Prefer dishes that haven’t been made for a long time</label>
+    </div>
+    <div class="card stack">
+      <h2>Backup &amp; restore</h2>
+      <p class="hint" style="margin:0">Your data is saved only in this browser. Export a backup to move it to another device.</p>
+      <div class="row">
+        <button class="btn" id="exportBtn">⬇ Export backup (JSON)</button>
+        <label class="btn" for="importFile" style="color:var(--text)">⬆ Import backup</label>
+        <input type="file" id="importFile" accept="application/json" hidden>
+        <button class="btn danger" id="resetBtn">Reset to sample dishes</button>
+      </div>
+    </div>
+  </section>
+</main>
+
+<div class="toast" id="toast"></div>
+
+<script src="engine.js"></script>
+<script>
+(function () {
+  'use strict';
+  var E = window.MealEngine;
+  var STORE = 'mealRandomizer.v1';
+  var MEAL_LABEL = { lunch: '☀️ Lunch', dinner: '🌙 Dinner' };
+
+  /* ---------- sample data ---------- */
+  var SAMPLE = [
+    ['Dal Tadka & Jeera Rice', 'both'], ['Rajma Chawal', 'lunch'], ['Chole & Rice', 'lunch'],
+    ['Paneer Butter Masala & Roti', 'dinner'], ['Aloo Gobi & Roti', 'both'], ['Bhindi Masala & Roti', 'both'],
+    ['Palak Paneer & Roti', 'dinner'], ['Baingan Bharta & Bhakri', 'dinner'], ['Veg Pulao & Raita', 'both'],
+    ['Veg Biryani', 'lunch', 14], ['Kadhi Chawal', 'lunch'], ['Varan Bhaat', 'lunch'],
+    ['Matki Usal & Chapati', 'lunch'], ['Matar Paneer & Roti', 'dinner'], ['Mix Veg & Chapati', 'both'],
+    ['Sambar Rice', 'lunch'], ['Dal Khichdi & Kadhi', 'dinner'], ['Pav Bhaji', 'dinner', 14],
+    ['Methi Thepla & Dahi', 'dinner'], ['Dum Aloo & Paratha', 'dinner'], ['Veg Hakka Noodles', 'dinner', 14],
+    ['Masoor Dal & Rice', 'both']
+  ];
+  function sampleState() {
+    return {
+      settings: { gapDays: 7, weighted: true },
+      dishes: SAMPLE.map(function (s, i) {
+        return { id: 'd' + i, name: s[0], meals: s[1] === 'both' ? ['lunch', 'dinner'] : [s[1]], gap: s[2] == null ? null : s[2], active: true };
+      }),
+      history: []
+    };
+  }
+
+  /* ---------- persistence ---------- */
+  function load() {
+    try {
+      var raw = localStorage.getItem(STORE);
+      if (raw) { var s = JSON.parse(raw); if (s && s.dishes && s.history && s.settings) return s; }
+    } catch (e) { /* storage unavailable */ }
+    return sampleState();
+  }
+  function save() { try { localStorage.setItem(STORE, JSON.stringify(state)); } catch (e) { /* ignore */ } }
+
+  var state = load();
+  var picks = {};       // unsaved picks on Today tab: { 'date|meal': dishId }
+  var plan = null;      // current planner output
+
+  /* ---------- helpers ---------- */
+  function $(id) { return document.getElementById(id); }
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function dishById(id) { return state.dishes.filter(function (d) { return d.id === id; })[0]; }
+  function dishName(id) { var d = dishById(id); return d ? d.name : '(deleted dish)'; }
+  function slotEntry(date, meal) { return state.history.filter(function (e) { return e.date === date && e.meal === meal; })[0]; }
+  function fmt(date) {
+    var p = date.split('-');
+    return new Date(+p[0], +p[1] - 1, +p[2]).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
+  }
+  function rel(date) {
+    var n = E.daysBetween(E.todayStr(), date);
+    if (n === 0) return 'today'; if (n === 1) return 'tomorrow'; if (n === -1) return 'yesterday';
+    return n > 0 ? 'in ' + n + ' days' : Math.abs(n) + ' days ago';
+  }
+  function toast(msg) { var t = $('toast'); t.textContent = msg; t.classList.add('show'); clearTimeout(toast.t); toast.t = setTimeout(function () { t.classList.remove('show'); }, 2200); }
+  function newId() { return 'd' + Date.now().toString(36) + Math.random().toString(36).slice(2, 6); }
+  function gapLabel(d) { return d.gap === null || d.gap === undefined || d.gap === '' ? state.settings.gapDays + ' (default)' : String(d.gap); }
+
+  /* ---------- tabs ---------- */
+  $('tabs').addEventListener('click', function (e) {
+    var b = e.target.closest('button[data-tab]'); if (!b) return;
+    Array.prototype.forEach.call(this.children, function (x) { x.classList.toggle('active', x === b); });
+    ['today', 'plan', 'dishes', 'history', 'settings'].forEach(function (t) { $('tab-' + t).hidden = t !== b.dataset.tab; });
+    renderAll();
+  });
+
+  /* ---------- theme ---------- */
+  $('themeBtn').addEventListener('click', function () {
+    var cur = document.documentElement.getAttribute('data-theme') ||
+      (matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+    var next = cur === 'dark' ? 'light' : 'dark';
+    document.documentElement.setAttribute('data-theme', next);
+    try { localStorage.setItem(STORE + '.theme', next); } catch (e) { /* ignore */ }
+  });
+  try { var th = localStorage.getItem(STORE + '.theme'); if (th) document.documentElement.setAttribute('data-theme', th); } catch (e) { /* ignore */ }
+
+  /* ---------- TODAY ---------- */
+  function renderToday(animateMeal) {
+    var date = $('todayDate').value;
+    $('gapInfo').textContent = 'Default gap: ' + state.settings.gapDays + ' days';
+    $('mealCards').innerHTML = E.MEALS.map(function (meal) {
+      var key = date + '|' + meal;
+      var saved = slotEntry(date, meal);
+      var pickId = picks[key];
+      var pool = E.eligibleDishes(state, date, meal, null, []);
+      var html = '<div class="card meal-card"><div class="row" style="justify-content:space-between"><span class="meal-name">' + MEAL_LABEL[meal] + '</span>';
+      html += saved && !pickId ? '<span class="pill saved">Saved in log</span>' : '<span class="pill ok">' + pool.length + ' dishes eligible</span>';
+      html += '</div>';
+      var shown = pickId || (saved && saved.dishId);
+      html += '<div class="pick' + (shown ? '' : ' empty') + (animateMeal === meal ? ' spin' : '') + '">' +
+        (shown ? esc(dishName(shown)) : 'Nothing picked yet') + '</div>';
+      if (pickId) {
+        var last = E.lastCooked(dishById(pickId), state.history, date);
+        html += '<div class="sub">' + (last ? 'Last made ' + rel(last) + ' (' + fmt(last) + ')' : 'Not made before') + '</div>';
+      }
+      html += '<div class="row" style="margin-top:12px">';
+      html += '<button class="btn primary" data-spin="' + meal + '">🎲 ' + (shown ? 'Spin again' : 'Randomize') + '</button>';
+      if (pickId) html += '<button class="btn ok" data-save="' + meal + '">✔ Cook this</button>';
+      if (saved && !pickId) html += '<button class="btn ghost small danger" data-unsave="' + meal + '">Remove from log</button>';
+      html += '</div>';
+      if (!pool.length && !pickId) html += noneNotice(date, meal);
+      return html + '</div>';
+    }).join('');
+  }
+
+  function noneNotice(date, meal) {
+    var blocked = E.blockedDishes(state, date, meal).slice(0, 3);
+    var msg = '<div class="notice"><strong>No dish is eligible.</strong> ';
+    if (!blocked.length) return msg + 'Add dishes for ' + meal + ' in the Dishes tab.</div>';
+    return msg + 'Every ' + meal + ' dish is still inside its gap. Soonest available: ' +
+      blocked.map(function (b) { return esc(b.dish.name) + ' (' + (b.availableOn ? fmt(b.availableOn) : 'n/a') + ')'; }).join(', ') +
+      '. Add more dishes or reduce the gap.</div>';
+  }
+
+  function spin(meal) {
+    var date = $('todayDate').value;
+    var key = date + '|' + meal;
+    var other = E.MEALS.filter(function (m) { return m !== meal; })[0];
+    var otherPick = picks[date + '|' + other];
+    // Treat the other meal's unsaved pick as booked so lunch and dinner never clash.
+    var hist = state.history.slice();
+    if (otherPick) hist = E.upsertEntry(hist, { date: date, meal: other, dishId: otherPick });
+    var exclude = picks[key] ? [picks[key]] : [];
+    var dish = E.pickDish(state, date, meal, { history: hist, exclude: exclude }) ||
+      E.pickDish(state, date, meal, { history: hist }); // allow same result if it's the only option
+    if (dish) picks[key] = dish.id; else { delete picks[key]; toast('No eligible dish for ' + meal); }
+    renderToday(meal);
+  }
+
+  $('mealCards').addEventListener('click', function (e) {
+    var b = e.target.closest('button'); if (!b) return;
+    var date = $('todayDate').value;
+    if (b.dataset.spin) spin(b.dataset.spin);
+    if (b.dataset.save) {
+      var meal = b.dataset.save, key = date + '|' + meal;
+      state.history = E.upsertEntry(state.history, { date: date, meal: meal, dishId: picks[key] });
+      delete picks[key]; save(); renderToday(); toast('Saved: ' + dishName(slotEntry(date, meal).dishId));
+    }
+    if (b.dataset.unsave) {
+      var m = b.dataset.unsave;
+      state.history = state.history.filter(function (x) { return !(x.date === date && x.meal === m); });
+      save(); renderToday();
+    }
+  });
+  $('spinBoth').addEventListener('click', function () { spin('lunch'); spin('dinner'); });
+  $('todayDate').addEventListener('change', function () { renderToday(); });
+
+  /* ---------- PLANNER ---------- */
+  function planMeals() { return E.MEALS.filter(function (m) { return $('plan' + m[0].toUpperCase() + m.slice(1)).checked; }); }
+
+  function generatePlan() {
+    var meals = planMeals();
+    if (!meals.length) { toast('Select lunch and/or dinner'); return; }
+    var days = Math.max(1, Math.min(31, +$('planDays').value || 7));
+    plan = E.planRange(state, $('planStart').value, days, meals);
+    renderPlan();
+  }
+
+  function rerollSlot(i) {
+    var slot = plan[i];
+    var hist = state.history.slice();
+    plan.forEach(function (p, j) { if (j !== i && p.dishId && !p.fixed) hist.push({ date: p.date, meal: p.meal, dishId: p.dishId }); });
+    var dish = E.pickDish(state, slot.date, slot.meal, { history: hist, exclude: slot.dishId ? [slot.dishId] : [] });
+    if (dish) { slot.dishId = dish.id; renderPlan(); } else toast('No other dish fits this slot');
+  }
+
+  function renderPlan() {
+    $('planOut').hidden = !plan;
+    if (!plan) return;
+    var meals = planMeals();
+    var dates = []; plan.forEach(function (p) { if (dates.indexOf(p.date) === -1) dates.push(p.date); });
+    var html = '<tr><th>Date</th>' + meals.map(function (m) { return '<th>' + MEAL_LABEL[m] + '</th>'; }).join('') + '</tr>';
+    dates.forEach(function (d) {
+      html += '<tr><td><strong>' + fmt(d) + '</strong></td>';
+      meals.forEach(function (m) {
+        var i = -1; plan.forEach(function (p, j) { if (p.date === d && p.meal === m) i = j; });
+        var p = plan[i];
+        if (!p) { html += '<td></td>'; return; }
+        html += '<td>' + (p.dishId ? esc(dishName(p.dishId)) : '<span class="pill warn">No eligible dish</span>') + ' ';
+        html += p.fixed ? '<span class="pill saved">logged</span>' : '<button class="btn small ghost" data-reroll="' + i + '" title="Pick another">🎲</button>';
+        html += '</td>';
+      });
+      html += '</tr>';
+    });
+    $('planTable').innerHTML = html;
+  }
+
+  $('planGen').addEventListener('click', generatePlan);
+  $('planRegen').addEventListener('click', generatePlan);
+  $('planTable').addEventListener('click', function (e) { var b = e.target.closest('[data-reroll]'); if (b) rerollSlot(+b.dataset.reroll); });
+  $('planSave').addEventListener('click', function () {
+    var n = 0;
+    plan.forEach(function (p) { if (!p.fixed && p.dishId) { state.history = E.upsertEntry(state.history, p); p.fixed = true; n++; } });
+    save(); renderPlan(); toast(n + ' meals saved to log');
+  });
+
+  /* ---------- DISHES ---------- */
+  function upcoming(d, today) {
+    var next = null;
+    state.history.forEach(function (h) { if (h.dishId === d.id && h.date > today && (!next || h.date < next)) next = h.date; });
+    return next;
+  }
+  function renderDishes() {
+    var today = E.todayStr();
+    var q = $('dishFilter').value.trim().toLowerCase();
+    var list = state.dishes.filter(function (d) { return !q || d.name.toLowerCase().indexOf(q) !== -1; })
+      .sort(function (a, b) { return a.name.localeCompare(b.name); });
+    $('dishCount').textContent = '(' + state.dishes.filter(function (d) { return d.active !== false; }).length + ' active / ' + state.dishes.length + ')';
+    var html = '<tr><th>Dish</th><th>Meals</th><th>Gap (days)</th><th class="hide-sm">Last made</th><th>Next available</th><th></th></tr>';
+    list.forEach(function (d) {
+      var last = E.lastCooked(d, state.history, today);
+      var next = E.nextAvailable(d, today, state.history, state.settings);
+      var mealSel = d.meals.length === 2 ? 'both' : d.meals[0];
+      html += '<tr data-id="' + d.id + '"' + (d.active === false ? ' style="opacity:.5"' : '') + '>' +
+        '<td><strong>' + esc(d.name) + '</strong></td>' +
+        '<td><select data-field="meals">' +
+          ['both', 'lunch', 'dinner'].map(function (v) { return '<option value="' + v + '"' + (v === mealSel ? ' selected' : '') + '>' + { both: 'Both', lunch: 'Lunch', dinner: 'Dinner' }[v] + '</option>'; }).join('') +
+        '</select></td>' +
+        '<td><input type="number" min="0" max="365" data-field="gap" value="' + (d.gap == null ? '' : d.gap) + '" placeholder="' + state.settings.gapDays + '" title="Blank = default (' + gapLabel(d) + ')"></td>' +
+        '<td class="hide-sm">' + (last ? rel(last) : '<span class="muted">never</span>') +
+          (upcoming(d, today) ? '<div class="sub">planned ' + fmt(upcoming(d, today)) + '</div>' : '') + '</td>' +
+        '<td>' + (d.active === false ? '<span class="muted">paused</span>' : next === today ? '<span class="pill ok">now</span>' : '<span class="pill warn">' + (next ? fmt(next) : 'n/a') + '</span>') + '</td>' +
+        '<td><div class="actions">' +
+          '<button class="btn small" data-act="toggle">' + (d.active === false ? 'Resume' : 'Pause') + '</button>' +
+          '<button class="btn small" data-act="rename">Rename</button>' +
+          '<button class="btn small danger" data-act="delete">Delete</button>' +
+        '</div></td></tr>';
+    });
+    if (!list.length) html += '<tr><td colspan="6" class="muted">No dishes found.</td></tr>';
+    $('dishTable').innerHTML = html;
+  }
+
+  $('addForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var name = $('newName').value.trim(); if (!name) return;
+    if (state.dishes.some(function (d) { return d.name.toLowerCase() === name.toLowerCase(); })) { toast('That dish already exists'); return; }
+    var m = $('newMeals').value, g = $('newGap').value;
+    state.dishes.push({ id: newId(), name: name, meals: m === 'both' ? ['lunch', 'dinner'] : [m], gap: g === '' ? null : Math.max(0, +g), active: true });
+    save(); this.reset(); renderDishes(); toast('Added: ' + name);
+  });
+  $('dishFilter').addEventListener('input', renderDishes);
+  $('dishTable').addEventListener('change', function (e) {
+    var tr = e.target.closest('tr[data-id]'); if (!tr) return;
+    var d = dishById(tr.dataset.id);
+    if (e.target.dataset.field === 'meals') d.meals = e.target.value === 'both' ? ['lunch', 'dinner'] : [e.target.value];
+    if (e.target.dataset.field === 'gap') d.gap = e.target.value === '' ? null : Math.max(0, +e.target.value);
+    save(); renderDishes();
+  });
+  $('dishTable').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-act]'); if (!b) return;
+    var d = dishById(b.closest('tr').dataset.id);
+    if (b.dataset.act === 'toggle') d.active = d.active === false;
+    if (b.dataset.act === 'rename') { var n = prompt('Rename dish', d.name); if (n && n.trim()) d.name = n.trim(); }
+    if (b.dataset.act === 'delete') {
+      if (!confirm('Delete "' + d.name + '"? Its past log entries will also be removed.')) return;
+      state.dishes = state.dishes.filter(function (x) { return x !== d; });
+      state.history = state.history.filter(function (h) { return h.dishId !== d.id; });
+    }
+    save(); renderDishes();
+  });
+
+  /* ---------- HISTORY ---------- */
+  function renderHistory() {
+    $('logDish').innerHTML = state.dishes.slice().sort(function (a, b) { return a.name.localeCompare(b.name); })
+      .map(function (d) { return '<option value="' + d.id + '">' + esc(d.name) + '</option>'; }).join('');
+    var rows = state.history.slice().sort(function (a, b) { return a.date === b.date ? (a.meal < b.meal ? -1 : 1) : (a.date < b.date ? 1 : -1); });
+    var html = '<tr><th>Date</th><th>Meal</th><th>Dish</th><th></th></tr>';
+    rows.forEach(function (h) {
+      html += '<tr><td>' + fmt(h.date) + ' <span class="sub hide-sm">(' + rel(h.date) + ')</span></td><td>' + MEAL_LABEL[h.meal] + '</td><td>' + esc(dishName(h.dishId)) +
+        '</td><td><div class="actions"><button class="btn small danger" data-del="' + h.id + '">Remove</button></div></td></tr>';
+    });
+    if (!rows.length) html += '<tr><td colspan="4" class="muted">No meals logged yet. Use the Today tab or the Week Planner.</td></tr>';
+    $('historyTable').innerHTML = html;
+  }
+  $('logForm').addEventListener('submit', function (e) {
+    e.preventDefault();
+    var entry = { date: $('logDate').value, meal: $('logMeal').value, dishId: $('logDish').value };
+    var d = dishById(entry.dishId);
+    var clash = E.conflicts(d, entry.date, state.history, state.settings, entry);
+    if (clash.length && !confirm('"' + d.name + '" was also logged on ' + fmt(clash[0].date) + ', which is inside its ' + E.effectiveGap(d, state.settings) + '-day gap. Log it anyway?')) return;
+    state.history = E.upsertEntry(state.history, entry);
+    save(); renderHistory(); toast('Logged');
+  });
+  $('historyTable').addEventListener('click', function (e) {
+    var b = e.target.closest('[data-del]'); if (!b) return;
+    state.history = state.history.filter(function (h) { return h.id !== b.dataset.del; });
+    save(); renderHistory();
+  });
+  $('clearHistory').addEventListener('click', function () {
+    if (!confirm('Clear the entire meal log? Dishes are kept.')) return;
+    state.history = []; save(); renderHistory();
+  });
+
+  /* ---------- SETTINGS ---------- */
+  function renderSettings() { $('setGap').value = state.settings.gapDays; $('setWeighted').checked = !!state.settings.weighted; }
+  $('setGap').addEventListener('change', function () { state.settings.gapDays = Math.max(0, Math.min(365, +this.value || 0)); save(); renderSettings(); toast('Default gap: ' + state.settings.gapDays + ' days'); });
+  $('setWeighted').addEventListener('change', function () { state.settings.weighted = this.checked; save(); });
+  $('exportBtn').addEventListener('click', function () {
+    var blob = new Blob([JSON.stringify(state, null, 2)], { type: 'application/json' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = 'meal-randomizer-backup-' + E.todayStr() + '.json';
+    document.body.appendChild(a); a.click(); a.remove();
+  });
+  $('importFile').addEventListener('change', function () {
+    var f = this.files[0]; if (!f) return;
+    var r = new FileReader();
+    r.onload = function () {
+      try {
+        var s = JSON.parse(r.result);
+        if (!Array.isArray(s.dishes) || !Array.isArray(s.history) || !s.settings) throw new Error('bad');
+        state = s; picks = {}; plan = null; save(); renderAll(); toast('Backup restored');
+      } catch (err) { toast('Not a valid backup file'); }
+    };
+    r.readAsText(f); this.value = '';
+  });
+  $('resetBtn').addEventListener('click', function () {
+    if (!confirm('Replace all dishes and the meal log with the sample list?')) return;
+    state = sampleState(); picks = {}; plan = null; save(); renderAll(); toast('Reset done');
+  });
+
+  /* ---------- boot ---------- */
+  function renderAll() { renderToday(); renderPlan(); renderDishes(); renderHistory(); renderSettings(); }
+  var t = E.todayStr();
+  $('todayDate').value = t; $('planStart').value = t; $('logDate').value = t;
+  renderAll();
+})();
+</script>
+</body>
+</html>
