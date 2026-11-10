@@ -2,7 +2,15 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#c2410c">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Meals">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <title>Meal Randomizer</title>
 <meta name="description" content="Randomly pick lunch and dinner dishes with a minimum gap before any dish repeats.">
 <style>
@@ -25,7 +33,7 @@
   }
   * { box-sizing: border-box; }
   body { margin: 0; background: var(--bg); color: var(--text); font: 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
-  header { background: var(--surface); border-bottom: 1px solid var(--border); }
+  header { background: var(--surface); border-bottom: 1px solid var(--border); padding-top: env(safe-area-inset-top); }
   .wrap { max-width: 960px; margin: 0 auto; padding: 0 16px; }
   .top { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 0 6px; }
   h1 { font-size: 20px; margin: 0; }
@@ -34,6 +42,9 @@
   nav { display: flex; gap: 4px; overflow-x: auto; }
   nav button { background: none; border: 0; border-bottom: 3px solid transparent; padding: 10px 12px; color: var(--muted); font: inherit; font-weight: 600; cursor: pointer; white-space: nowrap; }
   nav button.active { color: var(--accent); border-bottom-color: var(--accent); }
+  nav .ic { margin-right: 6px; }
+  .install-tip { display: none; }
+  .install-tip.show { display: block; }
   main { padding: 20px 0 48px; }
   section[hidden] { display: none; }
   .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 16px; box-shadow: var(--shadow); margin-bottom: 16px; }
@@ -76,6 +87,22 @@
   @media (max-width: 600px) {
     .hide-sm { display: none; }
     .pick { font-size: 22px; }
+    /* App-style bottom tab bar on phones */
+    nav { position: fixed; left: 0; right: 0; bottom: 0; z-index: 10; background: var(--surface); border-top: 1px solid var(--border); padding-bottom: env(safe-area-inset-bottom); overflow: visible; gap: 0; }
+    nav button { flex: 1; display: flex; flex-direction: column; align-items: center; padding: 8px 2px 6px; font-size: 11px; border-bottom: 0; border-top: 3px solid transparent; }
+    nav button.active { border-top-color: var(--accent); }
+    nav .ic { margin: 0 0 2px; font-size: 20px; line-height: 1; }
+    main { padding-bottom: calc(96px + env(safe-area-inset-bottom)); }
+    .toast { bottom: calc(80px + env(safe-area-inset-bottom)); }
+    .btn { min-height: 40px; }
+    .top { padding-bottom: 12px; }
+    /* Dish list as compact cards */
+    #dishTable tr:first-child { display: none; }
+    #dishTable tr { display: grid; grid-template-columns: auto auto 1fr; gap: 8px; align-items: center; padding: 12px 0; border-bottom: 1px solid var(--border); }
+    #dishTable td { border: 0; padding: 0; }
+    #dishTable td:first-child, #dishTable td:last-child { grid-column: 1 / -1; }
+    #dishTable td.hide-sm { display: none; }
+    #dishTable .actions { justify-content: flex-start; }
   }
 </style>
 </head>
@@ -84,14 +111,17 @@
   <div class="wrap">
     <div class="top">
       <h1>🍛 Meal <span>Randomizer</span></h1>
-      <button class="btn ghost small" id="themeBtn" title="Toggle theme">◐ Theme</button>
+      <div class="row" style="gap:6px">
+        <button class="btn primary small" id="installBtn" hidden>⬇ Install app</button>
+        <button class="btn ghost small" id="themeBtn" title="Toggle theme">◐ Theme</button>
+      </div>
     </div>
     <nav id="tabs">
-      <button data-tab="today" class="active">Today</button>
-      <button data-tab="plan">Week Planner</button>
-      <button data-tab="dishes">Dishes</button>
-      <button data-tab="history">History</button>
-      <button data-tab="settings">Settings</button>
+      <button data-tab="today" class="active"><span class="ic">🎲</span><span>Today</span></button>
+      <button data-tab="plan"><span class="ic">📅</span><span>Planner</span></button>
+      <button data-tab="dishes"><span class="ic">🍲</span><span>Dishes</span></button>
+      <button data-tab="history"><span class="ic">📜</span><span>History</span></button>
+      <button data-tab="settings"><span class="ic">⚙️</span><span>Settings</span></button>
     </nav>
   </div>
 </header>
@@ -99,6 +129,10 @@
 <main class="wrap">
   <!-- TODAY -->
   <section id="tab-today">
+    <div class="card install-tip" id="iosTip">
+      <strong>Install on iPhone:</strong> tap the <strong>Share</strong> button in Safari, then <strong>Add to Home Screen</strong>. The app then opens full-screen and works offline.
+      <button class="btn small ghost" id="iosTipClose" style="margin-left:6px">Got it</button>
+    </div>
     <div class="card row">
       <label for="todayDate">Date</label>
       <input type="date" id="todayDate">
@@ -255,6 +289,10 @@
     var p = date.split('-');
     return new Date(+p[0], +p[1] - 1, +p[2]).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
   }
+  function fmtShort(date) {
+    var p = date.split('-');
+    return new Date(+p[0], +p[1] - 1, +p[2]).toLocaleDateString('en-IN', { weekday: 'short', day: 'numeric', month: 'short' });
+  }
   function rel(date) {
     var n = E.daysBetween(E.todayStr(), date);
     if (n === 0) return 'today'; if (n === 1) return 'tomorrow'; if (n === -1) return 'yesterday';
@@ -379,7 +417,7 @@
     var dates = []; plan.forEach(function (p) { if (dates.indexOf(p.date) === -1) dates.push(p.date); });
     var html = '<tr><th>Date</th>' + meals.map(function (m) { return '<th>' + MEAL_LABEL[m] + '</th>'; }).join('') + '</tr>';
     dates.forEach(function (d) {
-      html += '<tr><td><strong>' + fmt(d) + '</strong></td>';
+      html += '<tr><td style="white-space:nowrap"><strong>' + fmtShort(d) + '</strong></td>';
       meals.forEach(function (m) {
         var i = -1; plan.forEach(function (p, j) { if (p.date === d && p.meal === m) i = j; });
         var p = plan[i];
@@ -525,6 +563,28 @@
     if (!confirm('Replace all dishes and the meal log with the sample list?')) return;
     state = sampleState(); picks = {}; plan = null; save(); renderAll(); toast('Reset done');
   });
+
+  /* ---------- install as app (PWA) ---------- */
+  var deferredInstall = null;
+  window.addEventListener('beforeinstallprompt', function (e) { e.preventDefault(); deferredInstall = e; $('installBtn').hidden = false; });
+  $('installBtn').addEventListener('click', function () {
+    if (!deferredInstall) return;
+    deferredInstall.prompt();
+    deferredInstall.userChoice.then(function () { deferredInstall = null; $('installBtn').hidden = true; });
+  });
+  window.addEventListener('appinstalled', function () { $('installBtn').hidden = true; toast('App installed'); });
+  var standalone = matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  var isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  var tipDismissed = false;
+  try { tipDismissed = localStorage.getItem(STORE + '.iosTip') === '1'; } catch (e) { /* ignore */ }
+  if (isIOS && !standalone && !tipDismissed) $('iosTip').classList.add('show');
+  $('iosTipClose').addEventListener('click', function () {
+    $('iosTip').classList.remove('show');
+    try { localStorage.setItem(STORE + '.iosTip', '1'); } catch (e) { /* ignore */ }
+  });
+  if ('serviceWorker' in navigator && /^https?:$/.test(location.protocol)) {
+    window.addEventListener('load', function () { navigator.serviceWorker.register('sw.js').catch(function () { /* offline support unavailable */ }); });
+  }
 
   /* ---------- boot ---------- */
   function renderAll() { renderToday(); renderPlan(); renderDishes(); renderHistory(); renderSettings(); }
