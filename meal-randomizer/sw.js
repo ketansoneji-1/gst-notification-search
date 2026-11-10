@@ -4,7 +4,7 @@
  * (stale-while-revalidate). Bump VERSION when shipping changes so old caches
  * are cleared.
  */
-var VERSION = 'meals-v1';
+var VERSION = 'meals-v2';
 var ASSETS = [
   './',
   './index.html',
