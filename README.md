@@ -59,6 +59,12 @@ The `ca-agents/` folder contains a starter kit of specialist AI agents (GST advi
 
 ---
 
+## Meal Randomizer (Lunch & Dinner)
+
+The `meal-randomizer/` folder contains a separate, browser-only app that randomly picks lunch and dinner dishes and enforces a minimum gap (in days) before any dish repeats. It also includes a week planner, a meal log and JSON backup. See [`meal-randomizer/README.md`](meal-randomizer/README.md).
+
+---
+
 ## How to Add New Notifications / Circulars
 
 ### Option A: Edit Directly on GitHub (Easiest)
