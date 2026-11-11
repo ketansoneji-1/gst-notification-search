@@ -38,6 +38,7 @@ DEFAULTS = {
     "office_start": "10:00",   # default reporting time
     "grace_min": "10",         # minutes allowed after reporting time
     "tolerance_min": "10",     # allowed gap between declared and PC time
+    "carry_min": "60",         # unidentified work is attributed to the client worked on up to this many minutes earlier (0 = off)
     "weekly_off": "6",         # comma list, Monday=0 ... Sunday=6
     "holidays": "",            # one YYYY-MM-DD per line
     "firm_name": "Office Attendance",
@@ -47,8 +48,8 @@ DEFAULTS = {
 WORK_TYPES = {
     "GST Returns": "gst, gstr, gstr1, gstr3b, gstr2a, gstr2b, 3b, goods and services tax, e-way bill, eway",
     "GST Annual Return / Audit": "gstr-9, gstr9, gstr-9c, 9c",
-    "Income Tax Return": "income tax, incometax, e-filing, itr, 26as, ais, computation",
-    "TDS / TCS": "tds, tcs, traces, 26q, 24q, 27q",
+    "Income Tax Return": "income tax, incometax, e-filing, itr, 26as, ais, computation, winman, spectrum, speqta, kdk",
+    "TDS / TCS": "tds, tcs, traces, 26q, 24q, 27q, wintds, zen tds",
     "Tax Audit": "tax audit, 3cd, 3ca, 3cb",
     "Statutory Audit": "statutory audit, audit report, caro",
     "Accounting / Bookkeeping": "tally, tallyprime, busy, ledger, bank reconciliation",
@@ -56,7 +57,7 @@ WORK_TYPES = {
     "Notices / Assessments / Appeals": "notice, drc, asmt, appeal, scn, assessment",
     "Consultancy / Advisory": "",
     "Certification": "certificate, 15cb, 15ca",
-    "Office / Administration": "outlook, gmail, whatsapp, teams",
+    "Office / Administration": "outlook, gmail, mail, inbox, whatsapp, teams, downloads",
 }
 NO_CLIENT, NO_TYPE = "(Client not identified)", "(Unclassified)"
 
@@ -79,10 +80,10 @@ CREATE TABLE IF NOT EXISTS clients(id INTEGER PRIMARY KEY, name TEXT NOT NULL UN
   keywords TEXT NOT NULL DEFAULT '', active INTEGER NOT NULL DEFAULT 1);
 CREATE TABLE IF NOT EXISTS work_types(id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE,
   keywords TEXT NOT NULL DEFAULT '', active INTEGER NOT NULL DEFAULT 1);
-CREATE TABLE IF NOT EXISTS activity(
-  win_user TEXT, day TEXT, app TEXT, title TEXT, seconds INTEGER NOT NULL DEFAULT 0,
-  path TEXT NOT NULL DEFAULT '',     -- file / folder the program was opened with, when known
-  PRIMARY KEY(win_user, day, app, title));
+CREATE TABLE IF NOT EXISTS worklog(
+  win_user TEXT, day TEXT, slot TEXT,   -- slot = HH:MM at which the 5-minute batch arrived
+  app TEXT, title TEXT, path TEXT NOT NULL DEFAULT '',   -- path = open file's full path, when known
+  seconds INTEGER NOT NULL DEFAULT 0, PRIMARY KEY(win_user, day, slot, app, title));
 """
 
 
@@ -96,11 +97,23 @@ def init_db():
     con = db()
     con.executescript(SCHEMA)
     con.execute("PRAGMA journal_mode=WAL")
-    if "path" not in [r["name"] for r in con.execute("PRAGMA table_info(activity)")]:   # databases from v1
-        con.execute("ALTER TABLE activity ADD COLUMN path TEXT NOT NULL DEFAULT ''")
+    if con.execute("SELECT 1 FROM sqlite_master WHERE name='activity'").fetchone():   # earlier versions
+        cols = [r["name"] for r in con.execute("PRAGMA table_info(activity)")]
+        con.execute("INSERT OR IGNORE INTO worklog(win_user,day,slot,app,title,path,seconds) "
+                    f"SELECT win_user,day,'',app,title,{'path' if 'path' in cols else "''"},seconds FROM activity")
+        con.execute("DROP TABLE activity")
     for k, v in DEFAULTS.items():
         con.execute("INSERT OR IGNORE INTO settings VALUES(?,?)", (k, v))
     con.execute("INSERT OR IGNORE INTO settings VALUES('agent_key',?)", (secrets.token_hex(12),))
+    if not con.execute("SELECT 1 FROM settings WHERE key='kw_v2'").fetchone():       # keywords added later
+        for name, extra in (("Income Tax Return", "winman, spectrum, speqta, kdk"), ("TDS / TCS", "wintds, zen tds"),
+                            ("Office / Administration", "mail, inbox, downloads")):
+            r = con.execute("SELECT id,keywords FROM work_types WHERE name=?", (name,)).fetchone()
+            if r:
+                have = [k.strip() for k in r["keywords"].split(",") if k.strip()]
+                have += [k.strip() for k in extra.split(",") if k.strip() not in have]
+                con.execute("UPDATE work_types SET keywords=? WHERE id=?", (", ".join(have), r["id"]))
+        con.execute("INSERT INTO settings VALUES('kw_v2','1')")
     if not con.execute("SELECT 1 FROM settings WHERE key='masters_seeded'").fetchone():
         con.executemany("INSERT OR IGNORE INTO work_types(name,keywords) VALUES(?,?)", list(WORK_TYPES.items()))
         con.execute("INSERT INTO settings VALUES('masters_seeded','1')")
@@ -468,10 +481,10 @@ class Handler(BaseHTTPRequestHandler):
             except (AttributeError, TypeError, ValueError):
                 continue
             if sec:
-                con.execute("INSERT INTO activity(win_user,day,app,title,seconds,path) VALUES(?,?,?,?,?,?) "
-                            "ON CONFLICT(win_user,day,app,title) DO UPDATE SET seconds=seconds+excluded.seconds, "
+                con.execute("INSERT INTO worklog(win_user,day,slot,app,title,seconds,path) VALUES(?,?,?,?,?,?,?) "
+                            "ON CONFLICT(win_user,day,slot,app,title) DO UPDATE SET seconds=seconds+excluded.seconds, "
                             "path=CASE WHEN excluded.path<>'' THEN excluded.path ELSE path END",
-                            (user, day, app, title, sec, path))
+                            (user, day, ts[11:16], app, title, sec, path))
         return {"ok": True, "server_time": ts}
 
     # ---------- staff ----------
@@ -588,20 +601,53 @@ class Handler(BaseHTTPRequestHandler):
         return f, t
 
     def work_entries(self, con, f, t):
+        """One row per staff / day / window, with client and type of work worked out.
+
+        A window whose client cannot be identified (Tally, tax software, e-mail, portals) is attributed
+        to the client the same person was identifiably working on shortly before (within carry_min
+        minutes) and marked inferred - staff normally stay on one client across several programs.
+        """
         crules, trules = matchers(con, "clients", True), matchers(con, "work_types", False)
-        out = []
-        for r in con.execute(
-                "SELECT a.day,s.id staff_id,s.name staff,a.app,a.title,a.path,a.seconds FROM activity a "
-                "JOIN staff s ON s.win_user=a.win_user AND s.win_user<>'' "
-                "WHERE a.day BETWEEN ? AND ? ORDER BY a.day DESC,a.seconds DESC", (f, t)):
-            e = dict(r)
-            title = norm(e["title"])
-            e["client"] = classify(title, crules, NO_CLIENT)
-            if e["client"] == NO_CLIENT and e["path"]:        # fall back to the file's folder path
-                e["client"] = classify(norm(e["path"]), crules, NO_CLIENT)
-            e["type"] = classify(norm(e["app"]) + title, trules, NO_TYPE)
-            out.append(e)
-        return out
+        carry = int(get_settings(con).get("carry_min", "60") or 0)
+        agg, cur = {}, None                      # cur = (win_user, day, client, minute last seen)
+        rows = con.execute(
+            "SELECT a.win_user,a.day,a.slot,s.id staff_id,s.name staff,a.app,a.title,a.path,a.seconds FROM worklog a "
+            "JOIN staff s ON s.win_user=a.win_user AND s.win_user<>'' "
+            "WHERE a.day BETWEEN ? AND ? ORDER BY a.win_user,a.day,a.slot,a.seconds DESC", (f, t)).fetchall()
+        i = 0
+        while i < len(rows):
+            j = i                                 # rows[i:j] = one 5-minute batch of one person
+            while j < len(rows) and (rows[j]["win_user"], rows[j]["day"], rows[j]["slot"]) == \
+                    (rows[i]["win_user"], rows[i]["day"], rows[i]["slot"]):
+                j += 1
+            batch, slot_min = [], mins(rows[i]["slot"]) if rows[i]["slot"] else None
+            for r in rows[i:j]:
+                e = dict(r)
+                title = norm(e["title"])
+                e["client"] = classify(title, crules, NO_CLIENT)
+                if e["client"] == NO_CLIENT and e["path"]:        # fall back to the file's folder path
+                    e["client"] = classify(norm(e["path"]), crules, NO_CLIENT)
+                e["type"] = classify(norm(e["app"]) + title, trules, NO_TYPE)
+                e["inferred"] = False
+                batch.append(e)
+            known = [e for e in batch if e["client"] != NO_CLIENT]   # longest first (query order)
+            if known and slot_min is not None:
+                cur = (rows[i]["win_user"], rows[i]["day"], known[0]["client"], slot_min)
+            elif cur and (slot_min is None or cur[:2] != (rows[i]["win_user"], rows[i]["day"])
+                          or slot_min - cur[3] > carry):
+                cur = None
+            for e in batch:
+                if e["client"] == NO_CLIENT and cur and carry:
+                    e["client"], e["inferred"] = cur[2], True
+                k = (e["day"], e["staff_id"], e["app"], e["title"], e["client"], e["inferred"])
+                if k in agg:
+                    agg[k]["seconds"] += e["seconds"]
+                    agg[k]["path"] = agg[k]["path"] or e["path"]
+                else:
+                    e.pop("win_user"), e.pop("slot")
+                    agg[k] = e
+            i = j
+        return sorted(agg.values(), key=lambda e: (e["day"], e["seconds"]), reverse=True)
 
     def get_admin_work(self, con, q, b):
         self.need_admin(con)
@@ -625,9 +671,9 @@ class Handler(BaseHTTPRequestHandler):
         f, t = self.work_range(q)
         buf = io.StringIO()
         w = csv.writer(buf)
-        w.writerow(["Date", "Staff", "Client", "Type of work", "Hours", "Minutes", "Program", "Window title", "File / folder"])
+        w.writerow(["Date", "Staff", "Client", "Client inferred", "Type of work", "Hours", "Minutes", "Program", "Window title", "File / folder"])
         for e in self.work_entries(con, f, t):
-            w.writerow([e["day"], e["staff"], e["client"], e["type"], round(e["seconds"] / 3600, 2),
+            w.writerow([e["day"], e["staff"], e["client"], "Yes" if e["inferred"] else "", e["type"], round(e["seconds"] / 3600, 2),
                         round(e["seconds"] / 60, 1), e["app"], e["title"], e["path"]])
         return ("\ufeff" + buf.getvalue(), 200, "text/csv",
                 {"Content-Disposition": f'attachment; filename="work-log-{f}-to-{t}.csv"'})
@@ -784,7 +830,7 @@ class Handler(BaseHTTPRequestHandler):
         self.need_admin(con)
         if not valid_time(str(b.get("office_start", ""))):
             raise ApiError("Reporting time must be HH:MM.")
-        for k in ("grace_min", "tolerance_min"):
+        for k in ("grace_min", "tolerance_min", "carry_min"):
             if not str(b.get(k, "")).isdigit():
                 raise ApiError("Minutes must be a whole number.")
         hol = [x.strip() for x in str(b.get("holidays", "")).splitlines() if x.strip()]
@@ -792,7 +838,7 @@ class Handler(BaseHTTPRequestHandler):
             raise ApiError("Holidays must be one date per line as YYYY-MM-DD.")
         offs = ",".join(str(int(x)) for x in b.get("weekly_off", []) if str(x).isdigit() and 0 <= int(x) <= 6)
         vals = {"office_start": b["office_start"], "grace_min": str(int(b["grace_min"])),
-                "tolerance_min": str(int(b["tolerance_min"])), "weekly_off": offs,
+                "tolerance_min": str(int(b["tolerance_min"])), "carry_min": str(int(b["carry_min"])), "weekly_off": offs,
                 "holidays": "\n".join(hol), "firm_name": str(b.get("firm_name", "")).strip()[:80] or DEFAULTS["firm_name"]}
         for k, v in vals.items():
             con.execute("INSERT OR REPLACE INTO settings VALUES(?,?)", (k, v))

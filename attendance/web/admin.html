@@ -138,6 +138,7 @@
     <div class="tiles" id="wTiles"></div>
     <div class="card scroll">
       <h2>Client-wise: who did what, for how long</h2>
+      <p class="muted">"Inferred" hours are windows that do not show a client name (Tally, tax software, e-mail, portals) and are attributed to the client the same person was identifiably working on just before. Change or switch off the carry-forward period in Settings.</p>
       <table><thead><tr><th>Client</th><th>Type of work</th><th>Staff</th><th style="text-align:right">Hours</th></tr></thead><tbody id="wByClient"></tbody></table>
     </div>
     <div class="card scroll">
@@ -147,7 +148,7 @@
     </div>
     <div class="card scroll">
       <h2>Top windows where the client was not identified</h2>
-      <p class="muted">If a file, folder or company name here belongs to a client, add that word as a keyword for the client on the Clients tab. Reports, including past periods, update immediately.</p>
+      <p class="muted">These windows had no client name and no identified client shortly before. If a file, folder or company name here belongs to a client, add that word as a keyword for the client on the Clients tab. Reports, including past periods, update immediately.</p>
       <table><thead><tr><th>Program</th><th>Window title</th><th>Type of work</th><th style="text-align:right">Time</th></tr></thead><tbody id="wUnk"></tbody></table>
     </div>
     <div class="card scroll">
@@ -212,6 +213,7 @@
         <div><label>Reporting time</label><input type="time" id="cStart"></div>
         <div><label>Grace period (minutes) before marking Late</label><input type="number" min="0" id="cGrace"></div>
         <div><label>Mismatch tolerance (minutes) between declared and PC time</label><input type="number" min="0" id="cTol"></div>
+        <div><label>Work log: carry the last identified client forward for (minutes; 0 = off)</label><input type="number" min="0" id="cCarry"></div>
         <div><label>Weekly off</label><div id="cOff"></div></div>
         <div><label>Holidays (one date per line, YYYY-MM-DD)</label><textarea id="cHol" rows="5"></textarea></div>
         <div><label>New admin password (leave blank to keep)</label><input type="password" id="cPw"></div>
@@ -401,7 +403,7 @@ function renderWork() {
     .map(t => `<div class="tile"><b>${t[0]}</b><span>${t[1]}</span></div>`).join('');
   // client -> type -> staff
   $('wByClient').innerHTML = group(E, e => e.client).sort((a, b) => sum(b[1]) - sum(a[1])).map(([client, ce]) =>
-    `<tr style="background:#fafbfc"><td colspan="3"><b>${esc(client)}</b> <span class="muted">· ${total ? Math.round(100 * sum(ce) / total) : 0}% of active time</span></td><td ${R}><b>${h2(sum(ce))}</b></td></tr>` +
+    `<tr style="background:#fafbfc"><td colspan="3"><b>${esc(client)}</b> <span class="muted">· ${total ? Math.round(100 * sum(ce) / total) : 0}% of active time${sum(ce.filter(e => e.inferred)) ? ' · ' + h2(sum(ce.filter(e => e.inferred))) + ' h inferred' : ''}</span></td><td ${R}><b>${h2(sum(ce))}</b></td></tr>` +
     group(ce, e => e.type + '\u0001' + e.staff).sort((a, b) => a[0].localeCompare(b[0])).map(([k, x]) =>
       `<tr><td></td><td>${esc(x[0].type)}</td><td>${esc(x[0].staff)}</td><td ${R}>${h2(sum(x))}</td></tr>`).join('')).join('')
     || '<tr><td colspan="4">No activity recorded for this selection.</td></tr>';
@@ -417,7 +419,7 @@ function renderWork() {
     || '<tr><td colspan="4">Nothing unidentified for this selection.</td></tr>';
   const mm = m => m < 1 ? '<1m' : hrs(m / 60);
   $('wEntries').innerHTML = E.slice(0, 500).map(e => `<tr><td>${fmtDay(e.day)}</td><td>${esc(e.staff)}</td><td>${esc(e.app)}</td><td class="wrap">${esc(e.title)}${e.path ? `<span class="note">${esc(e.path)}</span>` : ''}</td>
-    <td>${esc(e.client)}</td><td>${esc(e.type)}</td><td ${R}>${mm(e.minutes)}</td></tr>`).join('')
+    <td>${esc(e.client)}${e.inferred ? ' <span class="muted">(inferred)</span>' : ''}</td><td>${esc(e.type)}</td><td ${R}>${mm(e.minutes)}</td></tr>`).join('')
     + (E.length > 500 ? `<tr><td colspan="7" class="muted">Showing 500 of ${E.length} rows (longest first within each day). Download the CSV for the full list.</td></tr>` : '')
     || '<tr><td colspan="7">No activity recorded for this selection.</td></tr>';
 }
@@ -481,7 +483,7 @@ const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
 async function loadSettings() {
   const s = await api('admin/settings');
   TOL = +s.tolerance_min;
-  $('cFirm').value = s.firm_name; $('cStart').value = s.office_start; $('cGrace').value = s.grace_min; $('cTol').value = s.tolerance_min; $('cHol').value = s.holidays; $('cPw').value = '';
+  $('cFirm').value = s.firm_name; $('cStart').value = s.office_start; $('cGrace').value = s.grace_min; $('cTol').value = s.tolerance_min; $('cCarry').value = s.carry_min; $('cHol').value = s.holidays; $('cPw').value = '';
   const offs = s.weekly_off.split(',');
   $('cOff').innerHTML = DAYS.map((d, i) => `<label style="display:inline-block;font-weight:400;margin-right:10px"><input type="checkbox" value="${i}" ${offs.includes(String(i)) ? 'checked' : ''}> ${d}</label>`).join('');
   const local = ['localhost', '127.0.0.1'].includes(location.hostname);
@@ -494,7 +496,7 @@ async function loadSettings() {
 }
 $('cSave').onclick = async () => {
   try {
-    await api('admin/settings', {firm_name: $('cFirm').value, office_start: $('cStart').value, grace_min: $('cGrace').value, tolerance_min: $('cTol').value,
+    await api('admin/settings', {firm_name: $('cFirm').value, office_start: $('cStart').value, grace_min: $('cGrace').value, tolerance_min: $('cTol').value, carry_min: $('cCarry').value,
       holidays: $('cHol').value, new_password: $('cPw').value, weekly_off: [...$('cOff').querySelectorAll('input:checked')].map(x => x.value)});
     $('cMsg').style.color = 'var(--ok)'; $('cMsg').textContent = 'Saved.'; loadSettings(); boot();
   } catch (e) { $('cMsg').style.color = 'var(--bad)'; $('cMsg').textContent = e.message; }
