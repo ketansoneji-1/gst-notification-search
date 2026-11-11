@@ -42,6 +42,12 @@ DEFAULTS = {
     "firm_name": "Office Attendance",
 }
 
+WORK_TYPES = ["GST Returns", "GST Annual Return / Audit", "Income Tax Return", "TDS / TCS", "Tax Audit",
+              "Statutory Audit", "Accounting / Bookkeeping", "ROC / Company Law", "Notices / Assessments / Appeals",
+              "Consultancy / Advisory", "Certification", "Office / Administration"]
+INTERNAL_CLIENT = "Office (non-client work)"
+WORK_BACK_DAYS = 1        # staff may log work for today and this many earlier days
+
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS settings(key TEXT PRIMARY KEY, value TEXT);
 CREATE TABLE IF NOT EXISTS staff(
@@ -57,6 +63,12 @@ CREATE TABLE IF NOT EXISTS manual(
   adm_in TEXT, adm_out TEXT, adm_remark TEXT, PRIMARY KEY(staff_id, day));
 CREATE TABLE IF NOT EXISTS sessions(token TEXT PRIMARY KEY, kind TEXT, staff_id INTEGER, expires REAL);
 CREATE TABLE IF NOT EXISTS audit(ts TEXT, who TEXT, action TEXT);
+CREATE TABLE IF NOT EXISTS clients(id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE, active INTEGER NOT NULL DEFAULT 1);
+CREATE TABLE IF NOT EXISTS work_types(id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE, active INTEGER NOT NULL DEFAULT 1);
+CREATE TABLE IF NOT EXISTS timesheet(
+  id INTEGER PRIMARY KEY, staff_id INTEGER NOT NULL, day TEXT NOT NULL, client_id INTEGER NOT NULL,
+  type_id INTEGER NOT NULL, minutes INTEGER NOT NULL, note TEXT, entered TEXT);
+CREATE INDEX IF NOT EXISTS ix_timesheet_day ON timesheet(day);
 """
 
 
@@ -73,6 +85,10 @@ def init_db():
     for k, v in DEFAULTS.items():
         con.execute("INSERT OR IGNORE INTO settings VALUES(?,?)", (k, v))
     con.execute("INSERT OR IGNORE INTO settings VALUES('agent_key',?)", (secrets.token_hex(12),))
+    if not con.execute("SELECT 1 FROM settings WHERE key='masters_seeded'").fetchone():
+        con.executemany("INSERT OR IGNORE INTO work_types(name) VALUES(?)", [(w,) for w in WORK_TYPES])
+        con.execute("INSERT OR IGNORE INTO clients(name) VALUES(?)", (INTERNAL_CLIENT,))
+        con.execute("INSERT INTO settings VALUES('masters_seeded','1')")
     con.commit()
     con.close()
 
@@ -505,6 +521,135 @@ class Handler(BaseHTTPRequestHandler):
             raise ApiError("New PIN must be 4 to 8 digits.")
         con.execute("UPDATE staff SET pin_hash=? WHERE id=?", (hash_secret(new), st["id"]))
         self.audit(con, st["name"], "changed own PIN")
+
+    # ---------- work log (staff side: own entries of the open days only) ----------
+    def work_days(self):
+        t = now().date()
+        return [(t - timedelta(days=i)).isoformat() for i in range(WORK_BACK_DAYS + 1)]
+
+    def get_work(self, con, q, b):
+        st = self.need_staff(con)
+        days = self.work_days()
+        ent = con.execute(
+            "SELECT t.id,t.day,c.name client,w.name type,t.minutes,t.note FROM timesheet t "
+            "JOIN clients c ON c.id=t.client_id JOIN work_types w ON w.id=t.type_id "
+            "WHERE t.staff_id=? AND t.day>=? ORDER BY t.day DESC,t.id DESC", (st["id"], days[-1])).fetchall()
+        return {"days": days,
+                "clients": [dict(r) for r in con.execute("SELECT id,name FROM clients WHERE active=1 ORDER BY name")],
+                "types": [dict(r) for r in con.execute("SELECT id,name FROM work_types WHERE active=1 ORDER BY name")],
+                "entries": [dict(r) for r in ent]}
+
+    def post_work(self, con, q, b):
+        st = self.need_staff(con)
+        day = b.get("day")
+        if day not in self.work_days():
+            raise ApiError("Work can be logged only for today or the previous day.")
+        try:
+            minutes = int(b.get("minutes"))
+        except (TypeError, ValueError):
+            raise ApiError("Enter the time spent.")
+        if not 5 <= minutes <= 16 * 60:
+            raise ApiError("Time spent must be between 5 minutes and 16 hours.")
+        if not con.execute("SELECT 1 FROM clients WHERE id=? AND active=1", (b.get("client_id"),)).fetchone():
+            raise ApiError("Select a client.")
+        if not con.execute("SELECT 1 FROM work_types WHERE id=? AND active=1", (b.get("type_id"),)).fetchone():
+            raise ApiError("Select the type of work.")
+        used = con.execute("SELECT COALESCE(SUM(minutes),0) FROM timesheet WHERE staff_id=? AND day=?",
+                           (st["id"], day)).fetchone()[0]
+        if used + minutes > 24 * 60:
+            raise ApiError("Total work logged for a day cannot exceed 24 hours.")
+        con.execute("INSERT INTO timesheet(staff_id,day,client_id,type_id,minutes,note,entered) VALUES(?,?,?,?,?,?,?)",
+                    (st["id"], day, b["client_id"], b["type_id"], minutes, str(b.get("note", "")).strip()[:300],
+                     now().strftime("%Y-%m-%d %H:%M:%S")))
+
+    def post_work_delete(self, con, q, b):
+        st = self.need_staff(con)
+        r = con.execute("SELECT day FROM timesheet WHERE id=? AND staff_id=?", (b.get("id"), st["id"])).fetchone()
+        if not r or r["day"] not in self.work_days():
+            raise ApiError("This entry can no longer be changed. Ask the admin.")
+        con.execute("DELETE FROM timesheet WHERE id=?", (b["id"],))
+
+    # ---------- work log (admin side) ----------
+    def work_range(self, q):
+        today = now().date()
+        f, t = q.get("from") or today.replace(day=1).isoformat(), q.get("to") or today.isoformat()
+        if not (valid_day(f) and valid_day(t)) or f > t:
+            raise ApiError("Bad date range")
+        if (date.fromisoformat(t) - date.fromisoformat(f)).days > 400:
+            raise ApiError("Choose a period of up to 400 days.")
+        return f, t
+
+    def work_entries(self, con, f, t):
+        return [dict(r) for r in con.execute(
+            "SELECT t.id,t.day,t.staff_id,s.name staff,c.name client,w.name type,t.minutes,t.note,t.entered "
+            "FROM timesheet t JOIN staff s ON s.id=t.staff_id JOIN clients c ON c.id=t.client_id "
+            "JOIN work_types w ON w.id=t.type_id WHERE t.day BETWEEN ? AND ? ORDER BY t.day DESC,s.name,t.id",
+            (f, t))]
+
+    def get_admin_work(self, con, q, b):
+        self.need_admin(con)
+        f, t = self.work_range(q)
+        today = now().date()
+        days, d = [], date.fromisoformat(f)
+        while d <= min(date.fromisoformat(t), today):
+            days.append(d.isoformat())
+            d += timedelta(days=1)
+        attended = {}
+        if days:
+            staff = con.execute("SELECT * FROM staff ORDER BY name").fetchall()
+            for r in rows_for(con, days, staff):
+                if r["hours"] is not None:
+                    attended[r["staff_id"]] = round(attended.get(r["staff_id"], 0) + r["hours"], 2)
+        return {"from": f, "to": t, "entries": self.work_entries(con, f, t), "attended_hours": attended}
+
+    def get_admin_work_export(self, con, q, b):
+        self.need_admin(con)
+        f, t = self.work_range(q)
+        buf = io.StringIO()
+        w = csv.writer(buf)
+        w.writerow(["Date", "Staff", "Client", "Type of work", "Hours", "Minutes", "Remark", "Entered at"])
+        for e in self.work_entries(con, f, t):
+            w.writerow([e["day"], e["staff"], e["client"], e["type"], round(e["minutes"] / 60, 2), e["minutes"],
+                        e["note"], e["entered"]])
+        return ("\ufeff" + buf.getvalue(), 200, "text/csv",
+                {"Content-Disposition": f'attachment; filename="work-log-{f}-to-{t}.csv"'})
+
+    def post_admin_work_delete(self, con, q, b):
+        self.need_admin(con)
+        r = con.execute("SELECT t.day,t.minutes,s.name staff,c.name client FROM timesheet t JOIN staff s ON s.id=t.staff_id "
+                        "JOIN clients c ON c.id=t.client_id WHERE t.id=?", (b.get("id"),)).fetchone()
+        if not r:
+            raise ApiError("Entry not found.")
+        con.execute("DELETE FROM timesheet WHERE id=?", (b["id"],))
+        self.audit(con, "admin", f"deleted work entry of {r['staff']} on {r['day']}: {r['client']}, {r['minutes']} min")
+
+    def get_admin_masters(self, con, q, b):
+        self.need_admin(con)
+        return {"clients": [dict(r) for r in con.execute("SELECT * FROM clients ORDER BY active DESC,name")],
+                "types": [dict(r) for r in con.execute("SELECT * FROM work_types ORDER BY active DESC,name")]}
+
+    def post_admin_masters(self, con, q, b):
+        """Add names (one per line) to clients / work types, or rename / (de)activate one."""
+        self.need_admin(con)
+        table = {"client": "clients", "type": "work_types"}.get(b.get("kind"))
+        if not table:
+            raise ApiError("Bad request")
+        if b.get("id"):
+            name = str(b.get("name", "")).strip()[:120]
+            if not name:
+                raise ApiError("Name is required.")
+            if con.execute(f"SELECT 1 FROM {table} WHERE name=? AND id<>?", (name, b["id"])).fetchone():
+                raise ApiError("That name already exists.")
+            con.execute(f"UPDATE {table} SET name=?, active=? WHERE id=?", (name, 1 if b.get("active", True) else 0, b["id"]))
+            return {"ok": True}
+        names = [n.strip()[:120] for n in str(b.get("names", "")).splitlines() if n.strip()]
+        if not names:
+            raise ApiError("Enter at least one name.")
+        added = 0
+        for n in names:
+            added += con.execute(f"INSERT OR IGNORE INTO {table}(name) VALUES(?)", (n,)).rowcount
+        self.audit(con, "admin", f"added {added} {b['kind']}(s)")
+        return {"ok": True, "added": added, "skipped": len(names) - added}
 
     # ---------- admin ----------
     def get_admin_state(self, con, q, b):

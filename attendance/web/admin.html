@@ -69,6 +69,8 @@
   <nav>
     <button data-tab="daily" class="on">Daily</button>
     <button data-tab="monthly">Monthly</button>
+    <button data-tab="work">Work log</button>
+    <button data-tab="masters">Clients</button>
     <button data-tab="staff">Staff</button>
     <button data-tab="settings">Settings</button>
   </nav>
@@ -122,6 +124,53 @@
         <tbody id="mDays"></tbody>
       </table>
     </div>
+  </section>
+
+  <!-- WORK LOG -->
+  <section id="tab-work" class="hidden">
+    <div class="bar">
+      <label style="margin:0">From</label><input type="date" id="wFrom">
+      <label style="margin:0">To</label><input type="date" id="wTo">
+      <select id="wfStaff"></select><select id="wfClient"></select><select id="wfType"></select>
+      <a class="sp" id="wExport" href="#" style="font-weight:600;color:var(--brand)">Download CSV (Excel)</a>
+    </div>
+    <div class="tiles" id="wTiles"></div>
+    <div class="card scroll">
+      <h2>Client-wise: who did what, for how long</h2>
+      <table><thead><tr><th>Client</th><th>Type of work</th><th>Staff</th><th style="text-align:right">Hours</th></tr></thead><tbody id="wByClient"></tbody></table>
+    </div>
+    <div class="card scroll">
+      <h2>Staff-wise: hours logged against hours attended</h2>
+      <table><thead><tr><th>Staff</th><th style="text-align:right">Logged</th><th style="text-align:right">Attended</th><th>Logged as % of attended</th><th style="text-align:right">Clients</th><th>Most time on</th></tr></thead><tbody id="wByStaff"></tbody></table>
+      <p class="muted" style="margin-bottom:0">Attended hours come from the attendance register for the whole period and are not narrowed by the client or work-type filter.</p>
+    </div>
+    <div class="card scroll">
+      <h2>Entries</h2>
+      <table><thead><tr><th>Date</th><th>Staff</th><th>Client</th><th>Type of work</th><th style="text-align:right">Time</th><th>Details</th><th></th></tr></thead><tbody id="wEntries"></tbody></table>
+    </div>
+  </section>
+
+  <!-- CLIENTS / WORK TYPES -->
+  <section id="tab-masters" class="hidden">
+    <div class="grid2" style="align-items:start">
+      <div class="card">
+        <h2>Clients</h2>
+        <label>Add clients (one name per line; paste from Excel or Tally)</label>
+        <textarea id="mcNames" rows="4" style="width:100%"></textarea>
+        <div class="msg" id="mcMsg"></div>
+        <button class="btn" id="mcAdd">Add clients</button>
+        <div class="scroll" style="margin-top:12px"><table><tbody id="mcBody"></tbody></table></div>
+      </div>
+      <div class="card">
+        <h2>Types of work</h2>
+        <label>Add types of work (one per line)</label>
+        <textarea id="mtNames" rows="4" style="width:100%"></textarea>
+        <div class="msg" id="mtMsg"></div>
+        <button class="btn" id="mtAdd">Add types</button>
+        <div class="scroll" style="margin-top:12px"><table><tbody id="mtBody"></tbody></table></div>
+      </div>
+    </div>
+    <p class="muted">Inactive names no longer appear for staff but remain in past reports.</p>
   </section>
 
   <!-- STAFF -->
@@ -230,7 +279,7 @@ async function boot() {
 $('btnOut').onclick = async () => { await api('logout', {}); boot(); };
 
 /* ---------- tabs ---------- */
-const loaders = {daily: loadDay, monthly: loadMonth, staff: loadStaff, settings: loadSettings};
+const loaders = {daily: loadDay, monthly: loadMonth, work: loadWork, masters: loadMasters, staff: loadStaff, settings: loadSettings};
 document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
   document.querySelectorAll('nav button').forEach(x => x.classList.toggle('on', x === b));
   for (const t in loaders) $('tab-' + t).classList.toggle('hidden', t !== b.dataset.tab);
@@ -242,6 +291,7 @@ async function start() {
     started = true;
     const t = new Date(), iso = new Date(t - t.getTimezoneOffset() * 60000).toISOString();
     $('dDate').value = iso.slice(0, 10); $('mMonth').value = iso.slice(0, 7);
+    $('wFrom').value = iso.slice(0, 8) + '01'; $('wTo').value = iso.slice(0, 10);
     setInterval(() => { if (!$('tab-daily').classList.contains('hidden') && !$('ovr').open) loadDay(); }, 60000);
   }
   try { TOL = +(await api('admin/settings')).tolerance_min; } catch (e) {}
@@ -312,6 +362,71 @@ function renderMonthDays() {
     <td>${fmtDay(r.day)}</td><td>${pill(r.status)}</td><td>${dash(r.auto_in)}</td><td>${dash(r.manual_in)}</td>
     <td>${dash(r.auto_out)}</td><td>${dash(r.manual_out)}</td><td>${hrs(r.hours)}</td><td class="wrap">${obs(r)}</td></tr>`).join('');
 }
+
+/* ---------- work log ---------- */
+let workData = null;
+const h2 = m => (m / 60).toFixed(2);
+const R = 'style="text-align:right"';
+['wFrom', 'wTo'].forEach(id => $(id).onchange = loadWork);
+['wfStaff', 'wfClient', 'wfType'].forEach(id => $(id).onchange = renderWork);
+async function loadWork() {
+  workData = await api(`admin/work?from=${$('wFrom').value}&to=${$('wTo').value}`);
+  $('wExport').href = `/api/admin/work-export?from=${workData.from}&to=${workData.to}`;
+  const fill = (id, key, all) => { const keep = $(id).value, v = [...new Set(workData.entries.map(e => e[key]))].sort();
+    $(id).innerHTML = `<option value="">${all}</option>` + v.map(x => `<option>${esc(x)}</option>`).join(''); if (v.includes(keep)) $(id).value = keep; };
+  fill('wfStaff', 'staff', 'All staff'); fill('wfClient', 'client', 'All clients'); fill('wfType', 'type', 'All types of work');
+  renderWork();
+}
+function renderWork() {
+  const fs = $('wfStaff').value, fc = $('wfClient').value, ft = $('wfType').value;
+  const E = workData.entries.filter(e => (!fs || e.staff === fs) && (!fc || e.client === fc) && (!ft || e.type === ft));
+  const sum = a => a.reduce((t, e) => t + e.minutes, 0);
+  const group = (a, k) => { const m = new Map(); a.forEach(e => { const key = k(e); (m.get(key) || m.set(key, []).get(key)).push(e); }); return [...m.entries()]; };
+  const total = sum(E);
+  $('wTiles').innerHTML = [[h2(total), 'Hours logged'], [new Set(E.map(e => e.client)).size, 'Clients worked on'], [new Set(E.map(e => e.staff)).size, 'Staff'], [E.length, 'Entries']]
+    .map(t => `<div class="tile"><b>${t[0]}</b><span>${t[1]}</span></div>`).join('');
+  // client -> type -> staff
+  $('wByClient').innerHTML = group(E, e => e.client).sort((a, b) => sum(b[1]) - sum(a[1])).map(([client, ce]) =>
+    `<tr style="background:#fafbfc"><td colspan="3"><b>${esc(client)}</b> <span class="muted">· ${total ? Math.round(100 * sum(ce) / total) : 0}% of logged time</span></td><td ${R}><b>${h2(sum(ce))}</b></td></tr>` +
+    group(ce, e => e.type + '\u0001' + e.staff).sort((a, b) => a[0].localeCompare(b[0])).map(([k, x]) =>
+      `<tr><td></td><td>${esc(x[0].type)}</td><td>${esc(x[0].staff)}</td><td ${R}>${h2(sum(x))}</td></tr>`).join('')).join('')
+    || '<tr><td colspan="4">No work logged for this selection.</td></tr>';
+  $('wByStaff').innerHTML = group(E, e => e.staff_id).sort((a, b) => a[1][0].staff.localeCompare(b[1][0].staff)).map(([id, se]) => {
+    const att = workData.attended_hours[id] || 0, lg = sum(se) / 60, pct = att ? Math.round(100 * lg / att) : null;
+    const top = group(se, e => e.client).sort((a, b) => sum(b[1]) - sum(a[1]))[0];
+    return `<tr><td><b>${esc(se[0].staff)}</b></td><td ${R}>${lg.toFixed(2)}</td><td ${R}>${att ? att.toFixed(2) : '—'}</td>
+      <td>${pct == null ? '<span class="muted">—</span>' : `<span class="bartrack"><i style="width:${Math.min(pct, 100)}%;background:${pct > 110 ? 'var(--bad)' : 'var(--ok)'}"></i></span>${pct}%${pct > 110 ? ' <span class="flag" style="display:inline">more than attended</span>' : ''}`}</td>
+      <td ${R}>${new Set(se.map(e => e.client)).size}</td><td>${esc(top[0])} <span class="muted">(${h2(sum(top[1]))} h)</span></td></tr>`; }).join('')
+    || '<tr><td colspan="6">No work logged for this selection.</td></tr>';
+  $('wEntries').innerHTML = E.slice(0, 500).map(e => `<tr><td>${fmtDay(e.day)}</td><td>${esc(e.staff)}</td><td>${esc(e.client)}</td><td>${esc(e.type)}</td>
+    <td ${R}>${hrs(e.minutes / 60)}</td><td class="wrap">${esc(e.note)}</td><td><button class="mini" data-id="${e.id}">Delete</button></td></tr>`).join('')
+    + (E.length > 500 ? `<tr><td colspan="7" class="muted">Showing the latest 500 of ${E.length} entries. Download the CSV for the full list.</td></tr>` : '')
+    || '<tr><td colspan="7">No entries.</td></tr>';
+  $('wEntries').querySelectorAll('button').forEach(b => b.onclick = async () => {
+    if (confirm('Delete this work entry? The deletion is recorded in the audit trail.')) { await api('admin/work-delete', {id: +b.dataset.id}); loadWork(); } });
+}
+
+/* ---------- clients / work types ---------- */
+async function loadMasters() {
+  const d = await api('admin/masters');
+  const draw = (rows, kind, body) => {
+    $(body).innerHTML = rows.map((r, i) => `<tr><td>${r.active ? esc(r.name) : `<span class="muted"><s>${esc(r.name)}</s> (inactive)</span>`}</td>
+      <td style="text-align:right"><button class="mini" data-i="${i}" data-a="ren">Rename</button> <button class="mini" data-i="${i}" data-a="tog">${r.active ? 'Deactivate' : 'Activate'}</button></td></tr>`).join('');
+    $(body).querySelectorAll('button').forEach(b => b.onclick = async () => {
+      const r = rows[b.dataset.i]; let name = r.name, active = !!r.active;
+      if (b.dataset.a === 'ren') { name = prompt('New name', r.name); if (!name) return; } else active = !active;
+      try { await api('admin/masters', {kind, id: r.id, name, active}); } catch (e) { alert(e.message); }
+      loadMasters();
+    });
+  };
+  draw(d.clients, 'client', 'mcBody'); draw(d.types, 'type', 'mtBody');
+}
+const addMasters = (kind, box, msg) => async () => {
+  try { const r = await api('admin/masters', {kind, names: $(box).value}); $(box).value = '';
+        $(msg).style.color = 'var(--ok)'; $(msg).textContent = `Added ${r.added}` + (r.skipped ? `, ${r.skipped} already existed.` : '.'); loadMasters(); }
+  catch (e) { $(msg).style.color = 'var(--bad)'; $(msg).textContent = e.message; }
+};
+$('mcAdd').onclick = addMasters('client', 'mcNames', 'mcMsg'); $('mtAdd').onclick = addMasters('type', 'mtNames', 'mtMsg');
 
 /* ---------- staff ---------- */
 let editId = null;

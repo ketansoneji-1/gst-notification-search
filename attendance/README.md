@@ -19,6 +19,12 @@ The admin dashboard places both side by side and reports:
 - **Monthly regularity ranking** – punctuality %, average arrival, total late minutes, average hours, mismatch count – with CSV export for Excel.
 - **Admin corrections** (client visit, outdoor duty, etc.) with a mandatory remark; originals are preserved and every correction is logged in the audit trail.
 
+### Client-wise work log (timesheet)
+
+- **Staff** record each piece of work on the same page: client, type of work, time spent and optional details. They can see and remove only **their own** entries for today and the previous day; they have no access to any report or to other staff's entries.
+- **Admin only** (password protected) – the **Work log** tab shows, for any period: client-wise hours broken down by type of work and staff, staff-wise hours logged against hours attended (from the attendance register), the detailed entries, filters by staff / client / type of work, and a CSV export for Excel (useful for billing and job costing).
+- The **Clients** tab maintains the client list (paste many names at once) and the types of work. Standard types of work for a CA office are pre-loaded and can be renamed, added to or deactivated.
+
 The PC record prevails for status and hours; the declared time is used only where no PC record exists; an admin correction overrides both.
 
 ## Setup (about 15 minutes)
@@ -33,6 +39,7 @@ The PC record prevails for status and hours; the declared time is used only wher
 6. Open `http://<server-ip>:8080/admin`, create the admin password, then:
    - **Settings** – firm name, reporting time, grace period, tolerance, weekly off, holidays.
    - **Staff** – add each staff member with a starting PIN (staff can change it later).
+   - **Clients** – paste your client list and review the types of work.
 
 To start the server automatically, place a shortcut to `start-server.bat` in the Startup folder (`Win+R` → `shell:startup`).
 
@@ -49,7 +56,7 @@ No administrator rights are required. `uninstall-agent.bat` removes the agent.
 
 ### 3. Daily routine
 
-- **Staff:** switch on the PC → attendance page opens → sign in with PIN → enter arrival time. Before leaving, enter leaving time (if forgotten, the page asks for it next morning).
+- **Staff:** switch on the PC → attendance page opens → sign in with PIN → enter arrival time. During or at the end of the day, add work-log lines. Before leaving, enter leaving time (if forgotten, the page asks for it next morning).
 - **Admin:** open `/admin` → **Daily** for today's live position, **Monthly** for the ranking and the CSV.
 
 ## Backup

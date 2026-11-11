@@ -27,6 +27,8 @@
   th, td { text-align:left; padding:6px 4px; border-bottom:1px solid var(--line); }
   th { color:var(--muted); font-weight:600; font-size:12px; }
   .hidden { display:none; }
+  .two { display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  td button.link { color:var(--bad); }
   .clock { font-variant-numeric:tabular-nums; color:var(--muted); font-size:14px; }
 </style>
 </head>
@@ -94,6 +96,23 @@
     </div>
 
     <div class="card">
+      <h2>Work log</h2>
+      <p class="hint">Record each piece of work: client, type of work and time spent. Add one line per client / work type.</p>
+      <label for="wDay">Date</label><select id="wDay"></select>
+      <label for="wClient">Client</label>
+      <input id="wClient" list="wClients" placeholder="Type to search…" autocomplete="off"><datalist id="wClients"></datalist>
+      <label for="wType">Type of work</label><select id="wType"></select>
+      <label>Time spent</label>
+      <div class="two"><select id="wH"></select><select id="wM"></select></div>
+      <label for="wNote">Details (optional &mdash; e.g. GSTR-3B Oct, vouching of purchases)</label>
+      <input id="wNote" maxlength="300">
+      <button id="btnWork">Add to work log</button>
+      <div class="msg" id="wMsg"></div>
+      <table style="margin-top:14px"><thead><tr><th>Date</th><th>Client / work</th><th>Time</th><th></th></tr></thead><tbody id="wBody"></tbody></table>
+      <p class="hint" style="margin:10px 0 0">Only your entries for today and the previous day are shown here; they can be removed until then.</p>
+    </div>
+
+    <div class="card">
       <h2>My entries (last 31 days)</h2>
       <table><thead><tr><th>Date</th><th>Arrived</th><th>Left</th></tr></thead><tbody id="hist"></tbody></table>
     </div>
@@ -143,6 +162,32 @@ async function loadMe() {
   if (me.pending_out) { $('pendDay').textContent = fmtDay(me.pending_out.day); $('pendTime').dataset.day = me.pending_out.day; }
   $('hist').innerHTML = me.history.map(h => `<tr><td>${fmtDay(h.day)}</td><td>${h.in_time || '—'}</td><td>${h.out_time || '—'}</td></tr>`).join('')
     || '<tr><td colspan="3">No entries yet.</td></tr>';
+  await loadWork();
+}
+
+const escH = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const dur = m => Math.floor(m / 60) + 'h ' + String(m % 60).padStart(2, '0') + 'm';
+let work = null;
+async function loadWork() {
+  work = await api('work');
+  const keepDay = $('wDay').value, keepType = $('wType').value;
+  $('wDay').innerHTML = work.days.map((d, i) => `<option value="${d}">${i ? fmtDay(d) : 'Today'}</option>`).join('');
+  if (work.days.includes(keepDay)) $('wDay').value = keepDay;
+  $('wClients').innerHTML = work.clients.map(c => `<option value="${escH(c.name)}">`).join('');
+  $('wType').innerHTML = '<option value="">Select…</option>' + work.types.map(t => `<option value="${t.id}">${escH(t.name)}</option>`).join('');
+  $('wType').value = keepType;
+  if (!$('wH').options.length) {
+    $('wH').innerHTML = [...Array(13).keys()].map(h => `<option value="${h}">${h} hr</option>`).join('');
+    $('wM').innerHTML = [0, 15, 30, 45].map(m => `<option value="${m}">${m} min</option>`).join('');
+  }
+  const tot = {};
+  work.entries.forEach(e => tot[e.day] = (tot[e.day] || 0) + e.minutes);
+  $('wBody').innerHTML = work.entries.map(e => `<tr><td>${e.day === work.days[0] ? 'Today' : fmtDay(e.day)}</td>
+    <td><b>${escH(e.client)}</b><br>${escH(e.type)}${e.note ? ' — ' + escH(e.note) : ''}</td><td>${dur(e.minutes)}</td>
+    <td><button class="link" data-id="${e.id}">Remove</button></td></tr>`).join('')
+    + Object.keys(tot).map(d => `<tr><th colspan="2">Total ${d === work.days[0] ? 'today' : fmtDay(d)}</th><th colspan="2">${dur(tot[d])}</th></tr>`).join('')
+    || '<tr><td colspan="4">Nothing logged yet.</td></tr>';
+  $('wBody').querySelectorAll('button').forEach(b => b.onclick = async () => { await api('work-delete', {id: +b.dataset.id}); loadWork(); });
 }
 
 function act(btn, msg, fn) {
@@ -159,6 +204,14 @@ $('pin').addEventListener('keydown', e => { if (e.key === 'Enter') $('btnLogin')
 act('btnIn', 'inMsg', async () => { await api('mark', {type:'in', time:$('inTime').value, note:$('inNote').value}); await loadMe(); });
 act('btnOut', 'outMsg', async () => { await api('mark', {type:'out', time:$('outTime').value, note:$('outNote').value}); await loadMe(); });
 act('btnPend', 'pendMsg', async () => { await api('mark', {type:'out', time:$('pendTime').value, day:$('pendTime').dataset.day}); await loadMe(); });
+act('btnWork', 'wMsg', async () => {
+  const name = $('wClient').value.trim().toLowerCase();
+  const c = work.clients.find(x => x.name.toLowerCase() === name);
+  if (!c) throw new Error('Select a client from the list. If the client is not listed, ask the admin to add it.');
+  await api('work', {day: $('wDay').value, client_id: c.id, type_id: +$('wType').value, minutes: +$('wH').value * 60 + +$('wM').value, note: $('wNote').value});
+  $('wClient').value = $('wNote').value = ''; $('wH').value = '0'; $('wM').value = '0';
+  await loadWork();
+});
 act('btnPin', 'pinMsg', async () => {
   await api('change-pin', {old:$('oldPin').value, new:$('newPin').value});
   $('oldPin').value = $('newPin').value = ''; $('pinMsg').style.color = 'var(--ok)'; $('pinMsg').textContent = 'PIN changed.';
