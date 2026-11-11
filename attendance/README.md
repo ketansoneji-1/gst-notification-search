@@ -51,10 +51,7 @@ To start the server automatically, place a shortcut to `start-server.bat` in the
 ### 2. Agent – RDP server (all staff work in Remote Desktop sessions)
 
 1. Run the attendance server (step 1) on the RDP server itself.
-2. Open Command Prompt **as administrator** in the `agent` folder and run once (the exact command is on the admin **Settings** page):
-   ```
-   install-agent.bat http://127.0.0.1:8080 <agent-key> all
-   ```
+2. In the `agent` folder, double-click **`install-all-users.bat`** and accept the administrator prompt. It reads the agent key itself and installs the agent for every Windows user of the server. (Manual alternative: Command Prompt as administrator, `install-agent.bat http://127.0.0.1:8080 <agent-key> all`.)
 3. Staff who are signed in must sign out and sign in again once. From then on the agent starts in every session at sign-in.
 4. On the admin **Staff** page, link each Windows user name of the server to the staff member (users already sending data are listed there for one-click linking).
 
@@ -110,4 +107,5 @@ The agent records the time of activity and the program name and window title in 
 | `web/admin.html` | Admin dashboard (`/admin`) |
 | `agent/agent.ps1` | Session agent (runs hidden at sign-in) |
 | `agent/install-agent.bat`, `agent/uninstall-agent.bat` | Agent installer / remover |
+| `agent/install-all-users.bat` | One-click install for all users of the RDP server |
 | `agent/check-agent.bat`, `agent/check-agent.ps1` | Diagnostic: shows which step fails in a session |

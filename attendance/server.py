@@ -815,8 +815,14 @@ def main():
     ap = argparse.ArgumentParser(description="Office Attendance Server")
     ap.add_argument("--port", type=int, default=8080)
     ap.add_argument("--host", default="0.0.0.0")
+    ap.add_argument("--print-agent-key", action="store_true", help="print the agent key and exit")
     args = ap.parse_args()
     init_db()
+    if args.print_agent_key:
+        con = db()
+        print(get_settings(con)["agent_key"])
+        con.close()
+        return
     srv = ThreadingHTTPServer((args.host, args.port), Handler)
     print(f"Office Attendance Server running on port {args.port}")
     print(f"  Staff page : http://{lan_ip()}:{args.port}/")
