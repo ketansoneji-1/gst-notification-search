@@ -140,13 +140,18 @@
       <table><thead><tr><th>Client</th><th>Type of work</th><th>Staff</th><th style="text-align:right">Hours</th></tr></thead><tbody id="wByClient"></tbody></table>
     </div>
     <div class="card scroll">
-      <h2>Staff-wise: hours logged against hours attended</h2>
-      <table><thead><tr><th>Staff</th><th style="text-align:right">Logged</th><th style="text-align:right">Attended</th><th>Logged as % of attended</th><th style="text-align:right">Clients</th><th>Most time on</th></tr></thead><tbody id="wByStaff"></tbody></table>
-      <p class="muted" style="margin-bottom:0">Attended hours come from the attendance register for the whole period and are not narrowed by the client or work-type filter.</p>
+      <h2>Staff-wise: active working hours against hours attended</h2>
+      <table><thead><tr><th>Staff</th><th style="text-align:right">Active</th><th style="text-align:right">Attended</th><th>Active as % of attended</th><th style="text-align:right">Clients</th><th>Most time on</th></tr></thead><tbody id="wByStaff"></tbody></table>
+      <p class="muted" style="margin-bottom:0">Active = time with keyboard/mouse activity in the session. Attended = arrival to leaving as per the attendance register (whole period, not narrowed by the client or work-type filter). The difference is idle time: breaks, calls, meetings, paper work.</p>
     </div>
     <div class="card scroll">
-      <h2>Entries</h2>
-      <table><thead><tr><th>Date</th><th>Staff</th><th>Client</th><th>Type of work</th><th style="text-align:right">Time</th><th>Details</th><th></th></tr></thead><tbody id="wEntries"></tbody></table>
+      <h2>Top windows where the client was not identified</h2>
+      <p class="muted">If a file, folder or company name here belongs to a client, add that word as a keyword for the client on the Clients tab. Reports, including past periods, update immediately.</p>
+      <table><thead><tr><th>Program</th><th>Window title</th><th>Type of work</th><th style="text-align:right">Time</th></tr></thead><tbody id="wUnk"></tbody></table>
+    </div>
+    <div class="card scroll">
+      <h2>Detail: every window worked on</h2>
+      <table><thead><tr><th>Date</th><th>Staff</th><th>Program</th><th>Window title</th><th>Client</th><th>Type of work</th><th style="text-align:right">Time</th></tr></thead><tbody id="wEntries"></tbody></table>
     </div>
   </section>
 
@@ -170,7 +175,7 @@
         <div class="scroll" style="margin-top:12px"><table><tbody id="mtBody"></tbody></table></div>
       </div>
     </div>
-    <p class="muted">Inactive names no longer appear for staff but remain in past reports.</p>
+    <p class="muted">How matching works: the window title of whatever the staff member is working on (file name, folder, Tally company, browser tab) is searched for the client name and its keywords, and for the type-of-work keywords. Whole words only; the longest match wins. Add short forms, Tally company names and usual file-name spellings as client keywords.</p>
   </section>
 
   <!-- STAFF -->
@@ -214,10 +219,10 @@
       <button class="btn" id="cSave">Save settings</button>
     </div>
     <div class="card">
-      <h2>Install the login agent on each staff PC</h2>
-      <p>Copy the <code>agent</code> folder to the staff PC (pen drive or shared folder), open Command Prompt in that folder, and run:</p>
+      <h2>Install the session agent</h2>
+      <p>On the RDP server where staff work: open Command Prompt <b>as administrator</b> in the <code>agent</code> folder and run the first command once. It covers every user's Remote Desktop session.</p>
       <pre id="cCmd"></pre>
-      <p class="muted">The agent starts automatically at every Windows login, records first and last activity, and opens the attendance page once a day. Replace the address if this server PC uses a different IP.</p>
+      <p class="muted">The agent starts automatically in each session at sign-in, records activity and the window in front, and opens the attendance page once a day. The first command assumes this attendance server runs on the same RDP server.</p>
     </div>
     <div class="card scroll">
       <h2>Audit trail (last 200 actions)</h2>
@@ -379,43 +384,47 @@ async function loadWork() {
 }
 function renderWork() {
   const fs = $('wfStaff').value, fc = $('wfClient').value, ft = $('wfType').value;
-  const E = workData.entries.filter(e => (!fs || e.staff === fs) && (!fc || e.client === fc) && (!ft || e.type === ft));
+  const E = workData.entries.map(e => (e.minutes = e.seconds / 60, e)).filter(e => (!fs || e.staff === fs) && (!fc || e.client === fc) && (!ft || e.type === ft));
   const sum = a => a.reduce((t, e) => t + e.minutes, 0);
   const group = (a, k) => { const m = new Map(); a.forEach(e => { const key = k(e); (m.get(key) || m.set(key, []).get(key)).push(e); }); return [...m.entries()]; };
   const total = sum(E);
-  $('wTiles').innerHTML = [[h2(total), 'Hours logged'], [new Set(E.map(e => e.client)).size, 'Clients worked on'], [new Set(E.map(e => e.staff)).size, 'Staff'], [E.length, 'Entries']]
+  $('wTiles').innerHTML = [[h2(total), 'Active hours recorded'], [new Set(E.map(e => e.client)).size, 'Clients worked on'], [new Set(E.map(e => e.staff)).size, 'Staff'], [h2(sum(E.filter(e => e.client === workData.no_client))), 'Hours with client not identified']]
     .map(t => `<div class="tile"><b>${t[0]}</b><span>${t[1]}</span></div>`).join('');
   // client -> type -> staff
   $('wByClient').innerHTML = group(E, e => e.client).sort((a, b) => sum(b[1]) - sum(a[1])).map(([client, ce]) =>
-    `<tr style="background:#fafbfc"><td colspan="3"><b>${esc(client)}</b> <span class="muted">· ${total ? Math.round(100 * sum(ce) / total) : 0}% of logged time</span></td><td ${R}><b>${h2(sum(ce))}</b></td></tr>` +
+    `<tr style="background:#fafbfc"><td colspan="3"><b>${esc(client)}</b> <span class="muted">· ${total ? Math.round(100 * sum(ce) / total) : 0}% of active time</span></td><td ${R}><b>${h2(sum(ce))}</b></td></tr>` +
     group(ce, e => e.type + '\u0001' + e.staff).sort((a, b) => a[0].localeCompare(b[0])).map(([k, x]) =>
       `<tr><td></td><td>${esc(x[0].type)}</td><td>${esc(x[0].staff)}</td><td ${R}>${h2(sum(x))}</td></tr>`).join('')).join('')
-    || '<tr><td colspan="4">No work logged for this selection.</td></tr>';
+    || '<tr><td colspan="4">No activity recorded for this selection.</td></tr>';
   $('wByStaff').innerHTML = group(E, e => e.staff_id).sort((a, b) => a[1][0].staff.localeCompare(b[1][0].staff)).map(([id, se]) => {
     const att = workData.attended_hours[id] || 0, lg = sum(se) / 60, pct = att ? Math.round(100 * lg / att) : null;
     const top = group(se, e => e.client).sort((a, b) => sum(b[1]) - sum(a[1]))[0];
     return `<tr><td><b>${esc(se[0].staff)}</b></td><td ${R}>${lg.toFixed(2)}</td><td ${R}>${att ? att.toFixed(2) : '—'}</td>
-      <td>${pct == null ? '<span class="muted">—</span>' : `<span class="bartrack"><i style="width:${Math.min(pct, 100)}%;background:${pct > 110 ? 'var(--bad)' : 'var(--ok)'}"></i></span>${pct}%${pct > 110 ? ' <span class="flag" style="display:inline">more than attended</span>' : ''}`}</td>
+      <td>${pct == null ? '<span class="muted">—</span>' : `<span class="bartrack"><i style="width:${Math.min(pct, 100)}%;background:${pct > 110 ? 'var(--bad)' : 'var(--ok)'}"></i></span>${pct}%${pct > 110 ? '' : ''}`}</td>
       <td ${R}>${new Set(se.map(e => e.client)).size}</td><td>${esc(top[0])} <span class="muted">(${h2(sum(top[1]))} h)</span></td></tr>`; }).join('')
-    || '<tr><td colspan="6">No work logged for this selection.</td></tr>';
-  $('wEntries').innerHTML = E.slice(0, 500).map(e => `<tr><td>${fmtDay(e.day)}</td><td>${esc(e.staff)}</td><td>${esc(e.client)}</td><td>${esc(e.type)}</td>
-    <td ${R}>${hrs(e.minutes / 60)}</td><td class="wrap">${esc(e.note)}</td><td><button class="mini" data-id="${e.id}">Delete</button></td></tr>`).join('')
-    + (E.length > 500 ? `<tr><td colspan="7" class="muted">Showing the latest 500 of ${E.length} entries. Download the CSV for the full list.</td></tr>` : '')
-    || '<tr><td colspan="7">No entries.</td></tr>';
-  $('wEntries').querySelectorAll('button').forEach(b => b.onclick = async () => {
-    if (confirm('Delete this work entry? The deletion is recorded in the audit trail.')) { await api('admin/work-delete', {id: +b.dataset.id}); loadWork(); } });
+    || '<tr><td colspan="6">No activity recorded for this selection.</td></tr>';
+  const unk = group(E.filter(e => e.client === workData.no_client), e => e.app + '\u0001' + e.title).sort((a, b) => sum(b[1]) - sum(a[1])).slice(0, 40);
+  $('wUnk').innerHTML = unk.map(([k, x]) => `<tr><td>${esc(x[0].app)}</td><td class="wrap">${esc(x[0].title)}</td><td>${esc(x[0].type)}</td><td ${R}>${hrs(sum(x) / 60)}</td></tr>`).join('')
+    || '<tr><td colspan="4">Nothing unidentified for this selection.</td></tr>';
+  const mm = m => m < 1 ? '<1m' : hrs(m / 60);
+  $('wEntries').innerHTML = E.slice(0, 500).map(e => `<tr><td>${fmtDay(e.day)}</td><td>${esc(e.staff)}</td><td>${esc(e.app)}</td><td class="wrap">${esc(e.title)}</td>
+    <td>${esc(e.client)}</td><td>${esc(e.type)}</td><td ${R}>${mm(e.minutes)}</td></tr>`).join('')
+    + (E.length > 500 ? `<tr><td colspan="7" class="muted">Showing 500 of ${E.length} rows (longest first within each day). Download the CSV for the full list.</td></tr>` : '')
+    || '<tr><td colspan="7">No activity recorded for this selection.</td></tr>';
 }
 
 /* ---------- clients / work types ---------- */
 async function loadMasters() {
   const d = await api('admin/masters');
   const draw = (rows, kind, body) => {
-    $(body).innerHTML = rows.map((r, i) => `<tr><td>${r.active ? esc(r.name) : `<span class="muted"><s>${esc(r.name)}</s> (inactive)</span>`}</td>
-      <td style="text-align:right"><button class="mini" data-i="${i}" data-a="ren">Rename</button> <button class="mini" data-i="${i}" data-a="tog">${r.active ? 'Deactivate' : 'Activate'}</button></td></tr>`).join('');
+    $(body).innerHTML = rows.map((r, i) => `<tr><td class="wrap">${r.active ? esc(r.name) : `<span class="muted"><s>${esc(r.name)}</s> (inactive)</span>`}<span class="note">${r.keywords ? 'Keywords: ' + esc(r.keywords) : (kind === 'type' ? 'No keywords – never matched automatically' : '')}</span></td>
+      <td style="text-align:right"><button class="mini" data-i="${i}" data-a="kw">Keywords</button> <button class="mini" data-i="${i}" data-a="ren">Rename</button> <button class="mini" data-i="${i}" data-a="tog">${r.active ? 'Deactivate' : 'Activate'}</button></td></tr>`).join('');
     $(body).querySelectorAll('button').forEach(b => b.onclick = async () => {
-      const r = rows[b.dataset.i]; let name = r.name, active = !!r.active;
-      if (b.dataset.a === 'ren') { name = prompt('New name', r.name); if (!name) return; } else active = !active;
-      try { await api('admin/masters', {kind, id: r.id, name, active}); } catch (e) { alert(e.message); }
+      const r = rows[b.dataset.i]; let name = r.name, active = !!r.active, keywords = r.keywords;
+      if (b.dataset.a === 'ren') { name = prompt('New name', r.name); if (!name) return; }
+      else if (b.dataset.a === 'kw') { keywords = prompt('Words to look for in window titles, separated by commas' + (kind === 'client' ? '\n(the client name itself is always matched)' : ''), r.keywords); if (keywords === null) return; }
+      else active = !active;
+      try { await api('admin/masters', {kind, id: r.id, name, active, keywords}); } catch (e) { alert(e.message); }
       loadMasters();
     });
   };
@@ -467,7 +476,7 @@ async function loadSettings() {
   const offs = s.weekly_off.split(',');
   $('cOff').innerHTML = DAYS.map((d, i) => `<label style="display:inline-block;font-weight:400;margin-right:10px"><input type="checkbox" value="${i}" ${offs.includes(String(i)) ? 'checked' : ''}> ${d}</label>`).join('');
   const local = ['localhost', '127.0.0.1'].includes(location.hostname);
-  $('cCmd').textContent = `install-agent.bat ${local ? 'http://' + s.lan_ip + ':' + location.port : location.origin} ${s.agent_key}`;
+  $('cCmd').textContent = `install-agent.bat http://localhost:${location.port || 80} ${s.agent_key} all\n\nrem For a separate (non-RDP) PC, logged in as that staff member:\ninstall-agent.bat ${local ? 'http://' + s.lan_ip + ':' + location.port : location.origin} ${s.agent_key}`;
   const a = await api('admin/audit');
   $('cAudit').innerHTML = a.map(x => `<tr><td>${esc(x.ts)}</td><td>${esc(x.who)}</td><td class="wrap">${esc(x.action)}</td></tr>`).join('') || '<tr><td colspan="3">Nothing yet.</td></tr>';
 }

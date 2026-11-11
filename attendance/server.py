@@ -21,6 +21,7 @@ import hmac
 import io
 import json
 import os
+import re
 import secrets
 import sqlite3
 import time
@@ -42,11 +43,22 @@ DEFAULTS = {
     "firm_name": "Office Attendance",
 }
 
-WORK_TYPES = ["GST Returns", "GST Annual Return / Audit", "Income Tax Return", "TDS / TCS", "Tax Audit",
-              "Statutory Audit", "Accounting / Bookkeeping", "ROC / Company Law", "Notices / Assessments / Appeals",
-              "Consultancy / Advisory", "Certification", "Office / Administration"]
-INTERNAL_CLIENT = "Office (non-client work)"
-WORK_BACK_DAYS = 1        # staff may log work for today and this many earlier days
+# Type of work -> words looked for in the program name / window title (admin can edit these).
+WORK_TYPES = {
+    "GST Returns": "gst, gstr, gstr1, gstr3b, gstr2a, gstr2b, 3b, goods and services tax, e-way bill, eway",
+    "GST Annual Return / Audit": "gstr-9, gstr9, gstr-9c, 9c",
+    "Income Tax Return": "income tax, incometax, e-filing, itr, 26as, ais, computation",
+    "TDS / TCS": "tds, tcs, traces, 26q, 24q, 27q",
+    "Tax Audit": "tax audit, 3cd, 3ca, 3cb",
+    "Statutory Audit": "statutory audit, audit report, caro",
+    "Accounting / Bookkeeping": "tally, tallyprime, busy, ledger, bank reconciliation",
+    "ROC / Company Law": "mca, roc, aoc-4, mgt-7, dir-3",
+    "Notices / Assessments / Appeals": "notice, drc, asmt, appeal, scn, assessment",
+    "Consultancy / Advisory": "",
+    "Certification": "certificate, 15cb, 15ca",
+    "Office / Administration": "outlook, gmail, whatsapp, teams",
+}
+NO_CLIENT, NO_TYPE = "(Client not identified)", "(Unclassified)"
 
 SCHEMA = """
 CREATE TABLE IF NOT EXISTS settings(key TEXT PRIMARY KEY, value TEXT);
@@ -63,12 +75,13 @@ CREATE TABLE IF NOT EXISTS manual(
   adm_in TEXT, adm_out TEXT, adm_remark TEXT, PRIMARY KEY(staff_id, day));
 CREATE TABLE IF NOT EXISTS sessions(token TEXT PRIMARY KEY, kind TEXT, staff_id INTEGER, expires REAL);
 CREATE TABLE IF NOT EXISTS audit(ts TEXT, who TEXT, action TEXT);
-CREATE TABLE IF NOT EXISTS clients(id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE, active INTEGER NOT NULL DEFAULT 1);
-CREATE TABLE IF NOT EXISTS work_types(id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE, active INTEGER NOT NULL DEFAULT 1);
-CREATE TABLE IF NOT EXISTS timesheet(
-  id INTEGER PRIMARY KEY, staff_id INTEGER NOT NULL, day TEXT NOT NULL, client_id INTEGER NOT NULL,
-  type_id INTEGER NOT NULL, minutes INTEGER NOT NULL, note TEXT, entered TEXT);
-CREATE INDEX IF NOT EXISTS ix_timesheet_day ON timesheet(day);
+CREATE TABLE IF NOT EXISTS clients(id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE,
+  keywords TEXT NOT NULL DEFAULT '', active INTEGER NOT NULL DEFAULT 1);
+CREATE TABLE IF NOT EXISTS work_types(id INTEGER PRIMARY KEY, name TEXT NOT NULL UNIQUE,
+  keywords TEXT NOT NULL DEFAULT '', active INTEGER NOT NULL DEFAULT 1);
+CREATE TABLE IF NOT EXISTS activity(
+  win_user TEXT, day TEXT, app TEXT, title TEXT, seconds INTEGER NOT NULL DEFAULT 0,
+  PRIMARY KEY(win_user, day, app, title));
 """
 
 
@@ -86,8 +99,7 @@ def init_db():
         con.execute("INSERT OR IGNORE INTO settings VALUES(?,?)", (k, v))
     con.execute("INSERT OR IGNORE INTO settings VALUES('agent_key',?)", (secrets.token_hex(12),))
     if not con.execute("SELECT 1 FROM settings WHERE key='masters_seeded'").fetchone():
-        con.executemany("INSERT OR IGNORE INTO work_types(name) VALUES(?)", [(w,) for w in WORK_TYPES])
-        con.execute("INSERT OR IGNORE INTO clients(name) VALUES(?)", (INTERNAL_CLIENT,))
+        con.executemany("INSERT OR IGNORE INTO work_types(name,keywords) VALUES(?,?)", list(WORK_TYPES.items()))
         con.execute("INSERT INTO settings VALUES('masters_seeded','1')")
     con.commit()
     con.close()
@@ -217,6 +229,26 @@ def rows_for(con, days, staff_rows=None):
             out.append(compute(st, d, autos.get((st["win_user"], d)) if st["win_user"] else None,
                                mans.get((st["id"], d)), s, today))
     return out
+
+
+def norm(text):
+    """Lower-case and reduce every run of punctuation to one space, padded for whole-word matching."""
+    return " " + re.sub(r"[^a-z0-9]+", " ", (text or "").lower()).strip() + " "
+
+
+def matchers(con, table, use_name):
+    """[(normalised keyword, name)] longest keyword first, so the most specific match wins."""
+    out = []
+    for r in con.execute(f"SELECT name,keywords FROM {table}"):
+        for kw in ([r["name"]] if use_name else []) + r["keywords"].split(","):
+            k = norm(kw)
+            if len(k.strip()) >= 2:
+                out.append((k, r["name"]))
+    return sorted(out, key=lambda x: -len(x[0]))
+
+
+def classify(text, rules, default):
+    return next((name for kw, name in rules if kw in text), default)
 
 
 def month_days(month):
@@ -418,6 +450,16 @@ class Handler(BaseHTTPRequestHandler):
             "ON CONFLICT(win_user,day) DO UPDATE SET last_seen=excluded.last_seen, host=excluded.host, "
             "ip=excluded.ip, beats=beats+1",
             (user, day, ts, ts, host, self.client_address[0]))
+        samples = b.get("samples")
+        for smp in (samples if isinstance(samples, list) else [])[:400]:
+            try:
+                sec = max(0, min(int(smp.get("seconds", 0)), 4 * 3600))
+                app, title = str(smp.get("app", ""))[:60].lower(), str(smp.get("title", ""))[:200]
+            except (AttributeError, TypeError, ValueError):
+                continue
+            if sec:
+                con.execute("INSERT INTO activity VALUES(?,?,?,?,?) ON CONFLICT(win_user,day,app,title) "
+                            "DO UPDATE SET seconds=seconds+excluded.seconds", (user, day, app, title, sec))
         return {"ok": True, "server_time": ts}
 
     # ---------- staff ----------
@@ -522,54 +564,7 @@ class Handler(BaseHTTPRequestHandler):
         con.execute("UPDATE staff SET pin_hash=? WHERE id=?", (hash_secret(new), st["id"]))
         self.audit(con, st["name"], "changed own PIN")
 
-    # ---------- work log (staff side: own entries of the open days only) ----------
-    def work_days(self):
-        t = now().date()
-        return [(t - timedelta(days=i)).isoformat() for i in range(WORK_BACK_DAYS + 1)]
-
-    def get_work(self, con, q, b):
-        st = self.need_staff(con)
-        days = self.work_days()
-        ent = con.execute(
-            "SELECT t.id,t.day,c.name client,w.name type,t.minutes,t.note FROM timesheet t "
-            "JOIN clients c ON c.id=t.client_id JOIN work_types w ON w.id=t.type_id "
-            "WHERE t.staff_id=? AND t.day>=? ORDER BY t.day DESC,t.id DESC", (st["id"], days[-1])).fetchall()
-        return {"days": days,
-                "clients": [dict(r) for r in con.execute("SELECT id,name FROM clients WHERE active=1 ORDER BY name")],
-                "types": [dict(r) for r in con.execute("SELECT id,name FROM work_types WHERE active=1 ORDER BY name")],
-                "entries": [dict(r) for r in ent]}
-
-    def post_work(self, con, q, b):
-        st = self.need_staff(con)
-        day = b.get("day")
-        if day not in self.work_days():
-            raise ApiError("Work can be logged only for today or the previous day.")
-        try:
-            minutes = int(b.get("minutes"))
-        except (TypeError, ValueError):
-            raise ApiError("Enter the time spent.")
-        if not 5 <= minutes <= 16 * 60:
-            raise ApiError("Time spent must be between 5 minutes and 16 hours.")
-        if not con.execute("SELECT 1 FROM clients WHERE id=? AND active=1", (b.get("client_id"),)).fetchone():
-            raise ApiError("Select a client.")
-        if not con.execute("SELECT 1 FROM work_types WHERE id=? AND active=1", (b.get("type_id"),)).fetchone():
-            raise ApiError("Select the type of work.")
-        used = con.execute("SELECT COALESCE(SUM(minutes),0) FROM timesheet WHERE staff_id=? AND day=?",
-                           (st["id"], day)).fetchone()[0]
-        if used + minutes > 24 * 60:
-            raise ApiError("Total work logged for a day cannot exceed 24 hours.")
-        con.execute("INSERT INTO timesheet(staff_id,day,client_id,type_id,minutes,note,entered) VALUES(?,?,?,?,?,?,?)",
-                    (st["id"], day, b["client_id"], b["type_id"], minutes, str(b.get("note", "")).strip()[:300],
-                     now().strftime("%Y-%m-%d %H:%M:%S")))
-
-    def post_work_delete(self, con, q, b):
-        st = self.need_staff(con)
-        r = con.execute("SELECT day FROM timesheet WHERE id=? AND staff_id=?", (b.get("id"), st["id"])).fetchone()
-        if not r or r["day"] not in self.work_days():
-            raise ApiError("This entry can no longer be changed. Ask the admin.")
-        con.execute("DELETE FROM timesheet WHERE id=?", (b["id"],))
-
-    # ---------- work log (admin side) ----------
+    # ---------- work log: built automatically from the window titles the agent reports ----------
     def work_range(self, q):
         today = now().date()
         f, t = q.get("from") or today.replace(day=1).isoformat(), q.get("to") or today.isoformat()
@@ -580,11 +575,18 @@ class Handler(BaseHTTPRequestHandler):
         return f, t
 
     def work_entries(self, con, f, t):
-        return [dict(r) for r in con.execute(
-            "SELECT t.id,t.day,t.staff_id,s.name staff,c.name client,w.name type,t.minutes,t.note,t.entered "
-            "FROM timesheet t JOIN staff s ON s.id=t.staff_id JOIN clients c ON c.id=t.client_id "
-            "JOIN work_types w ON w.id=t.type_id WHERE t.day BETWEEN ? AND ? ORDER BY t.day DESC,s.name,t.id",
-            (f, t))]
+        crules, trules = matchers(con, "clients", True), matchers(con, "work_types", False)
+        out = []
+        for r in con.execute(
+                "SELECT a.day,s.id staff_id,s.name staff,a.app,a.title,a.seconds FROM activity a "
+                "JOIN staff s ON s.win_user=a.win_user AND s.win_user<>'' "
+                "WHERE a.day BETWEEN ? AND ? ORDER BY a.day DESC,a.seconds DESC", (f, t)):
+            e = dict(r)
+            title = norm(e["title"])
+            e["client"] = classify(title, crules, NO_CLIENT)
+            e["type"] = classify(norm(e["app"]) + title, trules, NO_TYPE)
+            out.append(e)
+        return out
 
     def get_admin_work(self, con, q, b):
         self.need_admin(con)
@@ -600,28 +602,20 @@ class Handler(BaseHTTPRequestHandler):
             for r in rows_for(con, days, staff):
                 if r["hours"] is not None:
                     attended[r["staff_id"]] = round(attended.get(r["staff_id"], 0) + r["hours"], 2)
-        return {"from": f, "to": t, "entries": self.work_entries(con, f, t), "attended_hours": attended}
+        return {"from": f, "to": t, "entries": self.work_entries(con, f, t), "attended_hours": attended,
+                "no_client": NO_CLIENT, "no_type": NO_TYPE}
 
     def get_admin_work_export(self, con, q, b):
         self.need_admin(con)
         f, t = self.work_range(q)
         buf = io.StringIO()
         w = csv.writer(buf)
-        w.writerow(["Date", "Staff", "Client", "Type of work", "Hours", "Minutes", "Remark", "Entered at"])
+        w.writerow(["Date", "Staff", "Client", "Type of work", "Hours", "Minutes", "Program", "Window title"])
         for e in self.work_entries(con, f, t):
-            w.writerow([e["day"], e["staff"], e["client"], e["type"], round(e["minutes"] / 60, 2), e["minutes"],
-                        e["note"], e["entered"]])
+            w.writerow([e["day"], e["staff"], e["client"], e["type"], round(e["seconds"] / 3600, 2),
+                        round(e["seconds"] / 60, 1), e["app"], e["title"]])
         return ("\ufeff" + buf.getvalue(), 200, "text/csv",
                 {"Content-Disposition": f'attachment; filename="work-log-{f}-to-{t}.csv"'})
-
-    def post_admin_work_delete(self, con, q, b):
-        self.need_admin(con)
-        r = con.execute("SELECT t.day,t.minutes,s.name staff,c.name client FROM timesheet t JOIN staff s ON s.id=t.staff_id "
-                        "JOIN clients c ON c.id=t.client_id WHERE t.id=?", (b.get("id"),)).fetchone()
-        if not r:
-            raise ApiError("Entry not found.")
-        con.execute("DELETE FROM timesheet WHERE id=?", (b["id"],))
-        self.audit(con, "admin", f"deleted work entry of {r['staff']} on {r['day']}: {r['client']}, {r['minutes']} min")
 
     def get_admin_masters(self, con, q, b):
         self.need_admin(con)
@@ -640,7 +634,9 @@ class Handler(BaseHTTPRequestHandler):
                 raise ApiError("Name is required.")
             if con.execute(f"SELECT 1 FROM {table} WHERE name=? AND id<>?", (name, b["id"])).fetchone():
                 raise ApiError("That name already exists.")
-            con.execute(f"UPDATE {table} SET name=?, active=? WHERE id=?", (name, 1 if b.get("active", True) else 0, b["id"]))
+            kws = ", ".join(k.strip() for k in str(b.get("keywords", "")).split(",") if k.strip())[:500]
+            con.execute(f"UPDATE {table} SET name=?, keywords=?, active=? WHERE id=?",
+                        (name, kws, 1 if b.get("active", True) else 0, b["id"]))
             return {"ok": True}
         names = [n.strip()[:120] for n in str(b.get("names", "")).splitlines() if n.strip()]
         if not names:
