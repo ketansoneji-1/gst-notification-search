@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Attendance Admin</title>
+<style>
+  :root { --bg:#f3f5f8; --card:#fff; --ink:#18212f; --muted:#667085; --line:#dfe3ea; --brand:#1f4e8c;
+          --ok:#18794e; --okbg:#e6f4ec; --warn:#93540a; --warnbg:#fdf1dc; --bad:#b42318; --badbg:#fdeceb; --off:#eef0f4; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:14px/1.5 "Segoe UI", system-ui, sans-serif; background:var(--bg); color:var(--ink); }
+  header { background:var(--brand); color:#fff; padding:12px 20px; display:flex; align-items:center; gap:20px; flex-wrap:wrap; }
+  header h1 { font-size:17px; margin:0; margin-right:auto; }
+  nav { display:flex; gap:4px; }
+  nav button, header .out { background:none; border:none; color:#d5e2f3; font:inherit; font-weight:600; padding:6px 12px; border-radius:6px; cursor:pointer; }
+  nav button.on { background:#fff; color:var(--brand); }
+  main { max-width:1280px; margin:0 auto; padding:20px 16px 48px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:16px; margin-bottom:16px; }
+  .card h2 { font-size:15px; margin:0 0 10px; }
+  .bar { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-bottom:14px; }
+  .bar .sp { margin-left:auto; }
+  input, select, textarea { font:inherit; padding:7px 10px; border:1px solid var(--line); border-radius:7px; background:#fff; color:var(--ink); }
+  button.btn { font:inherit; font-weight:600; padding:7px 14px; border-radius:7px; border:1px solid var(--brand); background:var(--brand); color:#fff; cursor:pointer; }
+  button.btn.sec { background:#fff; color:var(--brand); }
+  button.mini { font:inherit; font-size:12px; padding:2px 8px; border-radius:6px; border:1px solid var(--line); background:#fff; cursor:pointer; }
+  .scroll { overflow-x:auto; }
+  table { width:100%; border-collapse:collapse; font-variant-numeric:tabular-nums; }
+  th, td { text-align:left; padding:8px 8px; border-bottom:1px solid var(--line); vertical-align:top; white-space:nowrap; }
+  td.wrap { white-space:normal; min-width:200px; }
+  th { color:var(--muted); font-size:12px; font-weight:600; background:#fafbfc; }
+  th.grp { text-align:center; border-left:1px solid var(--line); }
+  .pill { display:inline-block; padding:1px 9px; border-radius:99px; font-size:12px; font-weight:600; }
+  .p-ok { background:var(--okbg); color:var(--ok); } .p-late { background:var(--warnbg); color:var(--warn); }
+  .p-abs { background:var(--badbg); color:var(--bad); } .p-off { background:var(--off); color:var(--muted); }
+  .flag { display:block; color:var(--bad); font-size:12px; font-weight:600; }
+  .flag.soft { color:var(--warn); }
+  .note { display:block; color:var(--muted); font-size:12px; }
+  .muted { color:var(--muted); }
+  .tiles { display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:12px; margin-bottom:16px; }
+  .tile { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px 14px; }
+  .tile b { display:block; font-size:24px; } .tile span { color:var(--muted); font-size:12px; }
+  .grid2 { display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:12px 20px; }
+  label { display:block; font-size:12px; font-weight:600; margin-bottom:3px; }
+  .grid2 input, .grid2 textarea, .grid2 select { width:100%; }
+  .grid2 input[type=checkbox] { width:auto; }
+  .msg { color:var(--bad); min-height:1.2em; margin-top:8px; }
+  .hidden { display:none !important; }
+  code, pre { font:13px Consolas, monospace; background:#f1f3f7; border-radius:6px; }
+  pre { padding:10px 12px; overflow-x:auto; margin:6px 0; } code { padding:1px 5px; }
+  dialog { border:1px solid var(--line); border-radius:10px; padding:20px; width:min(420px, 92vw); }
+  dialog::backdrop { background:rgba(0,0,0,.35); }
+  #gate { max-width:380px; margin:60px auto; } #gate input { width:100%; margin-bottom:10px; }
+  .bartrack { background:var(--off); border-radius:99px; height:8px; width:90px; display:inline-block; vertical-align:middle; margin-right:6px; }
+  .bartrack i { display:block; height:8px; border-radius:99px; background:var(--ok); }
+</style>
+</head>
+<body>
+<div id="gate" class="card hidden">
+  <h2 id="gateTitle">Admin sign-in</h2>
+  <p class="muted" id="gateHint"></p>
+  <input type="password" id="gatePw" placeholder="Password">
+  <button class="btn" id="gateBtn">Continue</button>
+  <div class="msg" id="gateMsg"></div>
+</div>
+
+<div id="shell" class="hidden">
+<header>
+  <h1 id="firm">Attendance</h1>
+  <nav>
+    <button data-tab="daily" class="on">Daily</button>
+    <button data-tab="monthly">Monthly</button>
+    <button data-tab="staff">Staff</button>
+    <button data-tab="settings">Settings</button>
+  </nav>
+  <button class="out" id="btnOut">Sign out</button>
+</header>
+<main>
+  <!-- DAILY -->
+  <section id="tab-daily">
+    <div class="bar">
+      <button class="btn sec" id="dPrev">&larr;</button>
+      <input type="date" id="dDate">
+      <button class="btn sec" id="dNext">&rarr;</button>
+      <button class="btn sec" id="dToday">Today</button>
+      <span class="muted sp" id="dStamp"></span>
+    </div>
+    <div class="tiles" id="dTiles"></div>
+    <div class="card scroll">
+      <table>
+        <thead>
+          <tr><th rowspan="2">Staff</th><th rowspan="2">Status</th>
+              <th colspan="3" class="grp">Arrival</th><th colspan="3" class="grp">Leaving</th>
+              <th rowspan="2">Hours</th><th rowspan="2">PC active</th><th rowspan="2">Observations</th><th rowspan="2"></th></tr>
+          <tr><th class="grp">PC</th><th>Declared</th><th>Gap</th><th class="grp">PC</th><th>Declared</th><th>Gap</th></tr>
+        </thead>
+        <tbody id="dBody"></tbody>
+      </table>
+    </div>
+    <p class="muted">PC = first and last keyboard/mouse activity captured automatically from the staff computer, stamped by the server clock.
+      Declared = time entered by the staff member, without sight of the PC record. Gap = minutes by which the declared time is more favourable to the staff member than the PC record.</p>
+  </section>
+
+  <!-- MONTHLY -->
+  <section id="tab-monthly" class="hidden">
+    <div class="bar">
+      <input type="month" id="mMonth">
+      <a class="sp" id="mExport" href="#" style="font-weight:600;color:var(--brand)">Download CSV (Excel)</a>
+    </div>
+    <div class="card scroll">
+      <h2>Regularity ranking</h2>
+      <table>
+        <thead><tr><th>Staff</th><th>Punctuality</th><th>Present</th><th>On time</th><th>Late</th><th>Absent</th>
+          <th>Avg arrival</th><th>Total late min</th><th>Avg hours</th><th>Time mismatches</th><th>Not declared</th><th>No PC record</th></tr></thead>
+        <tbody id="mBody"></tbody>
+      </table>
+    </div>
+    <div class="card scroll">
+      <div class="bar"><h2 style="margin:0">Day-wise register</h2>
+        <select id="mStaff" class="sp"></select></div>
+      <table>
+        <thead><tr><th>Date</th><th>Status</th><th>PC in</th><th>Declared in</th><th>PC out</th><th>Declared out</th><th>Hours</th><th>Observations</th></tr></thead>
+        <tbody id="mDays"></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- STAFF -->
+  <section id="tab-staff" class="hidden">
+    <div class="card">
+      <h2 id="sFormTitle">Add staff member</h2>
+      <div class="grid2">
+        <div><label>Name</label><input id="sName"></div>
+        <div><label>Windows user name (as shown by <code>whoami</code>, without the PC name)</label><input id="sWin"></div>
+        <div><label>Reporting time (blank = office default)</label><input type="time" id="sShift"></div>
+        <div><label id="sPinLbl">Starting PIN (4 to 8 digits)</label><input id="sPin" inputmode="numeric" maxlength="8"></div>
+        <div><label>Status</label><select id="sActive"><option value="1">Active</option><option value="0">Inactive (left)</option></select></div>
+      </div>
+      <div class="msg" id="sMsg"></div>
+      <button class="btn" id="sSave">Save</button> <button class="btn sec hidden" id="sCancel">Cancel</button>
+    </div>
+    <div class="card scroll">
+      <table><thead><tr><th>Name</th><th>Windows user</th><th>Reporting time</th><th>Status</th><th></th></tr></thead><tbody id="sBody"></tbody></table>
+    </div>
+    <div class="card scroll hidden" id="unmCard">
+      <h2>PC logins not linked to any staff member</h2>
+      <p class="muted">These Windows users are sending attendance data. Link each to a staff member by entering the user name above.</p>
+      <table><thead><tr><th>Windows user</th><th>Computer</th><th>Last seen</th><th></th></tr></thead><tbody id="unmBody"></tbody></table>
+    </div>
+  </section>
+
+  <!-- SETTINGS -->
+  <section id="tab-settings" class="hidden">
+    <div class="card">
+      <h2>Office rules</h2>
+      <div class="grid2">
+        <div><label>Firm / office name</label><input id="cFirm"></div>
+        <div><label>Reporting time</label><input type="time" id="cStart"></div>
+        <div><label>Grace period (minutes) before marking Late</label><input type="number" min="0" id="cGrace"></div>
+        <div><label>Mismatch tolerance (minutes) between declared and PC time</label><input type="number" min="0" id="cTol"></div>
+        <div><label>Weekly off</label><div id="cOff"></div></div>
+        <div><label>Holidays (one date per line, YYYY-MM-DD)</label><textarea id="cHol" rows="5"></textarea></div>
+        <div><label>New admin password (leave blank to keep)</label><input type="password" id="cPw"></div>
+      </div>
+      <div class="msg" id="cMsg"></div>
+      <button class="btn" id="cSave">Save settings</button>
+    </div>
+    <div class="card">
+      <h2>Install the login agent on each staff PC</h2>
+      <p>Copy the <code>agent</code> folder to the staff PC (pen drive or shared folder), open Command Prompt in that folder, and run:</p>
+      <pre id="cCmd"></pre>
+      <p class="muted">The agent starts automatically at every Windows login, records first and last activity, and opens the attendance page once a day. Replace the address if this server PC uses a different IP.</p>
+    </div>
+    <div class="card scroll">
+      <h2>Audit trail (last 200 actions)</h2>
+      <table><thead><tr><th>When</th><th>By</th><th>Action</th></tr></thead><tbody id="cAudit"></tbody></table>
+    </div>
+  </section>
+</main>
+</div>
+
+<dialog id="ovr">
+  <h2 style="margin-top:0">Correct attendance</h2>
+  <p class="muted" id="oWho"></p>
+  <div class="grid2">
+    <div><label>Arrival (admin)</label><input type="time" id="oIn"></div>
+    <div><label>Leaving (admin)</label><input type="time" id="oOut"></div>
+  </div>
+  <label style="margin-top:10px">Remark (mandatory)</label><input id="oRemark" style="width:100%" maxlength="200">
+  <p class="muted">Original PC and declared entries are preserved; the correction is logged in the audit trail. Clear both times to remove a correction.</p>
+  <div class="msg" id="oMsg"></div>
+  <button class="btn" id="oSave">Save</button> <button class="btn sec" id="oCancel">Cancel</button>
+</dialog>
+
+<script>
+const $ = id => document.getElementById(id);
+const esc = s => String(s ?? '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+async function api(path, body) {
+  const r = await fetch('/api/' + path, body ? {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)} : {});
+  const j = await r.json().catch(() => ({error:'Server not reachable'}));
+  if (r.status === 401 && !path.startsWith('admin/login')) { boot(); throw new Error(j.error); }
+  if (!r.ok) throw new Error(j.error || 'Error');
+  return j;
+}
+const fmtDay = d => new Date(d + 'T00:00').toLocaleDateString('en-IN', {weekday:'short', day:'2-digit', month:'short'});
+const pill = s => `<span class="pill ${{'On time':'p-ok','Late':'p-late','Absent':'p-abs'}[s] || 'p-off'}">${s}</span>`;
+const dash = v => v || '<span class="muted">—</span>';
+const gap = g => g == null ? '<span class="muted">—</span>' : g > 0 ? `<b style="color:${g > TOL ? 'var(--bad)' : 'inherit'}">+${g}</b>` : String(g);
+const hrs = h => h == null ? '<span class="muted">—</span>' : Math.floor(h) + 'h ' + String(Math.round((h % 1) * 60)).padStart(2, '0') + 'm';
+const obs = r => r.flags.map(f => `<span class="flag ${f.startsWith('Declared') || f === 'No PC record' ? '' : 'soft'}">${esc(f)}</span>`).join('')
+  + [r.in_note, r.out_note].filter(Boolean).map(n => `<span class="note">Staff: ${esc(n)}</span>`).join('')
+  + (r.adm_remark ? `<span class="note">Admin correction (${esc(r.adm_in || '–')} / ${esc(r.adm_out || '–')}): ${esc(r.adm_remark)}</span>` : '');
+let TOL = 10, dayRows = [], monthData = null;
+
+/* ---------- gate ---------- */
+async function boot() {
+  const st = await (await fetch('/api/admin/state')).json();
+  $('firm').textContent = st.firm;
+  document.title = 'Attendance Admin – ' + st.firm;
+  if (st.logged_in) { $('gate').classList.add('hidden'); $('shell').classList.remove('hidden'); return start(); }
+  $('shell').classList.add('hidden'); $('gate').classList.remove('hidden');
+  $('gateTitle').textContent = st.setup_needed ? 'Create admin password' : 'Admin sign-in';
+  $('gateHint').textContent = st.setup_needed ? 'First-time setup. Choose a password of at least 6 characters; only you should know it.' : '';
+  $('gateBtn').onclick = async () => {
+    try { await api(st.setup_needed ? 'admin/setup' : 'admin/login', {password: $('gatePw').value}); $('gatePw').value = ''; $('gateMsg').textContent = ''; boot(); }
+    catch (e) { $('gateMsg').textContent = e.message; }
+  };
+  $('gatePw').onkeydown = e => { if (e.key === 'Enter') $('gateBtn').click(); };
+  $('gatePw').focus();
+}
+$('btnOut').onclick = async () => { await api('logout', {}); boot(); };
+
+/* ---------- tabs ---------- */
+const loaders = {daily: loadDay, monthly: loadMonth, staff: loadStaff, settings: loadSettings};
+document.querySelectorAll('nav button').forEach(b => b.onclick = () => {
+  document.querySelectorAll('nav button').forEach(x => x.classList.toggle('on', x === b));
+  for (const t in loaders) $('tab-' + t).classList.toggle('hidden', t !== b.dataset.tab);
+  loaders[b.dataset.tab]();
+});
+let started = false;
+async function start() {
+  if (!started) {
+    started = true;
+    const t = new Date(), iso = new Date(t - t.getTimezoneOffset() * 60000).toISOString();
+    $('dDate').value = iso.slice(0, 10); $('mMonth').value = iso.slice(0, 7);
+    setInterval(() => { if (!$('tab-daily').classList.contains('hidden') && !$('ovr').open) loadDay(); }, 60000);
+  }
+  try { TOL = +(await api('admin/settings')).tolerance_min; } catch (e) {}
+  loadDay();
+}
+
+/* ---------- daily ---------- */
+function shift(n) { const d = new Date($('dDate').value + 'T12:00'); d.setDate(d.getDate() + n); $('dDate').value = d.toISOString().slice(0, 10); loadDay(); }
+$('dPrev').onclick = () => shift(-1); $('dNext').onclick = () => shift(1);
+$('dToday').onclick = () => { started = false; start(); };
+$('dDate').onchange = loadDay;
+async function loadDay() {
+  const d = await api('admin/day?date=' + $('dDate').value);
+  dayRows = d.rows;
+  $('dStamp').textContent = d.day === d.today ? 'Live · refreshed ' + d.now : fmtDay(d.day);
+  const c = k => d.rows.filter(k).length;
+  const tiles = [[c(r => r.eff_in), 'Present'], [c(r => r.status === 'On time'), 'On time'], [c(r => r.status === 'Late'), 'Late'],
+    [c(r => r.status === 'Absent' || r.status === 'Not in yet'), d.day === d.today ? 'Not in yet' : 'Absent'],
+    [c(r => r.flags.some(f => f.startsWith('Declared'))), 'Time mismatches']];
+  $('dTiles').innerHTML = tiles.map(t => `<div class="tile"><b>${t[0]}</b><span>${t[1]}</span></div>`).join('');
+  $('dBody').innerHTML = d.rows.map((r, i) => `<tr>
+    <td><b>${esc(r.name)}</b><span class="note">Due ${r.shift_start}</span></td>
+    <td>${pill(r.status)}${r.status === 'Late' ? `<span class="note">by ${r.late_by} min</span>` : ''}</td>
+    <td>${dash(r.auto_in)}</td><td>${dash(r.manual_in)}</td><td>${gap(r.in_gap)}</td>
+    <td>${dash(r.auto_out)}</td><td>${dash(r.manual_out)}</td><td>${gap(r.out_gap)}</td>
+    <td>${hrs(r.hours)}</td><td>${r.active_min ? hrs(r.active_min / 60) : dash('')}</td>
+    <td class="wrap">${obs(r)}</td>
+    <td><button class="mini" data-i="${i}">Correct</button></td></tr>`).join('')
+    || '<tr><td colspan="12">No staff added yet. Open the Staff tab to add your team.</td></tr>';
+  $('dBody').querySelectorAll('button').forEach(b => b.onclick = () => openOvr(dayRows[b.dataset.i]));
+}
+let ovrRow = null;
+function openOvr(r) {
+  ovrRow = r; $('oWho').textContent = r.name + ' · ' + fmtDay(r.day);
+  $('oIn').value = r.adm_in; $('oOut').value = r.adm_out; $('oRemark').value = r.adm_remark; $('oMsg').textContent = '';
+  $('ovr').showModal();
+}
+$('oCancel').onclick = () => $('ovr').close();
+$('oSave').onclick = async () => {
+  try { await api('admin/override', {staff_id: ovrRow.staff_id, day: ovrRow.day, adm_in: $('oIn').value, adm_out: $('oOut').value, remark: $('oRemark').value});
+        $('ovr').close(); loadDay(); }
+  catch (e) { $('oMsg').textContent = e.message; }
+};
+
+/* ---------- monthly ---------- */
+$('mMonth').onchange = loadMonth;
+$('mStaff').onchange = renderMonthDays;
+async function loadMonth() {
+  const m = $('mMonth').value;
+  monthData = await api('admin/month?month=' + m);
+  $('mExport').href = '/api/admin/export?month=' + m;
+  const bad = v => v ? `<b style="color:var(--bad)">${v}</b>` : '0';
+  $('mBody').innerHTML = monthData.summary.map(a => `<tr>
+    <td><b>${esc(a.name)}</b></td>
+    <td>${a.punctuality == null ? dash('') : `<span class="bartrack"><i style="width:${a.punctuality}%"></i></span>${a.punctuality}%`}</td>
+    <td>${a.present}</td><td>${a.on_time}</td><td>${a.late}</td><td>${a.absent}</td>
+    <td>${dash(a.avg_arrival)}</td><td>${a.late_min}</td><td>${a.avg_hours ?? '—'}</td>
+    <td>${bad(a.mismatch)}</td><td>${a.not_declared}</td><td>${bad(a.no_pc)}</td></tr>`).join('')
+    || '<tr><td colspan="12">No data for this month.</td></tr>';
+  const keep = $('mStaff').value;
+  $('mStaff').innerHTML = monthData.summary.map(a => `<option value="${a.staff_id}">${esc(a.name)}</option>`).join('');
+  if ([...$('mStaff').options].some(o => o.value === keep)) $('mStaff').value = keep;
+  renderMonthDays();
+}
+function renderMonthDays() {
+  const id = +$('mStaff').value;
+  $('mDays').innerHTML = monthData.rows.filter(r => r.staff_id === id).reverse().map(r => `<tr>
+    <td>${fmtDay(r.day)}</td><td>${pill(r.status)}</td><td>${dash(r.auto_in)}</td><td>${dash(r.manual_in)}</td>
+    <td>${dash(r.auto_out)}</td><td>${dash(r.manual_out)}</td><td>${hrs(r.hours)}</td><td class="wrap">${obs(r)}</td></tr>`).join('');
+}
+
+/* ---------- staff ---------- */
+let editId = null;
+function resetStaffForm() {
+  editId = null; $('sFormTitle').textContent = 'Add staff member'; $('sPinLbl').textContent = 'Starting PIN (4 to 8 digits)';
+  $('sName').value = $('sWin').value = $('sShift').value = $('sPin').value = ''; $('sActive').value = '1';
+  $('sCancel').classList.add('hidden'); $('sMsg').textContent = '';
+}
+$('sCancel').onclick = resetStaffForm;
+$('sSave').onclick = async () => {
+  try { await api('admin/staff', {id: editId, name: $('sName').value, win_user: $('sWin').value, shift_start: $('sShift').value, pin: $('sPin').value, active: $('sActive').value === '1'});
+        resetStaffForm(); loadStaff(); }
+  catch (e) { $('sMsg').textContent = e.message; }
+};
+async function loadStaff() {
+  const d = await api('admin/staff');
+  $('sBody').innerHTML = d.staff.map((s, i) => `<tr><td><b>${esc(s.name)}</b></td><td>${dash(esc(s.win_user))}</td><td>${s.shift_start || '<span class="muted">Office default</span>'}</td>
+    <td>${s.active ? pill('On time').replace('On time', 'Active') : pill('Inactive')}</td><td><button class="mini" data-i="${i}">Edit / reset PIN</button></td></tr>`).join('')
+    || '<tr><td colspan="5">No staff yet.</td></tr>';
+  $('sBody').querySelectorAll('button').forEach(b => b.onclick = () => {
+    const s = d.staff[b.dataset.i]; editId = s.id;
+    $('sFormTitle').textContent = 'Edit ' + s.name; $('sPinLbl').textContent = 'New PIN (leave blank to keep current)';
+    $('sName').value = s.name; $('sWin').value = s.win_user; $('sShift').value = s.shift_start; $('sPin').value = ''; $('sActive').value = s.active ? '1' : '0';
+    $('sCancel').classList.remove('hidden'); window.scrollTo({top: 0});
+  });
+  $('unmCard').classList.toggle('hidden', !d.unmapped.length);
+  $('unmBody').innerHTML = d.unmapped.map(u => `<tr><td><code>${esc(u.win_user)}</code></td><td>${esc(u.host)}</td><td>${esc(u.last_seen)}</td>
+    <td><button class="mini" data-u="${esc(u.win_user)}">Use for new staff</button></td></tr>`).join('');
+  $('unmBody').querySelectorAll('button').forEach(b => b.onclick = () => { $('sWin').value = b.dataset.u; $('sName').focus(); window.scrollTo({top: 0}); });
+}
+
+/* ---------- settings ---------- */
+const DAYS = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+async function loadSettings() {
+  const s = await api('admin/settings');
+  TOL = +s.tolerance_min;
+  $('cFirm').value = s.firm_name; $('cStart').value = s.office_start; $('cGrace').value = s.grace_min; $('cTol').value = s.tolerance_min; $('cHol').value = s.holidays; $('cPw').value = '';
+  const offs = s.weekly_off.split(',');
+  $('cOff').innerHTML = DAYS.map((d, i) => `<label style="display:inline-block;font-weight:400;margin-right:10px"><input type="checkbox" value="${i}" ${offs.includes(String(i)) ? 'checked' : ''}> ${d}</label>`).join('');
+  const local = ['localhost', '127.0.0.1'].includes(location.hostname);
+  $('cCmd').textContent = `install-agent.bat ${local ? 'http://' + s.lan_ip + ':' + location.port : location.origin} ${s.agent_key}`;
+  const a = await api('admin/audit');
+  $('cAudit').innerHTML = a.map(x => `<tr><td>${esc(x.ts)}</td><td>${esc(x.who)}</td><td class="wrap">${esc(x.action)}</td></tr>`).join('') || '<tr><td colspan="3">Nothing yet.</td></tr>';
+}
+$('cSave').onclick = async () => {
+  try {
+    await api('admin/settings', {firm_name: $('cFirm').value, office_start: $('cStart').value, grace_min: $('cGrace').value, tolerance_min: $('cTol').value,
+      holidays: $('cHol').value, new_password: $('cPw').value, weekly_off: [...$('cOff').querySelectorAll('input:checked')].map(x => x.value)});
+    $('cMsg').style.color = 'var(--ok)'; $('cMsg').textContent = 'Saved.'; loadSettings(); boot();
+  } catch (e) { $('cMsg').style.color = 'var(--bad)'; $('cMsg').textContent = e.message; }
+};
+boot();
+</script>
+</body>
+</html>
