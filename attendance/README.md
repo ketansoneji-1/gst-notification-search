@@ -52,7 +52,7 @@ To start the server automatically, place a shortcut to `start-server.bat` in the
 
 1. Run the attendance server (step 1) on the RDP server itself.
 2. In the `agent` folder, double-click **`install-all-users.bat`** and accept the administrator prompt. It reads the agent key itself and installs the agent for every Windows user of the server. (Manual alternative: Command Prompt as administrator, `install-agent.bat http://127.0.0.1:8080 <agent-key> all`.)
-3. Staff who are signed in must sign out and sign in again once. From then on the agent starts in every session at sign-in.
+3. Staff who are connected must disconnect and reconnect once (or lock and unlock). From then on the agent starts in every session at sign-in, and also whenever a user reconnects to or unlocks a session that was left open.
 4. On the admin **Staff** page, link each Windows user name of the server to the staff member (users already sending data are listed there for one-click linking).
 
 Each staff member must have an individual Windows account on the server. A disconnected RDP session produces no activity, so it counts neither as attendance nor as work.
@@ -68,7 +68,7 @@ For a staff member working on a separate PC instead, copy the `agent` folder the
 
 The admin **Daily** tab shows a yellow notice, and **Settings → Agent status** lists every Windows user whose session has sent a signal.
 
-1. **Nobody listed under Agent status** – the agent is not installed or not running. On the RDP server, open Command Prompt with *Run as administrator* and run the install command from the Settings page **ending in `all`** (without `all`, it installs only for the user who ran it). Then each user must sign out and sign in once.
+1. **Nobody listed under Agent status** – the agent is not installed or not running. On the RDP server, open Command Prompt with *Run as administrator* and run the install command from the Settings page **ending in `all`** (without `all`, it installs only for the user who ran it), or simply double-click `install-all-users.bat`. Then each user reconnects or locks and unlocks once.
 2. **Users listed but "Not linked"** – open the **Staff** tab and enter that Windows user name against the staff member. Data already received appears immediately.
 3. **Still nothing for a user** – sign in as that user (in their RDP session) and double-click `C:\ProgramData\OfficeAttendance\check-agent.bat` (or the copy in the `agent` folder). It prints OK / FAIL for each step:
    - *Agent files installed / Startup entry present* FAIL → run the installer again as administrator with `all`.
@@ -108,4 +108,5 @@ The agent records the time of activity and the program name and window title in 
 | `agent/agent.ps1` | Session agent (runs hidden at sign-in) |
 | `agent/install-agent.bat`, `agent/uninstall-agent.bat` | Agent installer / remover |
 | `agent/install-all-users.bat` | One-click install for all users of the RDP server |
+| `agent/register-task.ps1` | Used by the installer: scheduled task that starts the agent on sign-in, reconnect and unlock |
 | `agent/check-agent.bat`, `agent/check-agent.ps1` | Diagnostic: shows which step fails in a session |

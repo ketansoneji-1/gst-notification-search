@@ -36,10 +36,15 @@ if ($ok) { $ok = Step '2. config.json readable' {
     if (-not $found) { throw 'OfficeAttendance.vbs is not in any Startup folder, so the agent will not start at sign-in. Run install-agent.bat again.' }
     $found -join ' ; '
 })
+[void](Step '3b. Reconnect / unlock task (all-users install)' {
+    & schtasks.exe /Query /TN 'OfficeAttendance' 2>$null | Out-Null
+    if ($LASTEXITCODE -ne 0) { throw 'scheduled task OfficeAttendance not found - run install-all-users.bat again (needed so the agent starts when a user reconnects to an open RDP session).' }
+    'registered'
+})
 [void](Step '4. Agent running in this session' {
     $m = $null
     if ([System.Threading.Mutex]::TryOpenExisting('Local\OfficeAttendanceAgent', [ref]$m)) { $m.Dispose(); 'yes' }
-    else { throw 'NOT running in this session. Sign out and sign in again; if it still does not start, hidden PowerShell is probably being blocked by antivirus or group policy (see README, Troubleshooting).' }
+    else { throw 'NOT running in this session. Lock and unlock the session (Win+L), or sign out and sign in again; if it still does not start, hidden PowerShell is probably being blocked by antivirus or group policy (see README, Troubleshooting).' }
 })
 if ($ok) {
     $ok = Step '5. Server reachable' {

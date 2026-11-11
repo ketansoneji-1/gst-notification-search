@@ -42,10 +42,15 @@ if errorlevel 1 (echo Could not create the Startup entry - for "all", run as adm
 rem Start it now for the current session as well.
 wscript.exe "%VBS%"
 
+rem All-users install: also start the agent whenever a user reconnects to an RDP session or unlocks it.
+if /i "%~3"=="all" copy /y "%VBS%" "%DEST%\run-agent.vbs" >nul
+if /i "%~3"=="all" powershell.exe -NoProfile -ExecutionPolicy Bypass -File "%~dp0register-task.ps1" "%DEST%\run-agent.vbs"
+
 echo.
 if /i "%~3"=="all" (
-  echo Agent installed for ALL users of %COMPUTERNAME%. It starts in each session at the next sign-in.
-  echo Users who are signed in now must sign out and sign in again once.
+  echo Agent installed for ALL users of %COMPUTERNAME%.
+  echo It starts in each session at sign-in, and when a user reconnects to or unlocks a session.
+  echo Users who are connected now: disconnect and reconnect once, or lock and unlock.
 ) else (
   echo Agent installed for Windows user: %USERNAME%  on computer: %COMPUTERNAME%
 )
