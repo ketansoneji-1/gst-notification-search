@@ -123,6 +123,23 @@ function Get-OpenedWith([int]$procId, [string]$app) {
     return $r
 }
 
+# Full path of the document in front in Excel / Word, asked from the program itself. Needed when
+# staff start Excel first and then open the file from inside it (nothing on the command line).
+# Returns '' when the program is busy (e.g. a cell is being edited) or not reachable.
+function Get-OfficeDocPath([string]$app) {
+    $progId = @{ excel = 'Excel.Application'; winword = 'Word.Application' }[$app.ToLower()]
+    if (-not $progId) { return '' }
+    $o = $null; $d = $null; $r = ''
+    try {
+        $o = [System.Runtime.InteropServices.Marshal]::GetActiveObject($progId)
+        if ($progId -like 'Excel*') { $d = $o.ActiveWorkbook } else { $d = $o.ActiveDocument }
+        if ($d) { $r = [string]$d.FullName }
+    } catch { }
+    foreach ($c in @($d, $o)) { if ($c) { try { [void][System.Runtime.InteropServices.Marshal]::ReleaseComObject($c) } catch { } } }
+    if ($r.Length -gt 300) { $r = $r.Substring(0, 300) }
+    return $r
+}
+
 function Send-Beat {
     $samples = New-Object System.Collections.ArrayList
     foreach ($k in @($usage.Keys)) {
@@ -152,7 +169,8 @@ while ($true) {
                         $usage[$key] = $tick
                         # Keep the path only when this window really shows that file (one program
                         # can have several documents open; only the first is on its command line).
-                        $p = Get-OpenedWith ([OfficeAttendanceNative]::ForegroundPid()) $app
+                        $p = Get-OfficeDocPath $app
+                        if (-not $p) { $p = Get-OpenedWith ([OfficeAttendanceNative]::ForegroundPid()) $app }
                         if ($p) {
                             $leaf = ''
                             try { $leaf = [System.IO.Path]::GetFileNameWithoutExtension($p) } catch { }

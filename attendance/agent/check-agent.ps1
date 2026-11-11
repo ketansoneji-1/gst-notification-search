@@ -74,6 +74,22 @@ public static class OfficeAttendanceCheck {
     "idle $([OfficeAttendanceCheck]::Idle()) s, window in front = '$([OfficeAttendanceCheck]::Title())'"
 })
 
+
+# What the programs expose - this decides how well the client can be identified automatically.
+Write-Host ""
+Write-Host "Open Tally with a company selected, and Excel with a client file, BEFORE running this check:" -ForegroundColor Cyan
+[void](Step '8. Tally window title' {
+    $t = @(Get-Process | Where-Object { $_.ProcessName -like 'tally*' -and $_.SessionId -eq (Get-Process -Id $PID).SessionId } | ForEach-Object { "[" + $_.ProcessName + "] '" + $_.MainWindowTitle + "'" })
+    if (-not $t) { throw 'Tally is not running in this session.' }
+    $t -join '  ;  '
+})
+[void](Step '9. Excel file path' {
+    $x = [System.Runtime.InteropServices.Marshal]::GetActiveObject('Excel.Application')
+    $w = $x.ActiveWorkbook
+    if (-not $w) { throw 'Excel is open but no workbook is open.' }
+    "'" + $w.FullName + "'"
+})
+
 Write-Host ""
 $log = Join-Path $userDir 'agent.log'
 if (Test-Path $log) { Write-Host "Last lines of $log :" -ForegroundColor Cyan; Get-Content $log -Tail 15 }
