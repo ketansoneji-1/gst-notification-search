@@ -69,6 +69,9 @@ public static class OfficeAttendanceNative {
         if (!GetLastInputInfo(ref l)) return 0;
         return (int)(unchecked((uint)Environment.TickCount - l.dwTime) / 1000);
     }
+    public static int ForegroundPid() {
+        try { uint pid; GetWindowThreadProcessId(GetForegroundWindow(), out pid); return (int)pid; } catch { return 0; }
+    }
     public static string ForegroundApp() {
         try {
             uint pid;
@@ -99,12 +102,32 @@ $first       = $true
 $sentOk      = $false
 $lastError   = ''
 $usage       = @{}    # "program<TAB>title" -> seconds, since the last successful signal
+$paths       = @{}    # "program<TAB>title" -> file / folder the program was opened with
+$argCache    = @{}    # process id -> what it was opened with
+$browsers    = @('chrome', 'msedge', 'firefox', 'brave', 'opera', 'iexplore')
+
+# The file or folder a program was started with, e.g. EXCEL.EXE "E:\Clients\Shree Traders\GSTR1.xlsx"
+# gives  E:\Clients\Shree Traders\GSTR1.xlsx . The folder name often identifies the client even
+# when the window title does not. Browsers are skipped (their command lines are only switches).
+function Get-OpenedWith([int]$procId, [string]$app) {
+    if ($procId -le 0 -or ($browsers -contains $app.ToLower())) { return '' }
+    if ($argCache.ContainsKey($procId)) { return $argCache[$procId] }
+    $r = ''
+    try {
+        $cl = [string](Get-CimInstance Win32_Process -Filter "ProcessId=$procId" -Property CommandLine).CommandLine
+        $r = ($cl -replace '^\s*("[^"]*"|\S+)\s*', '' -replace '[\t\r\n]', ' ').Trim().Trim('"')
+        if ($r.Length -gt 300) { $r = $r.Substring(0, 300) }
+    } catch { }
+    if ($argCache.Count -gt 300) { $argCache.Clear() }
+    $argCache[$procId] = $r
+    return $r
+}
 
 function Send-Beat {
     $samples = New-Object System.Collections.ArrayList
     foreach ($k in @($usage.Keys)) {
         $i = $k.IndexOf("`t")
-        [void]$samples.Add(@{ app = $k.Substring(0, $i); title = $k.Substring($i + 1); seconds = [int]$usage[$k] })
+        [void]$samples.Add(@{ app = $k.Substring(0, $i); title = $k.Substring($i + 1); seconds = [int]$usage[$k]; path = [string]$paths[$k] })
     }
     $payload = @{ key = [string]$cfg.key; user = $env:USERNAME; host = $env:COMPUTERNAME; samples = $samples.ToArray() }
     $bytes = [System.Text.Encoding]::UTF8.GetBytes((ConvertTo-Json $payload -Depth 4 -Compress))
@@ -125,7 +148,18 @@ while ($true) {
                 if ($app -or $title) {
                     $key = "$app`t$title"
                     if ($usage.ContainsKey($key)) { $usage[$key] = $usage[$key] + $tick }
-                    elseif ($usage.Count -lt 400) { $usage[$key] = $tick }
+                    elseif ($usage.Count -lt 400) {
+                        $usage[$key] = $tick
+                        # Keep the path only when this window really shows that file (one program
+                        # can have several documents open; only the first is on its command line).
+                        $p = Get-OpenedWith ([OfficeAttendanceNative]::ForegroundPid()) $app
+                        if ($p) {
+                            $leaf = ''
+                            try { $leaf = [System.IO.Path]::GetFileNameWithoutExtension($p) } catch { }
+                            if (-not $leaf -or $title.IndexOf($leaf, [System.StringComparison]::OrdinalIgnoreCase) -lt 0) { $p = '' }
+                        }
+                        $paths[$key] = $p
+                    }
                 }
             }
         }
@@ -137,6 +171,7 @@ while ($true) {
                 $lastSent = $now
                 $first = $false
                 $usage = @{}
+                $paths = @{}
                 if (-not $sentOk) { $sentOk = $true; Write-Log 'First signal accepted by the server.' }
                 $lastError = ''
                 $today = $now.ToString('yyyy-MM-dd')

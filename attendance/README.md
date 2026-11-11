@@ -15,7 +15,8 @@ The admin dashboard places both side by side and reports:
 
 - **On time / Late / Absent** against the reporting time plus grace period (office default or per-staff).
 - **Time mismatches** – declared arrival earlier, or declared leaving later, than the PC record beyond the tolerance.
-- **Arrival not declared**, **Leaving not declared**, **No PC record**.
+- **Arrival not declared**, **No PC record**.
+- **Leaving auto-punched** – if a staff member leaves without declaring the leaving time, the last PC activity of that day (accurate to about five minutes) is punched as the leaving time and marked as such.
 - **Monthly regularity ranking** – punctuality %, average arrival, total late minutes, average hours, mismatch count – with CSV export for Excel.
 - **Admin corrections** (client visit, outdoor duty, etc.) with a mandatory remark; originals are preserved and every correction is logged in the audit trail.
 
@@ -26,7 +27,7 @@ Staff enter nothing. While a session is in use, the agent notes every 10 seconds
 - **Client** – the window title is searched for each client's name and its keywords (short forms, Tally company name, usual file-name spellings).
 - **Type of work** – the program name and title are searched for the type-of-work keywords (`tally` → Accounting, `gst` / `gstr1` → GST Returns, `3cd` → Tax Audit, `26q` / `traces` → TDS, and so on). All keywords are editable.
 
-Whole words only; the longest match wins. Matching is done when the report is opened, so adding a keyword corrects past periods as well.
+For a file opened by double-click, the agent also records its full path, so a client folder name (`E:\Clients\Shree Traders\...`) identifies the client even when the file name does not. Whole words only; the longest match wins. Matching is done when the report is opened, so adding a keyword corrects past periods as well.
 
 The **Work log** tab (admin password only – staff have no access to it at all) shows for any period: client-wise hours by type of work and staff, each staff member's active hours against attended hours, the windows where no client could be identified (so you can add keywords), the full window-level detail, filters, and a CSV export for billing or job costing. The **Clients** tab maintains the client list (paste many names at once) and the keywords.
 

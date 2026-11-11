@@ -330,7 +330,7 @@ async function loadDay() {
     <td><b>${esc(r.name)}</b><span class="note">Due ${r.shift_start}</span></td>
     <td>${pill(r.status)}${r.status === 'Late' ? `<span class="note">by ${r.late_by} min</span>` : ''}</td>
     <td>${dash(r.auto_in)}</td><td>${dash(r.manual_in)}</td><td>${gap(r.in_gap)}</td>
-    <td>${dash(r.auto_out)}</td><td>${dash(r.manual_out)}</td><td>${gap(r.out_gap)}</td>
+    <td>${dash(r.auto_out)}</td><td>${dash(r.manual_out)}${r.out_auto ? '<span class="note">auto-punched</span>' : ''}</td><td>${gap(r.out_gap)}</td>
     <td>${hrs(r.hours)}</td><td>${r.active_min ? hrs(r.active_min / 60) : dash('')}</td>
     <td class="wrap">${obs(r)}</td>
     <td><button class="mini" data-i="${i}">Correct</button></td></tr>`).join('')
@@ -374,7 +374,7 @@ function renderMonthDays() {
   const id = +$('mStaff').value;
   $('mDays').innerHTML = monthData.rows.filter(r => r.staff_id === id).reverse().map(r => `<tr>
     <td>${fmtDay(r.day)}</td><td>${pill(r.status)}</td><td>${dash(r.auto_in)}</td><td>${dash(r.manual_in)}</td>
-    <td>${dash(r.auto_out)}</td><td>${dash(r.manual_out)}</td><td>${hrs(r.hours)}</td><td class="wrap">${obs(r)}</td></tr>`).join('');
+    <td>${dash(r.auto_out)}</td><td>${dash(r.manual_out)}${r.out_auto ? ' <span class="muted">(auto)</span>' : ''}</td><td>${hrs(r.hours)}</td><td class="wrap">${obs(r)}</td></tr>`).join('');
 }
 
 /* ---------- work log ---------- */
@@ -413,10 +413,10 @@ function renderWork() {
       <td ${R}>${new Set(se.map(e => e.client)).size}</td><td>${esc(top[0])} <span class="muted">(${h2(sum(top[1]))} h)</span></td></tr>`; }).join('')
     || '<tr><td colspan="6">No activity recorded for this selection.</td></tr>';
   const unk = group(E.filter(e => e.client === workData.no_client), e => e.app + '\u0001' + e.title).sort((a, b) => sum(b[1]) - sum(a[1])).slice(0, 40);
-  $('wUnk').innerHTML = unk.map(([k, x]) => `<tr><td>${esc(x[0].app)}</td><td class="wrap">${esc(x[0].title)}</td><td>${esc(x[0].type)}</td><td ${R}>${hrs(sum(x) / 60)}</td></tr>`).join('')
+  $('wUnk').innerHTML = unk.map(([k, x]) => `<tr><td>${esc(x[0].app)}</td><td class="wrap">${esc(x[0].title)}${x[0].path ? `<span class="note">${esc(x[0].path)}</span>` : ''}</td><td>${esc(x[0].type)}</td><td ${R}>${hrs(sum(x) / 60)}</td></tr>`).join('')
     || '<tr><td colspan="4">Nothing unidentified for this selection.</td></tr>';
   const mm = m => m < 1 ? '<1m' : hrs(m / 60);
-  $('wEntries').innerHTML = E.slice(0, 500).map(e => `<tr><td>${fmtDay(e.day)}</td><td>${esc(e.staff)}</td><td>${esc(e.app)}</td><td class="wrap">${esc(e.title)}</td>
+  $('wEntries').innerHTML = E.slice(0, 500).map(e => `<tr><td>${fmtDay(e.day)}</td><td>${esc(e.staff)}</td><td>${esc(e.app)}</td><td class="wrap">${esc(e.title)}${e.path ? `<span class="note">${esc(e.path)}</span>` : ''}</td>
     <td>${esc(e.client)}</td><td>${esc(e.type)}</td><td ${R}>${mm(e.minutes)}</td></tr>`).join('')
     + (E.length > 500 ? `<tr><td colspan="7" class="muted">Showing 500 of ${E.length} rows (longest first within each day). Download the CSV for the full list.</td></tr>` : '')
     || '<tr><td colspan="7">No activity recorded for this selection.</td></tr>';

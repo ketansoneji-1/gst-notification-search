@@ -81,6 +81,7 @@ CREATE TABLE IF NOT EXISTS work_types(id INTEGER PRIMARY KEY, name TEXT NOT NULL
   keywords TEXT NOT NULL DEFAULT '', active INTEGER NOT NULL DEFAULT 1);
 CREATE TABLE IF NOT EXISTS activity(
   win_user TEXT, day TEXT, app TEXT, title TEXT, seconds INTEGER NOT NULL DEFAULT 0,
+  path TEXT NOT NULL DEFAULT '',     -- file / folder the program was opened with, when known
   PRIMARY KEY(win_user, day, app, title));
 """
 
@@ -95,6 +96,8 @@ def init_db():
     con = db()
     con.executescript(SCHEMA)
     con.execute("PRAGMA journal_mode=WAL")
+    if "path" not in [r["name"] for r in con.execute("PRAGMA table_info(activity)")]:   # databases from v1
+        con.execute("ALTER TABLE activity ADD COLUMN path TEXT NOT NULL DEFAULT ''")
     for k, v in DEFAULTS.items():
         con.execute("INSERT OR IGNORE INTO settings VALUES(?,?)", (k, v))
     con.execute("INSERT OR IGNORE INTO settings VALUES('agent_key',?)", (secrets.token_hex(12),))
@@ -196,14 +199,20 @@ def compute(staff, day, auto, man, s, today):
         flags.append("Arrival not declared")
     if m_in and not a_in:
         flags.append("No PC record")
+    out_auto = False
     if eff_in and not m_out and day < today:
-        flags.append("Leaving not declared")
+        if a_out:
+            # Staff left without declaring: punch the leaving time from the last PC activity.
+            m_out, out_auto = a_out, True
+            flags.append("Leaving auto-punched from PC")
+        else:
+            flags.append("Leaving not declared")
     hours = None
     if eff_in and eff_out_for_hours and mins(eff_out_for_hours) >= mins(eff_in):
         hours = round((mins(eff_out_for_hours) - mins(eff_in)) / 60, 2)
     return {
         "staff_id": staff["id"], "name": staff["name"], "day": day, "shift_start": start,
-        "auto_in": a_in, "auto_out": a_out, "manual_in": m_in, "manual_out": m_out,
+        "auto_in": a_in, "auto_out": a_out, "manual_in": m_in, "manual_out": m_out, "out_auto": out_auto,
         "adm_in": adm_in, "adm_out": adm_out, "adm_remark": (man["adm_remark"] or "") if man else "",
         "in_note": (man["in_note"] or "") if man else "", "out_note": (man["out_note"] or "") if man else "",
         "in_entered": hhmm(man["in_entered"]) if man and man["in_entered"] else "",
@@ -455,11 +464,14 @@ class Handler(BaseHTTPRequestHandler):
             try:
                 sec = max(0, min(int(smp.get("seconds", 0)), 4 * 3600))
                 app, title = str(smp.get("app", ""))[:60].lower(), str(smp.get("title", ""))[:200]
+                path = str(smp.get("path") or "")[:300]
             except (AttributeError, TypeError, ValueError):
                 continue
             if sec:
-                con.execute("INSERT INTO activity VALUES(?,?,?,?,?) ON CONFLICT(win_user,day,app,title) "
-                            "DO UPDATE SET seconds=seconds+excluded.seconds", (user, day, app, title, sec))
+                con.execute("INSERT INTO activity(win_user,day,app,title,seconds,path) VALUES(?,?,?,?,?,?) "
+                            "ON CONFLICT(win_user,day,app,title) DO UPDATE SET seconds=seconds+excluded.seconds, "
+                            "path=CASE WHEN excluded.path<>'' THEN excluded.path ELSE path END",
+                            (user, day, app, title, sec, path))
         return {"ok": True, "server_time": ts}
 
     # ---------- staff ----------
@@ -492,8 +504,9 @@ class Handler(BaseHTTPRequestHandler):
         """Most recent earlier day (within 7 days) with a declared arrival but no declared leaving."""
         lo = (now().date() - timedelta(days=7)).isoformat()
         return con.execute(
-            "SELECT day,in_time FROM manual WHERE staff_id=? AND day<? AND day>=? AND in_time IS NOT NULL "
-            "AND out_time IS NULL ORDER BY day DESC LIMIT 1", (st["id"], today, lo)).fetchone()
+            "SELECT day,in_time FROM manual m WHERE staff_id=? AND day<? AND day>=? AND in_time IS NOT NULL "
+            "AND out_time IS NULL AND NOT EXISTS(SELECT 1 FROM auto_day a WHERE a.win_user=? AND a.win_user<>'' "
+            "AND a.day=m.day) ORDER BY day DESC LIMIT 1", (st["id"], today, lo, st["win_user"])).fetchone()
 
     def get_me(self, con, q, b):
         st = self.need_staff(con)
@@ -578,12 +591,14 @@ class Handler(BaseHTTPRequestHandler):
         crules, trules = matchers(con, "clients", True), matchers(con, "work_types", False)
         out = []
         for r in con.execute(
-                "SELECT a.day,s.id staff_id,s.name staff,a.app,a.title,a.seconds FROM activity a "
+                "SELECT a.day,s.id staff_id,s.name staff,a.app,a.title,a.path,a.seconds FROM activity a "
                 "JOIN staff s ON s.win_user=a.win_user AND s.win_user<>'' "
                 "WHERE a.day BETWEEN ? AND ? ORDER BY a.day DESC,a.seconds DESC", (f, t)):
             e = dict(r)
             title = norm(e["title"])
             e["client"] = classify(title, crules, NO_CLIENT)
+            if e["client"] == NO_CLIENT and e["path"]:        # fall back to the file's folder path
+                e["client"] = classify(norm(e["path"]), crules, NO_CLIENT)
             e["type"] = classify(norm(e["app"]) + title, trules, NO_TYPE)
             out.append(e)
         return out
@@ -610,10 +625,10 @@ class Handler(BaseHTTPRequestHandler):
         f, t = self.work_range(q)
         buf = io.StringIO()
         w = csv.writer(buf)
-        w.writerow(["Date", "Staff", "Client", "Type of work", "Hours", "Minutes", "Program", "Window title"])
+        w.writerow(["Date", "Staff", "Client", "Type of work", "Hours", "Minutes", "Program", "Window title", "File / folder"])
         for e in self.work_entries(con, f, t):
             w.writerow([e["day"], e["staff"], e["client"], e["type"], round(e["seconds"] / 3600, 2),
-                        round(e["seconds"] / 60, 1), e["app"], e["title"]])
+                        round(e["seconds"] / 60, 1), e["app"], e["title"], e["path"]])
         return ("\ufeff" + buf.getvalue(), 200, "text/csv",
                 {"Content-Disposition": f'attachment; filename="work-log-{f}-to-{t}.csv"'})
 
