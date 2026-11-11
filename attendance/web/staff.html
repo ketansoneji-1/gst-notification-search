@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Mark Attendance</title>
+<style>
+  :root { --bg:#f3f5f8; --card:#fff; --ink:#18212f; --muted:#667085; --line:#dfe3ea; --brand:#1f4e8c; --ok:#18794e; --bad:#b42318; }
+  * { box-sizing:border-box; }
+  body { margin:0; font:16px/1.5 "Segoe UI", system-ui, sans-serif; background:var(--bg); color:var(--ink); }
+  main { max-width:520px; margin:0 auto; padding:28px 16px 48px; }
+  h1 { font-size:22px; margin:0 0 2px; }
+  .sub { color:var(--muted); margin:0 0 20px; font-size:14px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:20px; margin-bottom:16px; }
+  .card h2 { font-size:16px; margin:0 0 4px; }
+  .card p.hint { margin:0 0 14px; color:var(--muted); font-size:14px; }
+  label { display:block; font-size:13px; font-weight:600; margin:12px 0 4px; }
+  input, select { width:100%; padding:10px 12px; font:inherit; border:1px solid var(--line); border-radius:8px; background:#fff; color:var(--ink); }
+  input[type=time] { font-size:22px; font-variant-numeric:tabular-nums; }
+  button { font:inherit; font-weight:600; padding:10px 16px; border-radius:8px; border:1px solid var(--brand); background:var(--brand); color:#fff; cursor:pointer; margin-top:14px; }
+  button.link { background:none; border:none; color:var(--brand); padding:0; margin:0; font-weight:500; font-size:14px; }
+  .done { display:flex; justify-content:space-between; align-items:baseline; }
+  .done b { font-size:22px; font-variant-numeric:tabular-nums; color:var(--ok); }
+  .msg { margin-top:10px; font-size:14px; color:var(--bad); min-height:1em; }
+  .top { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+  table { width:100%; border-collapse:collapse; font-size:14px; font-variant-numeric:tabular-nums; }
+  th, td { text-align:left; padding:6px 4px; border-bottom:1px solid var(--line); }
+  th { color:var(--muted); font-weight:600; font-size:12px; }
+  .hidden { display:none; }
+  .clock { font-variant-numeric:tabular-nums; color:var(--muted); font-size:14px; }
+</style>
+</head>
+<body>
+<main>
+  <!-- Sign in -->
+  <section id="login" class="hidden">
+    <h1 id="firm">Office Attendance</h1>
+    <p class="sub">Sign in to mark your attendance.</p>
+    <div class="card">
+      <label for="who">Your name</label>
+      <select id="who"></select>
+      <label for="pin">PIN</label>
+      <input id="pin" type="password" inputmode="numeric" autocomplete="off" maxlength="8">
+      <button id="btnLogin">Sign in</button>
+      <div class="msg" id="loginMsg"></div>
+    </div>
+  </section>
+
+  <!-- Marking -->
+  <section id="app" class="hidden">
+    <div class="top">
+      <div>
+        <h1 id="hello"></h1>
+        <p class="sub"><span id="dateLbl"></span> &middot; Reporting time <span id="shift"></span></p>
+      </div>
+      <button class="link" id="btnLogout">Sign out</button>
+    </div>
+
+    <div class="card hidden" id="pendingCard">
+      <h2>Leaving time pending for <span id="pendDay"></span></h2>
+      <p class="hint">You did not record when you left. Enter the actual time you left the office.</p>
+      <label for="pendTime">Time you left</label>
+      <input type="time" id="pendTime">
+      <button id="btnPend">Save leaving time</button>
+      <div class="msg" id="pendMsg"></div>
+    </div>
+
+    <div class="card">
+      <h2>Arrival</h2>
+      <div id="inForm">
+        <p class="hint">Enter the actual time you reached the office today. It cannot be changed after saving.</p>
+        <label for="inTime">Time you arrived</label>
+        <input type="time" id="inTime">
+        <label for="inNote">Remark (optional &mdash; e.g. client visit, bank work)</label>
+        <input id="inNote" maxlength="200">
+        <button id="btnIn">Save arrival</button>
+        <div class="msg" id="inMsg"></div>
+      </div>
+      <div id="inDone" class="done hidden"><span>Arrival recorded</span><b id="inVal"></b></div>
+    </div>
+
+    <div class="card" id="outCard">
+      <h2>Leaving</h2>
+      <div id="outForm">
+        <p class="hint">Before you shut down for the day, enter the time you are leaving.</p>
+        <label for="outTime">Time you are leaving</label>
+        <input type="time" id="outTime">
+        <label for="outNote">Remark (optional)</label>
+        <input id="outNote" maxlength="200">
+        <button id="btnOut">Save leaving</button>
+        <div class="msg" id="outMsg"></div>
+      </div>
+      <div id="outDone" class="done hidden"><span>Leaving recorded</span><b id="outVal"></b></div>
+    </div>
+
+    <div class="card">
+      <h2>My entries (last 31 days)</h2>
+      <table><thead><tr><th>Date</th><th>Arrived</th><th>Left</th></tr></thead><tbody id="hist"></tbody></table>
+    </div>
+
+    <div class="card">
+      <h2>Change PIN</h2>
+      <label for="oldPin">Current PIN</label><input id="oldPin" type="password" inputmode="numeric" maxlength="8">
+      <label for="newPin">New PIN (4 to 8 digits)</label><input id="newPin" type="password" inputmode="numeric" maxlength="8">
+      <button id="btnPin">Change PIN</button>
+      <div class="msg" id="pinMsg"></div>
+    </div>
+  </section>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+const show = (id, on) => $(id).classList.toggle('hidden', !on);
+async function api(path, body) {
+  const r = await fetch('/api/' + path, body ? {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)} : {});
+  const j = await r.json().catch(() => ({error:'Server not reachable'}));
+  if (!r.ok) { const e = new Error(j.error || 'Error'); e.status = r.status; throw e; }
+  return j;
+}
+const fmtDay = d => new Date(d + 'T00:00').toLocaleDateString('en-IN', {weekday:'short', day:'2-digit', month:'short', year:'numeric'});
+
+async function loadLogin() {
+  const u = new URLSearchParams(location.search).get('u') || '';
+  const d = await api('staff-list?u=' + encodeURIComponent(u));
+  $('firm').textContent = d.firm;
+  $('who').innerHTML = '<option value="">Select…</option>' + d.staff.map(s => `<option value="${s.id}">${s.name.replace(/</g,'&lt;')}</option>`).join('');
+  if (d.preselect) $('who').value = d.preselect;
+  show('login', true); show('app', false);
+  (d.preselect ? $('pin') : $('who')).focus();
+}
+
+async function loadMe() {
+  let me;
+  try { me = await api('me'); } catch (e) { return loadLogin(); }
+  show('login', false); show('app', true);
+  document.title = 'Mark Attendance – ' + me.firm;
+  $('hello').textContent = 'Hello, ' + me.name;
+  $('dateLbl').textContent = fmtDay(me.today);
+  $('shift').textContent = me.shift_start;
+  show('inForm', !me.in_time); show('inDone', !!me.in_time); $('inVal').textContent = me.in_time;
+  show('outCard', !!me.in_time);
+  show('outForm', !me.out_time); show('outDone', !!me.out_time); $('outVal').textContent = me.out_time;
+  show('pendingCard', !!me.pending_out);
+  if (me.pending_out) { $('pendDay').textContent = fmtDay(me.pending_out.day); $('pendTime').dataset.day = me.pending_out.day; }
+  $('hist').innerHTML = me.history.map(h => `<tr><td>${fmtDay(h.day)}</td><td>${h.in_time || '—'}</td><td>${h.out_time || '—'}</td></tr>`).join('')
+    || '<tr><td colspan="3">No entries yet.</td></tr>';
+}
+
+function act(btn, msg, fn) {
+  $(btn).onclick = async () => {
+    $(msg).textContent = '';
+    try { await fn(); } catch (e) { $(msg).textContent = e.message; }
+  };
+}
+act('btnLogin', 'loginMsg', async () => {
+  await api('login', {staff_id: +$('who').value, pin: $('pin').value});
+  $('pin').value = ''; await loadMe();
+});
+$('pin').addEventListener('keydown', e => { if (e.key === 'Enter') $('btnLogin').click(); });
+act('btnIn', 'inMsg', async () => { await api('mark', {type:'in', time:$('inTime').value, note:$('inNote').value}); await loadMe(); });
+act('btnOut', 'outMsg', async () => { await api('mark', {type:'out', time:$('outTime').value, note:$('outNote').value}); await loadMe(); });
+act('btnPend', 'pendMsg', async () => { await api('mark', {type:'out', time:$('pendTime').value, day:$('pendTime').dataset.day}); await loadMe(); });
+act('btnPin', 'pinMsg', async () => {
+  await api('change-pin', {old:$('oldPin').value, new:$('newPin').value});
+  $('oldPin').value = $('newPin').value = ''; $('pinMsg').style.color = 'var(--ok)'; $('pinMsg').textContent = 'PIN changed.';
+});
+$('btnLogout').onclick = async () => { await api('logout', {}); loadLogin(); };
+loadMe();
+</script>
+</body>
+</html>
