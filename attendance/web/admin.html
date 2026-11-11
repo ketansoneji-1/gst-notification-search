@@ -86,6 +86,7 @@
       <button class="btn sec" id="dToday">Today</button>
       <span class="muted sp" id="dStamp"></span>
     </div>
+    <div class="card hidden" id="dWarn" style="border-color:#e6b566;background:var(--warnbg)"></div>
     <div class="tiles" id="dTiles"></div>
     <div class="card scroll">
       <table>
@@ -225,6 +226,11 @@
       <p class="muted">The agent starts automatically in each session at sign-in, records activity and the window in front, and opens the attendance page once a day. The first command assumes this attendance server runs on the same RDP server.</p>
     </div>
     <div class="card scroll">
+      <h2>Agent status</h2>
+      <p class="muted">Every Windows user whose session has sent a signal. If a staff member is missing here, the agent is not running in that session: run <code>check-agent.bat</code> from the <code>agent</code> folder while signed in as that user.</p>
+      <table><thead><tr><th>Windows user</th><th>Linked staff member</th><th>Computer</th><th>Last signal</th></tr></thead><tbody id="cAgents"></tbody></table>
+    </div>
+    <div class="card scroll">
       <h2>Audit trail (last 200 actions)</h2>
       <table><thead><tr><th>When</th><th>By</th><th>Action</th></tr></thead><tbody id="cAudit"></tbody></table>
     </div>
@@ -311,6 +317,9 @@ $('dDate').onchange = loadDay;
 async function loadDay() {
   const d = await api('admin/day?date=' + $('dDate').value);
   dayRows = d.rows;
+  const warn = !d.agents_seen ? '<b>No automatic signal has ever been received from any session.</b> The PC columns will stay empty until the agent is installed and running. See Settings &rarr; Install the session agent, then run <code>check-agent.bat</code> in a staff session to find the failing step.'
+    : d.agents_unlinked.length ? `<b>Automatic data is arriving from Windows user(s) not linked to any staff member:</b> ${d.agents_unlinked.map(u => '<code>' + esc(u) + '</code>').join(', ')}. Open the Staff tab and enter the Windows user name against the staff member; the data recorded so far will then appear.` : '';
+  $('dWarn').classList.toggle('hidden', !warn); $('dWarn').innerHTML = warn;
   $('dStamp').textContent = d.day === d.today ? 'Live · refreshed ' + d.now : fmtDay(d.day);
   const c = k => d.rows.filter(k).length;
   const tiles = [[c(r => r.eff_in), 'Present'], [c(r => r.status === 'On time'), 'On time'], [c(r => r.status === 'Late'), 'Late'],
@@ -476,7 +485,10 @@ async function loadSettings() {
   const offs = s.weekly_off.split(',');
   $('cOff').innerHTML = DAYS.map((d, i) => `<label style="display:inline-block;font-weight:400;margin-right:10px"><input type="checkbox" value="${i}" ${offs.includes(String(i)) ? 'checked' : ''}> ${d}</label>`).join('');
   const local = ['localhost', '127.0.0.1'].includes(location.hostname);
-  $('cCmd').textContent = `install-agent.bat http://localhost:${location.port || 80} ${s.agent_key} all\n\nrem For a separate (non-RDP) PC, logged in as that staff member:\ninstall-agent.bat ${local ? 'http://' + s.lan_ip + ':' + location.port : location.origin} ${s.agent_key}`;
+  $('cCmd').textContent = `install-agent.bat http://127.0.0.1:${location.port || 80} ${s.agent_key} all\n\nrem For a separate (non-RDP) PC, logged in as that staff member:\ninstall-agent.bat ${local ? 'http://' + s.lan_ip + ':' + location.port : location.origin} ${s.agent_key}`;
+  const ag = await api('admin/staff');
+  $('cAgents').innerHTML = ag.agents.map(x => `<tr><td><code>${esc(x.win_user)}</code></td><td>${x.staff ? esc(x.staff) : '<span class="flag">Not linked – enter this user name on the Staff tab</span>'}</td><td>${esc(x.host)}</td><td>${esc(x.last_seen)}</td></tr>`).join('')
+    || '<tr><td colspan="4"><span class="flag">No signal received from any session yet.</span></td></tr>';
   const a = await api('admin/audit');
   $('cAudit').innerHTML = a.map(x => `<tr><td>${esc(x.ts)}</td><td>${esc(x.who)}</td><td class="wrap">${esc(x.action)}</td></tr>`).join('') || '<tr><td colspan="3">Nothing yet.</td></tr>';
 }

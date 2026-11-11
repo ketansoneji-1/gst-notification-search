@@ -11,18 +11,42 @@
 #                  type of work from the window title.
 #   - Opens the attendance page once a day so the staff member can declare the time.
 # It does NOT record keystrokes, screen images, passwords or file contents.
+#
+# Problems are written to  %LOCALAPPDATA%\OfficeAttendance\agent.log  (run check-agent.bat to see them).
 
-$ErrorActionPreference = 'SilentlyContinue'
-$cfg = Get-Content (Join-Path $PSScriptRoot 'config.json') -Raw | ConvertFrom-Json
-if (-not $cfg.server) { exit 1 }
-$server = $cfg.server.TrimEnd('/')
+$ErrorActionPreference = 'Stop'
+
+$logDir = Join-Path $env:LOCALAPPDATA 'OfficeAttendance'
+$logFile = Join-Path $logDir 'agent.log'
+function Write-Log([string]$msg) {
+    try {
+        if (-not (Test-Path $logDir)) { New-Item -ItemType Directory -Path $logDir -Force | Out-Null }
+        if ((Test-Path $logFile) -and ((Get-Item $logFile).Length -gt 200KB)) { Remove-Item $logFile -Force }
+        Add-Content -Path $logFile -Value ("{0}  {1}" -f (Get-Date -Format 'yyyy-MM-dd HH:mm:ss'), $msg) -Encoding UTF8
+    } catch { }
+}
+
+try {
+    $cfg = Get-Content (Join-Path $PSScriptRoot 'config.json') -Raw | ConvertFrom-Json
+    $server = ([string]$cfg.server).TrimEnd('/')
+    if (-not $server) { throw 'server address missing in config.json' }
+} catch {
+    Write-Log "STOPPED: cannot read config.json - $($_.Exception.Message)"
+    exit 1
+}
 
 # Only one copy per Windows session
 $created = $false
-$mutex = New-Object System.Threading.Mutex($true, 'Local\OfficeAttendanceAgent', [ref]$created)
+try { $mutex = New-Object System.Threading.Mutex($true, 'Local\OfficeAttendanceAgent', [ref]$created) } catch { $created = $true }
 if (-not $created) { exit 0 }
 
-Add-Type -TypeDefinition @"
+Write-Log "Started. user=$env:USERNAME computer=$env:COMPUTERNAME session=$env:SESSIONNAME server=$server PS=$($PSVersionTable.PSVersion) mode=$($ExecutionContext.SessionState.LanguageMode)"
+
+# Idle time and foreground window. If this cannot be loaded (e.g. PowerShell is restricted by
+# policy) the agent still records attendance, but not idle time or window titles.
+$native = $true
+try {
+    Add-Type -TypeDefinition @'
 using System;
 using System.Text;
 using System.Diagnostics;
@@ -39,26 +63,32 @@ public static class OfficeAttendanceNative {
     [DllImport("user32.dll")]
     static extern uint GetWindowThreadProcessId(IntPtr hWnd, out uint pid);
 
-    public static uint IdleSeconds() {
+    public static int IdleSeconds() {
         LASTINPUTINFO l = new LASTINPUTINFO();
         l.cbSize = (uint)Marshal.SizeOf(l);
         if (!GetLastInputInfo(ref l)) return 0;
-        return ((uint)Environment.TickCount - l.dwTime) / 1000;
+        return (int)(unchecked((uint)Environment.TickCount - l.dwTime) / 1000);
     }
-    // Returns { program name, window title } of the window in front, or null.
-    public static string[] Foreground() {
-        IntPtr h = GetForegroundWindow();
-        if (h == IntPtr.Zero) return null;
-        StringBuilder sb = new StringBuilder(512);
-        GetWindowText(h, sb, sb.Capacity);
-        uint pid;
-        GetWindowThreadProcessId(h, out pid);
-        string app = "";
-        try { app = Process.GetProcessById((int)pid).ProcessName; } catch { }
-        return new string[] { app, sb.ToString() };
+    public static string ForegroundApp() {
+        try {
+            uint pid;
+            GetWindowThreadProcessId(GetForegroundWindow(), out pid);
+            return Process.GetProcessById((int)pid).ProcessName;
+        } catch { return ""; }
+    }
+    public static string ForegroundTitle() {
+        try {
+            StringBuilder sb = new StringBuilder(512);
+            GetWindowText(GetForegroundWindow(), sb, sb.Capacity);
+            return sb.ToString();
+        } catch { return ""; }
     }
 }
-"@
+'@
+} catch {
+    $native = $false
+    Write-Log "WARNING: activity detection unavailable, attendance only - $($_.Exception.Message)"
+}
 
 $tick        = 10     # seconds between samples
 $beatEvery   = 300    # seconds between signals while the session is in use
@@ -66,50 +96,63 @@ $idleLimit   = 120    # no input for this long = not in use
 $lastSent    = [datetime]::MinValue
 $pageOpenDay = ''
 $first       = $true
-$usage       = @{}    # "program|title" -> seconds, since the last successful signal
+$sentOk      = $false
+$lastError   = ''
+$usage       = @{}    # "program<TAB>title" -> seconds, since the last successful signal
 
 function Send-Beat {
-    try {
-        $samples = @()
-        foreach ($k in $usage.Keys) {
-            $parts = $k.Split([char]1, 2)
-            $samples += @{ app = $parts[0]; title = $parts[1]; seconds = $usage[$k] }
-        }
-        $body = @{ key = $cfg.key; user = $env:USERNAME; host = $env:COMPUTERNAME; samples = @($samples) } |
-            ConvertTo-Json -Depth 4 -Compress
-        $bytes = [System.Text.Encoding]::UTF8.GetBytes($body)
-        Invoke-RestMethod -Uri "$server/api/agent" -Method Post -ContentType 'application/json; charset=utf-8' `
-            -Body $bytes -TimeoutSec 10 | Out-Null
-        return $true
-    } catch { return $false }
+    $samples = New-Object System.Collections.ArrayList
+    foreach ($k in @($usage.Keys)) {
+        $i = $k.IndexOf("`t")
+        [void]$samples.Add(@{ app = $k.Substring(0, $i); title = $k.Substring($i + 1); seconds = [int]$usage[$k] })
+    }
+    $payload = @{ key = [string]$cfg.key; user = $env:USERNAME; host = $env:COMPUTERNAME; samples = $samples.ToArray() }
+    $bytes = [System.Text.Encoding]::UTF8.GetBytes((ConvertTo-Json $payload -Depth 4 -Compress))
+    Invoke-RestMethod -Uri "$server/api/agent" -Method Post -ContentType 'application/json; charset=utf-8' `
+        -Body $bytes -TimeoutSec 15 | Out-Null
 }
 
 while ($true) {
-    $now = Get-Date
-    $inUse = ([OfficeAttendanceNative]::IdleSeconds() -lt $idleLimit)
-
-    if ($inUse) {
-        $fg = [OfficeAttendanceNative]::Foreground()
-        if ($fg -and ($fg[0] -or $fg[1])) {
-            $title = $fg[1]; if ($title.Length -gt 200) { $title = $title.Substring(0, 200) }
-            $key = $fg[0] + [char]1 + $title
-            if ($usage.ContainsKey($key)) { $usage[$key] += $tick }
-            elseif ($usage.Count -lt 400) { $usage[$key] = $tick }
-        }
-    }
-
-    $due = (($now - $lastSent).TotalSeconds -ge $beatEvery) -or ($lastSent.Date -ne $now.Date)
-    if (($inUse -or $first) -and $due) {
-        if (Send-Beat) {
-            $lastSent = $now
-            $first = $false
-            $usage = @{}
-            $today = $now.ToString('yyyy-MM-dd')
-            if ($pageOpenDay -ne $today) {
-                $pageOpenDay = $today
-                Start-Process "$server/?u=$([uri]::EscapeDataString($env:USERNAME))"
+    try {
+        $now = Get-Date
+        $inUse = $true
+        if ($native) {
+            $inUse = ([OfficeAttendanceNative]::IdleSeconds() -lt $idleLimit)
+            if ($inUse) {
+                $app = [OfficeAttendanceNative]::ForegroundApp()
+                $title = [OfficeAttendanceNative]::ForegroundTitle() -replace "[`t`r`n]", ' '
+                if ($title.Length -gt 200) { $title = $title.Substring(0, 200) }
+                if ($app -or $title) {
+                    $key = "$app`t$title"
+                    if ($usage.ContainsKey($key)) { $usage[$key] = $usage[$key] + $tick }
+                    elseif ($usage.Count -lt 400) { $usage[$key] = $tick }
+                }
             }
         }
+
+        $due = (($now - $lastSent).TotalSeconds -ge $beatEvery) -or ($lastSent.Date -ne $now.Date)
+        if (($inUse -or $first) -and $due) {
+            try {
+                Send-Beat
+                $lastSent = $now
+                $first = $false
+                $usage = @{}
+                if (-not $sentOk) { $sentOk = $true; Write-Log 'First signal accepted by the server.' }
+                $lastError = ''
+                $today = $now.ToString('yyyy-MM-dd')
+                if ($pageOpenDay -ne $today) {
+                    $pageOpenDay = $today
+                    try { Start-Process "$server/?u=$([uri]::EscapeDataString($env:USERNAME))" } catch { Write-Log "Could not open the attendance page - $($_.Exception.Message)" }
+                }
+            } catch {
+                $sentOk = $false
+                $m = $_.Exception.Message
+                if ($m -ne $lastError) { $lastError = $m; Write-Log "SIGNAL FAILED ($server/api/agent): $m" }
+            }
+        }
+    } catch {
+        $m = $_.Exception.Message
+        if ($m -ne $lastError) { $lastError = $m; Write-Log "ERROR: $m" }
     }
     Start-Sleep -Seconds $tick
 }

@@ -3,7 +3,7 @@ rem Office Attendance - install the session agent.
 rem
 rem RDP server (everyone works in Remote Desktop sessions on this PC):
 rem   Right-click Command Prompt, "Run as administrator", then ONCE on the server:
-rem       install-agent.bat http://localhost:8080 AGENTKEY all
+rem       install-agent.bat http://127.0.0.1:8080 AGENTKEY all
 rem   The agent then starts in every user's session at sign-in.
 rem
 rem Single PC, current Windows user only (no administrator rights needed):
@@ -13,11 +13,14 @@ rem The exact command, with your server address and key, is shown on the admin S
 
 if "%~2"=="" (
   echo Usage: install-agent.bat SERVER_ADDRESS AGENT_KEY [all]
-  echo Example: install-agent.bat http://localhost:8080 0123456789abcdef01234567 all
+  echo Example: install-agent.bat http://127.0.0.1:8080 0123456789abcdef01234567 all
   pause
   exit /b 1
 )
 
+if /i "%~3"=="all" (
+  net session >nul 2>&1 || (echo For "all" this must be run from a Command Prompt opened with "Run as administrator". & pause & exit /b 1)
+)
 if /i "%~3"=="all" (
   set "DEST=%ProgramData%\OfficeAttendance"
   set "VBS=%ProgramData%\Microsoft\Windows\Start Menu\Programs\StartUp\OfficeAttendance.vbs"
@@ -28,6 +31,8 @@ if /i "%~3"=="all" (
 
 if not exist "%DEST%" mkdir "%DEST%"
 copy /y "%~dp0agent.ps1" "%DEST%\agent.ps1" >nul || (echo Could not copy agent.ps1 - for "all", run as administrator. & pause & exit /b 1)
+copy /y "%~dp0check-agent.ps1" "%DEST%\" >nul
+copy /y "%~dp0check-agent.bat" "%DEST%\" >nul
 > "%DEST%\config.json" echo {"server":"%~1","key":"%~2"}
 
 rem Startup entry: runs the agent hidden at every sign-in.
@@ -45,4 +50,5 @@ if /i "%~3"=="all" (
   echo Agent installed for Windows user: %USERNAME%  on computer: %COMPUTERNAME%
 )
 echo On the admin Staff page, link each Windows user name to the staff member.
+echo To verify in any session, run:  "%DEST%\check-agent.bat"
 pause

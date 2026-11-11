@@ -677,8 +677,10 @@ class Handler(BaseHTTPRequestHandler):
         day = q.get("date") or now().strftime("%Y-%m-%d")
         if not valid_day(day):
             raise ApiError("Bad date")
+        linked = {r["win_user"] for r in con.execute("SELECT win_user FROM staff WHERE win_user<>''")}
+        seen = {r["win_user"] for r in con.execute("SELECT DISTINCT win_user FROM auto_day")}
         return {"day": day, "today": now().strftime("%Y-%m-%d"), "now": now().strftime("%H:%M"),
-                "rows": rows_for(con, [day])}
+                "rows": rows_for(con, [day]), "agents_seen": len(seen), "agents_unlinked": sorted(seen - linked)}
 
     def get_admin_month(self, con, q, b):
         self.need_admin(con)
@@ -719,8 +721,11 @@ class Handler(BaseHTTPRequestHandler):
         mapped = {r["win_user"] for r in rows if r["win_user"]}
         seen = con.execute("SELECT win_user, MAX(host) host, MAX(last_seen) last_seen FROM auto_day "
                            "GROUP BY win_user ORDER BY last_seen DESC").fetchall()
+        names = {r["win_user"]: r["name"] for r in rows if r["win_user"]}
         return {"staff": [dict(r) for r in rows],
-                "unmapped": [dict(r) for r in seen if r["win_user"] not in mapped]}
+                "unmapped": [dict(r) for r in seen if r["win_user"] not in mapped],
+                "agents": [dict(r, staff=names.get(r["win_user"], "")) for r in seen],
+                "now": now().strftime("%Y-%m-%d %H:%M:%S")}
 
     def post_admin_staff(self, con, q, b):
         self.need_admin(con)

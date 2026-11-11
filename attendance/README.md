@@ -53,7 +53,7 @@ To start the server automatically, place a shortcut to `start-server.bat` in the
 1. Run the attendance server (step 1) on the RDP server itself.
 2. Open Command Prompt **as administrator** in the `agent` folder and run once (the exact command is on the admin **Settings** page):
    ```
-   install-agent.bat http://localhost:8080 <agent-key> all
+   install-agent.bat http://127.0.0.1:8080 <agent-key> all
    ```
 3. Staff who are signed in must sign out and sign in again once. From then on the agent starts in every session at sign-in.
 4. On the admin **Staff** page, link each Windows user name of the server to the staff member (users already sending data are listed there for one-click linking).
@@ -66,6 +66,20 @@ For a staff member working on a separate PC instead, copy the `agent` folder the
 
 - **Staff:** switch on the PC → attendance page opens → sign in with PIN → enter arrival time. Before leaving, enter leaving time (if forgotten, the page asks for it next morning).
 - **Admin:** open `/admin` → **Daily** for today's live position, **Monthly** for the ranking and the CSV, **Work log** for client-wise time. In the first weeks, review "client not identified" windows and add keywords.
+
+## Troubleshooting: PC columns are empty / no automatic records
+
+The admin **Daily** tab shows a yellow notice, and **Settings → Agent status** lists every Windows user whose session has sent a signal.
+
+1. **Nobody listed under Agent status** – the agent is not installed or not running. On the RDP server, open Command Prompt with *Run as administrator* and run the install command from the Settings page **ending in `all`** (without `all`, it installs only for the user who ran it). Then each user must sign out and sign in once.
+2. **Users listed but "Not linked"** – open the **Staff** tab and enter that Windows user name against the staff member. Data already received appears immediately.
+3. **Still nothing for a user** – sign in as that user (in their RDP session) and double-click `C:\ProgramData\OfficeAttendance\check-agent.bat` (or the copy in the `agent` folder). It prints OK / FAIL for each step:
+   - *Agent files installed / Startup entry present* FAIL → run the installer again as administrator with `all`.
+   - *Agent running in this session* FAIL while the test signal is OK → hidden PowerShell started from the Startup folder is being blocked, usually by antivirus or group policy. Allow `C:\ProgramData\OfficeAttendance\agent.ps1` in the antivirus, then sign out and in.
+   - *Server reachable* FAIL → `start-server.bat` is not running, or the address is wrong. On the server itself use `http://127.0.0.1:8080` rather than `localhost`.
+   - *Test signal accepted* FAIL with "Bad agent key" → reinstall with the key shown on the Settings page.
+   - *Activity detection* FAIL → PowerShell is restricted on this machine; attendance is still recorded but not idle time or window titles.
+4. The agent writes its own problems to `%LOCALAPPDATA%\OfficeAttendance\agent.log` for each user; `check-agent.bat` shows the last lines.
 
 ## Backup
 
@@ -96,3 +110,4 @@ The agent records the time of activity and the program name and window title in 
 | `web/admin.html` | Admin dashboard (`/admin`) |
 | `agent/agent.ps1` | Session agent (runs hidden at sign-in) |
 | `agent/install-agent.bat`, `agent/uninstall-agent.bat` | Agent installer / remover |
+| `agent/check-agent.bat`, `agent/check-agent.ps1` | Diagnostic: shows which step fails in a session |
